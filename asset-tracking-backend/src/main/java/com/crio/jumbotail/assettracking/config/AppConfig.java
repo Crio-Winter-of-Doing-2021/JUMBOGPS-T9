@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.config;
 
+import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
@@ -12,9 +13,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,15 +29,39 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Getter
 @Setter
 @Configuration
+@EnableTransactionManagement
+@EnableJpaRepositories
+@EnableJpaAuditing
 @Log4j2
 public class AppConfig {
+
+//	@Bean
+//	public ObjectMapper objectMapper() {
+//		MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+//		ObjectMapper objectMapper = jsonConverter.getObjectMapper();
+//		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+//		objectMapper.registerModule(new Hibernate5Module());
+//		objectMapper.registerModule(new JavaTimeModule());
+//		objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+//		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//
+//
+//		return objectMapper;
+//	}
+
+	@Bean
+	public Hibernate5Module hibernate5Module() {
+		return new Hibernate5Module();
+	}
 
 	/**
 	 * @return instance of model mapper
 	 */
 	@Bean
 	public ModelMapper modelMapper() {
-		return new ModelMapper();
+		final ModelMapper modelMapper = new ModelMapper();
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		return modelMapper;
 	}
 
 	/**
@@ -80,23 +109,22 @@ public class AppConfig {
 
 		@Override
 		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-			log.debug("CORS REQUEST came here outer");
+			LOG.debug("CORS REQUEST came here outer");
 			response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, PUT, DELETE, OPTIONS");
 			response.setHeader("Access-Control-Allow-Origin", "*");
 			response.setHeader("Access-Control-Max-Age", "3600");
 			response.setHeader("Access-Control-Allow-Headers", "*");
 			response.addHeader("Access-Control-Expose-Headers", "*");
 			if ("OPTIONS".equals(request.getMethod())) {
-				log.debug("CORS REQUEST came here");
+				LOG.debug("CORS REQUEST came here");
 				response.setStatus(HttpServletResponse.SC_OK);
 				response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, PUT, DELETE, OPTIONS");
-				log.debug(response);
+				LOG.debug(response);
 			} else {
 				filterChain.doFilter(request, response);
 			}
 		}
 	}
-
 
 
 }
