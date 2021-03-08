@@ -5,13 +5,14 @@ import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +53,9 @@ public class DataCreationController {
 
 	@GetMapping("/create")
 	public void createData() throws IOException {
-		final File file = resourceFile.getFile();
-		String data = FileUtils.readFileToString(file, "UTF-8");
+		final InputStream inputStream = resourceFile.getInputStream();
+		String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+
 		final String[] locations = data.split("\n");
 
 		for (String location : locations) {
