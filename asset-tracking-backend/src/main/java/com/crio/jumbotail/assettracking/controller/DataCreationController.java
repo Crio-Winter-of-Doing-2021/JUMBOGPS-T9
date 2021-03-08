@@ -5,18 +5,18 @@ import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.List;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -29,9 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DataCreationController {
 
+	@Value("classpath:locations.csv")
+	Resource resourceFile;
+
 	@Autowired
 	AssetCreationService assetCreationService;
-
 
 	/**
 	 * @param assetCreationRequest request to create a new asset with its initial location
@@ -50,8 +52,9 @@ public class DataCreationController {
 
 	@GetMapping("/create")
 	public void createData() throws IOException {
-		final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
-		final List<String> locations = Files.readAllLines(path);
+		final File file = resourceFile.getFile();
+		String data = FileUtils.readFileToString(file, "UTF-8");
+		final String[] locations = data.split("\n");
 
 		for (String location : locations) {
 			final String[] s = location.split("\t");
