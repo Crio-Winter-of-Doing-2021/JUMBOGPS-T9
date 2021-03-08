@@ -54,7 +54,6 @@ public class AppConfig {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper;
 	}
-	/*https://www.dariawan.com/tutorials/spring/documenting-spring-boot-rest-api-springdoc-openapi-3/*/
 
 	/**
 	 * @return OPEN API documentation
