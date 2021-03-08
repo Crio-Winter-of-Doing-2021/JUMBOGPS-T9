@@ -21,21 +21,23 @@ import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -47,15 +49,14 @@ import org.springframework.test.web.servlet.MvcResult;
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AssetTrackerDataControllerTest {
 
+	@Value("classpath:locations.csv")
+	Resource resourceFile;
 	@Autowired
 	private MockMvc mockMvc;
-
 	@Autowired
 	private AssetRepository assetRepository;
-
 	@Autowired
 	private LocationDataRepository locationDataRepository;
-
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -169,8 +170,13 @@ class AssetTrackerDataControllerTest {
 			if (number > 200) {
 				fail();
 			}
-			final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
-			List<String> locations = Files.readAllLines(path).subList(0, number);
+//			final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
+
+			final File file = resourceFile.getFile();
+			String data = FileUtils.readFileToString(file, "UTF-8");
+			List<String> locations = Arrays.asList(data.split("\n"));
+
+//			List<String> locations = Files.readAllLines(path).subList(0, number);
 
 			assetCreatedResponses = createAssetsForLocations(locations, assetType);
 		} catch (Exception e) {
@@ -187,9 +193,14 @@ class AssetTrackerDataControllerTest {
 			if (numberOfAssetWithinTimeframe + numberOfOutliers > 200) {
 				fail();
 			}
-			final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
-			List<String> locationsForAssetsInTimeframe = Files.readAllLines(path).subList(0, numberOfAssetWithinTimeframe);
-			List<String> locationsForOutliersInTimeframe = Files.readAllLines(path).subList(numberOfAssetWithinTimeframe, numberOfAssetWithinTimeframe + numberOfOutliers);
+
+			final File file = resourceFile.getFile();
+			String data = FileUtils.readFileToString(file, "UTF-8");
+			List<String> locations = Arrays.asList(data.split("\n"));
+
+//			final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
+			List<String> locationsForAssetsInTimeframe = locations.subList(0, numberOfAssetWithinTimeframe);
+			List<String> locationsForOutliersInTimeframe = locations.subList(numberOfAssetWithinTimeframe, numberOfAssetWithinTimeframe + numberOfOutliers);
 
 			final List<AssetCreatedResponse> inTimeFrame =
 					createAssetsForLocations(locationsForAssetsInTimeframe, (60 * 30)/* 30 mins*/, (60 * 60 * 20) /* 20 hrs*/);
