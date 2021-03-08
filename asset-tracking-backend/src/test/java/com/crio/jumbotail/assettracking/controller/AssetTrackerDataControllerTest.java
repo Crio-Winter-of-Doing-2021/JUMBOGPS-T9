@@ -44,8 +44,10 @@ import org.springframework.test.web.servlet.MvcResult;
 
 @AutoConfigureMockMvc
 @SpringBootTest(properties = {
-		"spring.datasource.url=jdbc:h2:mem:asset_tracker_test_db"
-})
+		"spring.datasource.url=jdbc:h2:mem:asset_tracker_test_db",
+		"spring.jpa.properties.hibernate.format_sql=true",
+		"spring.jpa.show-sql=true"
+		})
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AssetTrackerDataControllerTest {
 
@@ -174,9 +176,7 @@ class AssetTrackerDataControllerTest {
 
 			final File file = resourceFile.getFile();
 			String data = FileUtils.readFileToString(file, "UTF-8");
-			List<String> locations = Arrays.asList(data.split("\n"));
-
-//			List<String> locations = Files.readAllLines(path).subList(0, number);
+			List<String> locations = Arrays.asList(data.split("\n")).subList(0, number);
 
 			assetCreatedResponses = createAssetsForLocations(locations, assetType);
 		} catch (Exception e) {
