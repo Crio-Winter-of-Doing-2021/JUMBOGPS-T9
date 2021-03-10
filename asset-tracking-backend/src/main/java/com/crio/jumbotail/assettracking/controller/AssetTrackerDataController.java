@@ -45,7 +45,7 @@ public class AssetTrackerDataController {
 
 		final List<LocationData> assetHistory = retrievalService.getHistoryForAsset(assetId);
 
-		LOG.info("asset found for id [{}]", assetHistory.size());
+		LOG.info("location history size [{}]", assetHistory.size());
 
 		return assetHistory;
 	}

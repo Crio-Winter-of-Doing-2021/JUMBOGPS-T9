@@ -1,9 +1,19 @@
 package com.crio.jumbotail.assettracking.testutils;
 
+import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+
 
 public class TestUtils {
+
+
+	public static long asEpoch(LocalDateTime ldt) {
+		return ldt.toEpochSecond(ZoneOffset.UTC);
+	}
+
 	public static String asJsonString(final Object obj) {
 		try {
 			return new ObjectMapper().writeValueAsString(obj);
@@ -22,8 +32,11 @@ public class TestUtils {
 		LocationDto locationDto = new LocationDto(newLatitude, newLongitude);
 	}
 
-	void some(double my_lat, double my_long) {
-		double meters = 50;
+	public LocationDto addMetersToCurrent(Location location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
+	public LocationDto addMetersToCurrent(double my_lat, double my_long, double meters) {
 
 		// number of km per degree = ~111km (111.32 in google maps, but range varies
 		// between 110.567km at the equator and 111.699km at the poles)
@@ -35,5 +48,8 @@ public class TestUtils {
 
 		// pi / 180 = 0.018
 		double new_long = my_long + coef / Math.cos(my_lat * 0.018);
+
+		return new LocationDto(new_lat, new_long);
 	}
+
 }

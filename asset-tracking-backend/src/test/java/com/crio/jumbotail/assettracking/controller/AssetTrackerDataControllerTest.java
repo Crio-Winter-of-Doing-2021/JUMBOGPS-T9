@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.controller;
 
+import static com.crio.jumbotail.assettracking.testutils.TestUtils.asEpoch;
 import static com.crio.jumbotail.assettracking.testutils.TestUtils.asJsonString;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -8,18 +9,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
+import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
+import com.crio.jumbotail.assettracking.testutils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -41,13 +46,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc
 @SpringBootTest(properties = {
 		"spring.datasource.url=jdbc:h2:mem:asset_tracker_test_db",
 		"spring.jpa.properties.hibernate.format_sql=true",
 		"spring.jpa.show-sql=true"
-		})
+})
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AssetTrackerDataControllerTest {
 
@@ -61,6 +67,8 @@ class AssetTrackerDataControllerTest {
 	private LocationDataRepository locationDataRepository;
 	@Autowired
 	private ObjectMapper objectMapper;
+
+	TestUtils utils = new TestUtils();
 
 	//	@Transactional
 	@Test
@@ -151,6 +159,63 @@ class AssetTrackerDataControllerTest {
 				.andDo(print());
 	}
 
+	@Test
+	void creat_history_within_24h_time_boundary_is_returned_on_query() throws Exception {
+
+		final List<AssetCreatedResponse> assets = createAssets(1);
+		final AssetCreatedResponse assetCreatedResponse = assets.get(0);
+
+		final MvcResult result = getAssetHistory(assetCreatedResponse.getId())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(1)))
+				.andReturn();
+
+		final LocationData[] locationDataArr = objectMapper.readValue(result.getResponse().getContentAsString(), LocationData[].class);
+		final LocationDto locationDtoUpdated = utils.addMetersToCurrent(locationDataArr[0].getLocation(), 5000);
+
+		LocationUpdateRequest minus10000seconds = new LocationUpdateRequest(
+				assetCreatedResponse.getId(),
+				new LocationDataDto(locationDtoUpdated,
+						asEpoch(LocalDateTime.now().minus(10000, ChronoUnit.SECONDS))
+//						Instant.now().minus(1, ChronoUnit.MINUTES).getEpochSecond()
+				));
+
+
+		updateAssetHistory(minus10000seconds, assetCreatedResponse.getId()).andExpect(status().isOk());
+
+		LocationUpdateRequest plus1minute = new LocationUpdateRequest();
+		plus1minute.setId(assetCreatedResponse.getId());
+		plus1minute.setLocation(new LocationDataDto(locationDtoUpdated,
+				asEpoch(LocalDateTime.now().plus(1, ChronoUnit.MINUTES))
+//				Instant.now().plus(1, ChronoUnit.MINUTES).atZone(ZoneOffset.UTC).toEpochSecond()
+		));
+
+		updateAssetHistory(plus1minute, assetCreatedResponse.getId()).andExpect(status().isOk());
+
+		getAssetHistory(assetCreatedResponse.getId())
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(2)))
+				.andDo(print())
+				.andReturn();
+
+	}
+
+	ResultActions updateAssetHistory(LocationUpdateRequest locationUpdateRequest, long assetId) throws Exception {
+		return mockMvc.perform(
+				patch("/assets/" + assetId)
+						.content(asJsonString(locationUpdateRequest))
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+
+		);
+
+	}
+
+	ResultActions getAssetHistory(long assetId) throws Exception {
+		return mockMvc.perform(get("/assets/" + assetId));
+	}
+
+
 	@AfterEach
 	void tearDown() {
 		locationDataRepository.deleteAll();
@@ -162,17 +227,16 @@ class AssetTrackerDataControllerTest {
 		assertEquals(0, assetRepository.findAll().size());
 	}
 
-	List<AssetCreatedResponse> createAssets(int number) {
+	public List<AssetCreatedResponse> createAssets(int number) {
 		return createAssets(number, null);
 	}
 
-	List<AssetCreatedResponse> createAssets(int number, String assetType) {
+	public List<AssetCreatedResponse> createAssets(int number, String assetType) {
 		List<AssetCreatedResponse> assetCreatedResponses = new ArrayList<>();
 		try {
 			if (number > 200) {
 				fail();
 			}
-//			final Path path = Paths.get("C:\\Projects\\Personal\\JUMBOGPS-T9\\asset-tracking-backend\\src\\main\\resources\\locations.csv");
 
 			final File file = resourceFile.getFile();
 			String data = FileUtils.readFileToString(file, "UTF-8");
@@ -186,7 +250,7 @@ class AssetTrackerDataControllerTest {
 		return assetCreatedResponses;
 	}
 
-	List<AssetCreatedResponse> createAssetsWithinTimeframeAndOutliers(int numberOfAssetWithinTimeframe, int numberOfOutliers) {
+	public List<AssetCreatedResponse> createAssetsWithinTimeframeAndOutliers(int numberOfAssetWithinTimeframe, int numberOfOutliers) {
 
 		List<AssetCreatedResponse> assetCreatedResponses = new ArrayList<>();
 		try {
@@ -218,19 +282,19 @@ class AssetTrackerDataControllerTest {
 		return assetCreatedResponses;
 	}
 
-	private List<AssetCreatedResponse> createAssetsForLocations(List<String> locations) throws Exception {
+	public List<AssetCreatedResponse> createAssetsForLocations(List<String> locations) throws Exception {
 		return createAssetsForLocations(locations, null);
 	}
 
-	private List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, String assetType) throws Exception {
+	public List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, String assetType) throws Exception {
 		return createAssetsForLocations(locations, 0, 0, assetType);
 	}
 
-	private List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, long minSecondsToAdd, long maxSecondsToAdd) throws Exception {
+	public List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, long minSecondsToAdd, long maxSecondsToAdd) throws Exception {
 		return createAssetsForLocations(locations, minSecondsToAdd, maxSecondsToAdd, null);
 	}
 
-	private List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, long minSecondsToAdd, long maxSecondsToAdd, String assetType) throws Exception {
+	public List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, long minSecondsToAdd, long maxSecondsToAdd, String assetType) throws Exception {
 
 		List<AssetCreatedResponse> assetCreatedResponses = new ArrayList<>();
 
@@ -238,6 +302,7 @@ class AssetTrackerDataControllerTest {
 			final String[] s = location.split("\t");
 			assert (s.length == 2);
 			LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
+
 
 			final long epochSecondTimestamp = LocalDateTime.now()
 					.plus(RandomUtils.nextLong(minSecondsToAdd, maxSecondsToAdd),
@@ -270,5 +335,6 @@ class AssetTrackerDataControllerTest {
 
 		return assetCreatedResponses;
 	}
+
 
 }

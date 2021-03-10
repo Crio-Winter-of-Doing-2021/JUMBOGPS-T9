@@ -13,8 +13,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LocationDataRepository extends JpaRepository<LocationData, Long> {
 
-//	List<LocationData> findAllByAsset_IdAndDeviceTimestampBetween(Long assetId, long startTime, long endTime);
 	List<LocationData> findAllByAsset_IdAndTimestampBetween(Long assetId, LocalDateTime startTime, LocalDateTime endTime);
+
+
+
+	//	@Query(value = "select location from LocationData location where location.asset.id = ?1 AND current_timestamp > (Select loc.timestamp from LocationData loc where loc.asset.id = ?1)")
+//	List<LocationData> find24HourData(Long assetId);
+
+	@Query(value = "select max (location.timestamp) from LocationData location where location.asset.id = ?1")
+	LocalDateTime findMax(Long assetId);
+
+	@Query(value = "select location from LocationData location where location.asset.id = ?1 "
+//	               + "AND max (timestamp)")
+	               + "AND ?2 > (select max (location.timestamp) from LocationData location where location.asset.id = ?1)")
+	LocalDateTime find24Hr(Long assetId, LocalDateTime localDateTime);
 
 
 	@Query(value = "SELECT location from LocationData location where location.asset.id = ?1 ORDER BY location.timestamp DESC")
@@ -25,7 +37,7 @@ public interface LocationDataRepository extends JpaRepository<LocationData, Long
 
 	default Page<LocationData> findLastLocationsOfAnAsset(Long assetId) {
 		Pageable singleRecord = PageRequest.of(0, 1);
-		return findByAsset_IdOrderByTimestampDesc(assetId,singleRecord);
+		return findByAsset_IdOrderByTimestampDesc(assetId, singleRecord);
 	}
 
 }
