@@ -44,15 +44,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc
-@SpringBootTest(properties = {
+@SpringBootTest(/*properties = {
 		"spring.datasource.url=jdbc:h2:mem:asset_tracker_test_db",
 		"spring.jpa.properties.hibernate.format_sql=true",
 		"spring.jpa.show-sql=true"
+}*/)
+@TestPropertySource(locations = "/application-spatial.properties", properties = {
+		"spring.datasource.url=jdbc:postgresql://localhost:5432/postgres_test"
 })
 //@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AssetTrackerDataControllerTest {

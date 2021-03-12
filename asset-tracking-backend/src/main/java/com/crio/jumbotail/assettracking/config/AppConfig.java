@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.config;
 
+import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -43,6 +44,11 @@ public class AppConfig {
 	@Bean
 	public Hibernate5Module hibernate5Module() {
 		return new Hibernate5Module();
+	}
+
+	@Bean
+	public JtsModule jtsModule() {
+		return new JtsModule();
 	}
 
 	/**

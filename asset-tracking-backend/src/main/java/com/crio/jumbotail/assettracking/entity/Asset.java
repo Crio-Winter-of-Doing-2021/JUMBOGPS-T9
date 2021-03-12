@@ -1,5 +1,9 @@
 package com.crio.jumbotail.assettracking.entity;
 
+import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.pointFromLocation;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
@@ -12,17 +16,23 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.locationtech.jts.geom.Point;
 
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Asset implements Serializable {
 
 	@Id
@@ -35,9 +45,23 @@ public class Asset implements Serializable {
 
 	private String assetType;
 
+	private LocalDateTime lastReportedTimestamp;
+
 	private Location lastReportedLocation;
 
-	private LocalDateTime lastReportedTimestamp;
+	@JsonIgnore
+	@Getter
+	private Point lastReportedCoordinates;
+
+	@PrePersist
+	@PreUpdate
+	public void updateCoordinate() {
+		if (this.getLastReportedLocation().getLatitude() == null || this.getLastReportedLocation().getLongitude() == null) {
+			this.lastReportedCoordinates = null;
+		} else {
+			this.lastReportedCoordinates = pointFromLocation(this.lastReportedLocation);
+		}
+	}
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@JsonManagedReference("asset-data")

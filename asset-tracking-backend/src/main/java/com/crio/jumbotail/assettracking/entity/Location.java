@@ -17,13 +17,14 @@ import lombok.NoArgsConstructor;
 public class Location implements Serializable {
 
 	@NotNull
+	@Min(-180)
+	@Max(180)
+	private Double longitude;
+
+	@NotNull
 	@Min(-90)
 	@Max(90)
 	private Double latitude;
 
-	@NotNull
-	@Min(-180)
-	@Max(180)
-	private Double longitude;
 
 }

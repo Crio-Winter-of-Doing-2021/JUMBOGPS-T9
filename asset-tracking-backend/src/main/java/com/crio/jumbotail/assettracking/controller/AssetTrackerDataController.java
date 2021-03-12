@@ -1,10 +1,14 @@
 package com.crio.jumbotail.assettracking.controller;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
+import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
+import com.crio.jumbotail.assettracking.spatial.SpatialUtils;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,5 +54,16 @@ public class AssetTrackerDataController {
 		return assetHistory;
 	}
 
+	@GetMapping(value = "assets/centroid")
+	public Location getCentroid() {
+		final List<Asset> assets = retrievalService.getAssets(null, 100);
+		final List<Point> points = assets.stream().map(Asset::getLastReportedCoordinates).collect(Collectors.toList());
+
+		final Location centroid = SpatialUtils.getCentroid(points);
+
+		LOG.info("centroid [{}]", centroid);
+
+		return centroid;
+	}
 
 }

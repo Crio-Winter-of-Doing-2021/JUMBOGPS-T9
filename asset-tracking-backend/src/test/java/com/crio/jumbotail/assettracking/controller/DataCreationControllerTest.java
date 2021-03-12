@@ -19,7 +19,7 @@ import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
-import com.crio.jumbotail.assettracking.service.AssetCreationService;
+import com.crio.jumbotail.assettracking.service.AssetCreationServiceImpl;
 import com.crio.jumbotail.assettracking.testutils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -60,7 +60,7 @@ class DataCreationControllerTest {
 	AssetRepository assetRepository;
 
 	@Autowired
-	AssetCreationService assetCreationService;
+	AssetCreationServiceImpl assetCreationService;
 
 	@Autowired
 	LocationDataRepository locationDataRepository;
