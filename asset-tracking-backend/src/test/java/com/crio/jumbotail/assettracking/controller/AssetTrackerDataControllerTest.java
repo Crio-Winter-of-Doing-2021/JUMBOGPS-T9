@@ -2,8 +2,10 @@ package com.crio.jumbotail.assettracking.controller;
 
 import static com.crio.jumbotail.assettracking.testutils.TestUtils.asEpoch;
 import static com.crio.jumbotail.assettracking.testutils.TestUtils.asJsonString;
+import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -27,14 +29,15 @@ import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.testutils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -208,6 +211,66 @@ class AssetTrackerDataControllerTest {
 
 	}
 
+	@Test
+	void create_asset_at_start_of_day_update_every_30_minutes_view_history() throws Exception {
+
+		LocationDto locationDto = new LocationDto(78.01154444	,27.16166111);
+
+		long epochSecondTimestamp =
+				LocalDateTime.of(LocalDate.now(), LocalTime.MIN).toEpochSecond(ZoneOffset.UTC);
+
+		LocationDataDto locationDataDto = new LocationDataDto(
+				locationDto,
+				epochSecondTimestamp);
+
+		AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
+				randomAlphabetic(10), randomAlphabetic(40),
+				locationDataDto, "TRUCK" );
+
+		final MvcResult mvcResult = mockMvc.perform(
+				post("/assets")
+						.content(asJsonString(assetCreationRequest))
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+
+		).andReturn();
+
+		final String responseStr = mvcResult.getResponse().getContentAsString();
+
+		final Long idOfAsset = objectMapper.readValue(responseStr, AssetCreatedResponse.class).getId();
+
+		// wrong condition
+		// calculate what will be history from current
+
+		for (int i = 0; i < 24 * 2; i++) {
+			epochSecondTimestamp = epochSecondTimestamp + 1800; // 30 minutes
+			locationDto = utils.addMetersToCurrent(locationDto, 5000); // add 5000 meters to last known location
+
+			LocationUpdateRequest updateRequest = new LocationUpdateRequest();
+			updateRequest.setId(idOfAsset);
+			updateRequest.setLocation(new LocationDataDto(locationDto, epochSecondTimestamp));
+
+			updateAssetHistory(updateRequest, idOfAsset).andExpect(status().isOk());
+		}
+
+		final MvcResult result = getAssetHistory(idOfAsset)
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(lessThanOrEqualTo(49))))
+				.andReturn();
+
+		final String contentAsString = result.getResponse().getContentAsString();
+		final List list = objectMapper.readValue(contentAsString, List.class);
+		System.out.println("list size " + list.size());
+		System.out.println(list);
+		System.out.println("list size " + list.size());
+
+	}
+
+
+
+
+
+
 	ResultActions updateAssetHistory(LocationUpdateRequest locationUpdateRequest, long assetId) throws Exception {
 		return mockMvc.perform(
 				patch("/assets/" + assetId)
@@ -319,8 +382,8 @@ class AssetTrackerDataControllerTest {
 			LocationDataDto locationDataDto = new LocationDataDto(locationDto, epochSecondTimestamp);
 
 			AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
-					RandomStringUtils.randomAlphabetic(10),
-					RandomStringUtils.randomAlphabetic(40),
+					randomAlphabetic(10),
+					randomAlphabetic(40),
 					locationDataDto,
 					assetType != null ?
 							assetType :
