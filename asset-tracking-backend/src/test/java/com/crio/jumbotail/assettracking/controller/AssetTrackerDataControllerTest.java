@@ -44,16 +44,12 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@TestPropertySource(properties = {
-		"spring.datasource.url=jdbc:postgresql://localhost:5432/postgres_test"
-})
 class AssetTrackerDataControllerTest {
 
 	@Value("classpath:locations.csv")

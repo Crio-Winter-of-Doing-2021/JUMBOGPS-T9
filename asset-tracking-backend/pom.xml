@@ -95,6 +95,27 @@
             <version>1.0-2.7</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.opengeo</groupId>-->
+<!--            <artifactId>geodb</artifactId>-->
+<!--            <version>0.9</version>-->
+<!--            <scope>runtime</scope>-->
+<!--            <exclusions>-->
+<!--                &lt;!&ndash; Use the newer version coming from Hibernate spatial &ndash;&gt;-->
+<!--                <exclusion>-->
+<!--                    <groupId>org.locationtech.jts</groupId>-->
+<!--                    <artifactId>jts-core</artifactId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
+        <dependency>
+            <groupId>org.orbisgis</groupId>
+            <artifactId>h2gis</artifactId>
+            <version>1.4.0</version>
+<!--            <type>bundle</type>-->
+        </dependency>
+
     </dependencies>
 
     <repositories>
@@ -106,7 +127,11 @@
             <id>Hibernate Spatial repo</id>
             <url>http://www.hibernatespatial.org/repository</url>
         </repository>
-
+        <repository>
+            <id>orbisgis-nexus-snapshot</id>
+            <name>OrbisGIS nexus snapshot repository</name>
+            <url>http://nexus.orbisgis.org/content/repositories/osgi-maven-snapshot</url>
+        </repository>
     </repositories>
 
     <build>
