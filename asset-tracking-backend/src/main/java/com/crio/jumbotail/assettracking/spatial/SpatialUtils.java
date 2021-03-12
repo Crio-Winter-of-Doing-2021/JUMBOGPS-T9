@@ -7,18 +7,20 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
+import org.springframework.stereotype.Component;
 
+@Component
 public class SpatialUtils {
-
-	private SpatialUtils() {
-	}
+	// x - longitude
+	public static final int LATITUDE = 1;
+	// y - latitude
+	public static final int LONGITUDE = 0;
 
 	private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
-	// x - longitude
-	// y - latitude
+
 	public static Location toLocation(Coordinate coordinate) {
-		return new Location(coordinate.getY(), coordinate.getX());
+		return new Location(coordinate.getOrdinate(LONGITUDE), coordinate.getOrdinate(LATITUDE));
 	}
 
 	public static Coordinate fromLocation(Location location) {

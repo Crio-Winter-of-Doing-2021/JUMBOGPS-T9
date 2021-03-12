@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +50,7 @@ public class AppConfig {
 
 	@Bean
 	public JtsModule jtsModule() {
-		return new JtsModule();
+		return new JtsModule(new GeometryFactory(new PrecisionModel(), 4326));
 	}
 
 	/**
@@ -65,16 +67,16 @@ public class AppConfig {
 	 * @return OPEN API documentation
 	 */
 	@Bean
-	public OpenAPI customOpenAPI() {
-		final OpenAPI asset_tracking_xapplication = new OpenAPI().info(new Info()
-				.title("Asset Tracking xapplication")
+	public OpenAPI openAPI() {
+		final OpenAPI openAPI = new OpenAPI().info(new Info()
+				.title("Asset Tracking application")
 				.termsOfService("http://swagger.io/terms/")
 				.version("1")
 				.license(new License().name("Apache 2.0").url("http://springdoc.org")));
-		if(activeProfile.equalsIgnoreCase("repl")) {
-			asset_tracking_xapplication.servers(Collections.singletonList(new Server().url("https://jumbogps.anugrahsinghal.repl.co/")));
+		if (activeProfile.contains("repl")) {
+			openAPI.servers(Collections.singletonList(new Server().url("https://jumbogps.anugrahsinghal.repl.co/")));
 		}
-			return asset_tracking_xapplication;
+		return openAPI;
 
 	}
 

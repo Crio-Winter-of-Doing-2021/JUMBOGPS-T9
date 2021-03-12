@@ -50,15 +50,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 @AutoConfigureMockMvc
-@SpringBootTest(/*properties = {
-		"spring.datasource.url=jdbc:h2:mem:asset_tracker_test_db",
-		"spring.jpa.properties.hibernate.format_sql=true",
-		"spring.jpa.show-sql=true"
-}*/)
-@TestPropertySource(locations = "/application-spatial.properties", properties = {
+@SpringBootTest
+@TestPropertySource(properties = {
 		"spring.datasource.url=jdbc:postgresql://localhost:5432/postgres_test"
 })
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class AssetTrackerDataControllerTest {
 
 	@Value("classpath:locations.csv")
@@ -73,6 +68,18 @@ class AssetTrackerDataControllerTest {
 	private ObjectMapper objectMapper;
 
 	TestUtils utils = new TestUtils();
+
+	@Test
+	void asset_is_created_and_successfully_fetched() throws Exception {
+		final int size = 1;
+		createAssets(size);
+
+		mockMvc.perform(get("/assets"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$", hasSize(size)));
+//				.andDo(print());
+	}
+
 
 	//	@Transactional
 	@Test
@@ -98,11 +105,12 @@ class AssetTrackerDataControllerTest {
 	//	@Transactional
 	@Test
 	void when_no_query_returns_max_100_assets() throws Exception {
-		createAssets(20);
+		final int size = 20;
+		createAssets(size);
 
 		mockMvc.perform(get("/assets"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$", hasSize(20)));
+				.andExpect(jsonPath("$", hasSize(size)));
 	}
 
 	//	@Transactional

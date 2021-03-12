@@ -3,7 +3,6 @@ package com.crio.jumbotail.assettracking.entity;
 import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.pointFromLocation;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
@@ -49,8 +48,12 @@ public class Asset implements Serializable {
 
 	private Location lastReportedLocation;
 
-	@JsonIgnore
-	@Getter
+
+	//		@JsonSerialize(using = GeometrySerializer.class)
+	//	@JsonDeserialize(contentUsing = GeometryDeserializer.class)
+//	@JsonIgnore
+//	@JsonSerialize(as = String.class)
+//	@Getter
 	private Point lastReportedCoordinates;
 
 	@PrePersist
