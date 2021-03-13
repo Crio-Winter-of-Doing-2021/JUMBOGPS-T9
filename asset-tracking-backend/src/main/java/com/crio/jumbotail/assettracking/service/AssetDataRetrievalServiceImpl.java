@@ -51,7 +51,9 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 		LocalDateTime endTime = LocalDateTime.now();
 		LocalDateTime startTime = LocalDateTime.now().minus(24, ChronoUnit.HOURS);
 
-		final List<LocationData> last24HourHistory = locationDataRepository.findAllByAsset_IdAndTimestampBetween(assetId, startTime, endTime);
+		LOG.info("Checking for data between {} and {}", startTime.atZone(ZoneOffset.UTC).toString(), endTime.atZone(ZoneOffset.UTC).toString());
+
+		final List<LocationData> last24HourHistory = locationDataRepository.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(assetId, startTime, endTime);
 
 		LOG.info("last24HourHistory [{}]", last24HourHistory);
 

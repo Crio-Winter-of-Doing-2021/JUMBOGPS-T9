@@ -24,10 +24,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.locationtech.jts.geom.Point;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -68,6 +70,8 @@ public class LocationData implements Serializable {
 			this.coordinates = null;
 		} else {
 			this.coordinates = pointFromLocation(this.location);
+			this.asset.setLastReportedLocation(this.location);
+			this.asset.setLastReportedTimestamp(this.timestamp);
 		}
 	}
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface LocationDataRepository extends JpaRepository<LocationData, Long> {
 
 	List<LocationData> findAllByAsset_IdAndTimestampBetween(Long assetId, LocalDateTime startTime, LocalDateTime endTime);
+	List<LocationData> findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(Long assetId, LocalDateTime startTime, LocalDateTime endTime);
 
 
 

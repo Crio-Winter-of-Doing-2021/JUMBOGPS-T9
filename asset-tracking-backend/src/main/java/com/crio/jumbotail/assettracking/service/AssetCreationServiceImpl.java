@@ -64,11 +64,8 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 		try {
 			final Asset asset = assetRepository.getOne(assetId);
 
-			final LocationData locationData = new LocationData(
-					new Location(locationUpdateRequest.getLocation().getLocationDto().getLatitude(),
-							locationUpdateRequest.getLocation().getLocationDto().getLongitude()),
-					locationUpdateRequest.getLocation().getDeviceTimestamp()
-			);
+			final Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
+			final LocationData locationData = new LocationData(location, locationUpdateRequest.getLocation().getDeviceTimestamp());
 			locationData.setAsset(asset);
 
 			locationDataRepository.save(locationData);

@@ -53,7 +53,7 @@ public class TestUtils {
 		// pi / 180 = 0.018
 		double new_long = my_long + coef / Math.cos(my_lat * 0.018);
 
-		return new LocationDto(new_lat, new_long);
+		return new LocationDto(new_long, new_lat);
 	}
 
 }
