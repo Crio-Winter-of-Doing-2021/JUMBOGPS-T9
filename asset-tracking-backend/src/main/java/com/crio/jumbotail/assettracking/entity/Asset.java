@@ -48,12 +48,6 @@ public class Asset implements Serializable {
 
 	private Location lastReportedLocation;
 
-
-	//		@JsonSerialize(using = GeometrySerializer.class)
-	//	@JsonDeserialize(contentUsing = GeometryDeserializer.class)
-//	@JsonIgnore
-//	@JsonSerialize(as = String.class)
-//	@Getter
 	private Point lastReportedCoordinates;
 
 	@PrePersist
