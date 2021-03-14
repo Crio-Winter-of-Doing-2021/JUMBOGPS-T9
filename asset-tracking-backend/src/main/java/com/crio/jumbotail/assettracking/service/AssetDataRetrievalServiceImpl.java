@@ -1,12 +1,16 @@
 package com.crio.jumbotail.assettracking.service;
 
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.HOURS;
+
+
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -39,21 +43,28 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 
 	@Override
 	public List<Asset> getAssetsWithinTimeRange(Long startTimeStamp, Long endTimeStamp, int limit) {
+
+		final LocalDateTime startTimestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(startTimeStamp), systemDefault());
+		final LocalDateTime endTimestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(endTimeStamp), systemDefault());
+
 		return assetRepository.findAllByLastReportedTimestampBetween(
-				LocalDateTime.ofEpochSecond(startTimeStamp, 0, ZoneOffset.UTC),
-				LocalDateTime.ofEpochSecond(endTimeStamp, 0, ZoneOffset.UTC),
+				startTimestamp, endTimestamp,
 				PageRequest.of(0, limit));
 	}
 
 	@Override
 	public List<LocationData> getHistoryForAsset(Long assetId) {
 
-		LocalDateTime endTime = LocalDateTime.now();
-		LocalDateTime startTime = LocalDateTime.now().minus(24, ChronoUnit.HOURS);
+		final Instant instant = Instant.now();
+		final LocalDateTime currentTimestamp = LocalDateTime.ofInstant(instant, ZoneOffset.UTC);
+		final LocalDateTime twentyFourHourBeforeTimestamp = LocalDateTime.ofInstant(instant, ZoneOffset.UTC).minus(24, HOURS);
 
-		LOG.info("Checking for data between {} and {}", startTime.atZone(ZoneOffset.UTC).toString(), endTime.atZone(ZoneOffset.UTC).toString());
 
-		final List<LocationData> last24HourHistory = locationDataRepository.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(assetId, startTime, endTime);
+		LOG.info("Checking for data between {} and {}", twentyFourHourBeforeTimestamp, currentTimestamp);
+
+		final List<LocationData> last24HourHistory = locationDataRepository.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(assetId,
+				LocalDateTime.now().minus(24, HOURS),
+				LocalDateTime.now());
 
 		LOG.info("last24HourHistory [{}]", last24HourHistory);
 

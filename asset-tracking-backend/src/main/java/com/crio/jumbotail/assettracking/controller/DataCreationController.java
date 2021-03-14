@@ -1,17 +1,29 @@
 package com.crio.jumbotail.assettracking.controller;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
+
+import com.crio.jumbotail.assettracking.entity.Asset;
+import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,6 +37,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,8 +48,15 @@ public class DataCreationController {
 	@Value("classpath:locations.csv")
 	Resource resourceFile;
 
+	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
+
 	@Autowired
 	AssetCreationService assetCreationService;
+
+	@Autowired
+	AssetRepository assetRepository;
+
+	private List<Long> mockData = new ArrayList<>();
 
 	/**
 	 * @param assetCreationRequest request to create a new asset with its initial location
@@ -75,9 +95,69 @@ public class DataCreationController {
 					RandomStringUtils.randomAlphabetic(40),
 					locationDataDto, RandomUtils.nextInt() % 2 == 0 ? "TRUCK" : "SALESPERSON");
 
-			createNewAsset(assetCreationRequest);
+			final AssetCreatedResponse newAsset = createNewAsset(assetCreationRequest);
+
+			mockData.add(newAsset.getId());
 		}
 
 	}
+
+	@GetMapping("/create-history")
+	public List<Long> createHistoryForAssets(@RequestParam int n) {
+
+		for (Long mockAssetId : mockData.subList(0, n)) {
+			final Optional<Asset> assetsFirstLocation = assetRepository.findById(mockAssetId);
+			if (assetsFirstLocation.isPresent()) {
+				final Location firstLocation = assetsFirstLocation.get().getLastReportedLocation();
+				final LocalDateTime firstTimestamp = assetsFirstLocation.get().getLastReportedTimestamp();
+
+				makeHistoryStartingBeforeNHours(mockAssetId, firstLocation, firstTimestamp, 36);
+			} else {
+				LOG.info("Mocked assets missing from DB - id {}", mockAssetId);
+			}
+		}
+
+		return mockData.subList(0, n);
+	}
+
+	private void makeHistoryStartingBeforeNHours(Long mockAssetId, Location firstLocation, LocalDateTime firstTimestamp, int hoursBefore) {
+		LocationDto locationDto = new LocationDto(firstLocation.getLongitude(), firstLocation.getLatitude());
+		Instant timestampOfNHourBefore = firstTimestamp.toInstant(offset).minus(hoursBefore, HOURS);
+		for (int i = 0; i < hoursBefore; i++) {
+
+			locationDto = addMetersToCurrent(locationDto, 5000);
+			LocationDataDto locationDataDto = new LocationDataDto(locationDto, timestampOfNHourBefore.getEpochSecond());
+
+			updateLocationOfAsset(new LocationUpdateRequest(mockAssetId, locationDataDto), mockAssetId);
+
+			// add an hour
+			timestampOfNHourBefore = timestampOfNHourBefore.plus(1, HOURS);
+		}
+	}
+
+	public LocationDto addMetersToCurrent(Location location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
+	public LocationDto addMetersToCurrent(LocationDto location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
+	public LocationDto addMetersToCurrent(double my_lat, double my_long, double meters) {
+
+		// number of km per degree = ~111km (111.32 in google maps, but range varies
+		// between 110.567km at the equator and 111.699km at the poles)
+		// 1km in degree = 1 / 111.32km = 0.0089
+		// 1m in degree = 0.0089 / 1000 = 0.0000089
+		double coef = meters * 0.0000089;
+
+		double new_lat = my_lat + coef;
+
+		// pi / 180 = 0.018
+		double new_long = my_long + coef / Math.cos(my_lat * 0.018);
+
+		return new LocationDto(new_long, new_lat);
+	}
+
 
 }
