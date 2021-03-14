@@ -2,16 +2,13 @@ package com.crio.jumbotail.assettracking.config;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.servers.Server;
-import java.io.IOException;
 import java.util.Collections;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
@@ -26,7 +23,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * To Inject Bean Dependencies Needed by other classes
@@ -42,6 +38,16 @@ public class AppConfig {
 
 	@Value("${spring.profiles.active:na}")
 	private String activeProfile;
+
+	@Bean
+	public Jdk8Module jdk8Module() {
+		return new Jdk8Module();
+	}
+
+	@Bean
+	public JavaTimeModule javaTimeModule() {
+		return new JavaTimeModule();
+	}
 
 	@Bean
 	public Hibernate5Module hibernate5Module() {
@@ -94,29 +100,7 @@ public class AppConfig {
 		return filterRegistrationBean;
 	}
 
-	/**
-	 * Config Class To enable CORS access
-	 */
-	private class CorsFilter extends OncePerRequestFilter {
 
-		@Override
-		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-			LOG.debug("CORS REQUEST came here outer");
-			response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, PUT, DELETE, OPTIONS");
-			response.setHeader("Access-Control-Allow-Origin", "*");
-			response.setHeader("Access-Control-Max-Age", "3600");
-			response.setHeader("Access-Control-Allow-Headers", "*");
-			response.addHeader("Access-Control-Expose-Headers", "*");
-			if ("OPTIONS".equals(request.getMethod())) {
-				LOG.debug("CORS REQUEST came here");
-				response.setStatus(HttpServletResponse.SC_OK);
-				response.setHeader("Access-Control-Allow-Methods", "GET, PATCH, POST, PUT, DELETE, OPTIONS");
-				LOG.debug(response);
-			} else {
-				filterChain.doFilter(request, response);
-			}
-		}
-	}
 
 
 }
