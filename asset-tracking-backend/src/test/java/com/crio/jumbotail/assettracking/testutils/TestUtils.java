@@ -36,6 +36,10 @@ public class TestUtils {
 		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
 	}
 
+	public LocationDto addMetersToCurrent(LocationDto location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
 	public LocationDto addMetersToCurrent(double my_lat, double my_long, double meters) {
 
 		// number of km per degree = ~111km (111.32 in google maps, but range varies
@@ -49,7 +53,7 @@ public class TestUtils {
 		// pi / 180 = 0.018
 		double new_long = my_long + coef / Math.cos(my_lat * 0.018);
 
-		return new LocationDto(new_lat, new_long);
+		return new LocationDto(new_long, new_lat);
 	}
 
 }

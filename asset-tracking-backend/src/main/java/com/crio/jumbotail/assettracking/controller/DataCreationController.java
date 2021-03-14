@@ -1,15 +1,10 @@
 package com.crio.jumbotail.assettracking.controller;
 
-import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.Location;
-import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationDto;
 import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
-import com.crio.jumbotail.assettracking.repositories.AssetRepository;
-import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,12 +38,6 @@ public class DataCreationController {
 	@Autowired
 	AssetCreationService assetCreationService;
 
-	@Autowired
-	LocationDataRepository locationDataRepository;
-
-	@Autowired
-	AssetRepository assetRepository;
-
 	/**
 	 * @param assetCreationRequest request to create a new asset with its initial location
 	 * @return id of the created asset
@@ -60,19 +49,9 @@ public class DataCreationController {
 	}
 
 	@PatchMapping("/assets/{assetId}")
+	@ResponseStatus(HttpStatus.OK)
 	public void updateLocationOfAsset(@RequestBody LocationUpdateRequest locationUpdateRequest, @PathVariable Long assetId) {
-		// find the proxy asset
-		// will throw an exception if not present
-		final Asset asset = assetRepository.getOne(assetId);
-
-		final LocationData locationData = new LocationData(
-				new Location(locationUpdateRequest.getLocation().getLocationDto().getLatitude(),
-						locationUpdateRequest.getLocation().getLocationDto().getLongitude()),
-				locationUpdateRequest.getLocation().getDeviceTimestamp()
-		);
-		locationData.setAsset(asset);
-
-		locationDataRepository.save(locationData);
+		assetCreationService.updateLocationDataForAsset(locationUpdateRequest, assetId);
 	}
 
 	@GetMapping("/create")
