@@ -1,8 +1,6 @@
 package com.crio.jumbotail.assettracking.controller;
 
-import static com.crio.jumbotail.assettracking.testutils.TestUtils.asEpoch;
 import static com.crio.jumbotail.assettracking.testutils.TestUtils.asJsonString;
-import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -33,7 +31,9 @@ import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.testutils.TestUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,6 +56,8 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @AutoConfigureMockMvc
 @SpringBootTest
 class AssetTrackerDataControllerTest {
+
+	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
 
 	@Value("classpath:locations.csv")
 	Resource resourceFile;
@@ -128,8 +130,8 @@ class AssetTrackerDataControllerTest {
 	void when_filter_data_for_time_range_then_correct_data_is_returned() throws Exception {
 		createAssetsWithinTimeframeAndOutliers(20, 45);
 
-		final long startTime = LocalDateTime.now().minus(60, ChronoUnit.SECONDS).toEpochSecond(UTC);
-		final long endTime = LocalDateTime.now().plus((60 * 60 * 21), ChronoUnit.SECONDS).toEpochSecond(UTC);
+		final long startTime = Instant.now().minus(60, ChronoUnit.SECONDS).getEpochSecond();
+		final long endTime = Instant.now().plus((60 * 60 * 21), ChronoUnit.SECONDS).getEpochSecond();
 
 		mockMvc.perform(get("/assets/time")
 				.param("startDateTime", String.valueOf(startTime))
@@ -184,8 +186,7 @@ class AssetTrackerDataControllerTest {
 		LocationUpdateRequest minus10000seconds = new LocationUpdateRequest(
 				assetCreatedResponse.getId(),
 				new LocationDataDto(locationDtoUpdated,
-						asEpoch(LocalDateTime.now().minus(10000, ChronoUnit.SECONDS))
-//						Instant.now().minus(1, ChronoUnit.MINUTES).getEpochSecond()
+						Instant.now().minus(10000, ChronoUnit.SECONDS).getEpochSecond()
 				));
 
 
@@ -194,8 +195,7 @@ class AssetTrackerDataControllerTest {
 		LocationUpdateRequest plus1minute = new LocationUpdateRequest();
 		plus1minute.setId(assetCreatedResponse.getId());
 		plus1minute.setLocation(new LocationDataDto(locationDtoUpdated,
-				asEpoch(LocalDateTime.now().plus(1, ChronoUnit.MINUTES))
-//				Instant.now().plus(1, ChronoUnit.MINUTES).atZone(ZoneOffset.UTC).toEpochSecond()
+				Instant.now().plus(1, ChronoUnit.MINUTES).getEpochSecond()
 		));
 
 		updateAssetHistory(plus1minute, assetCreatedResponse.getId()).andExpect(status().isOk());
@@ -213,9 +213,7 @@ class AssetTrackerDataControllerTest {
 
 		LocationDto locationDto = new LocationDto(78.01154444, 27.16166111);
 
-		long currentTimeMinus24Hours = LocalDateTime.now().minus(24, HOURS).plus(1, MINUTES).toEpochSecond(UTC);
-
-		long currentTime = LocalDateTime.now().toEpochSecond(UTC);
+		long currentTimeMinus24Hours = Instant.now().minus(24, HOURS).plus(1, MINUTES).getEpochSecond();
 
 		LocationDataDto locationDataDto = new LocationDataDto(locationDto, currentTimeMinus24Hours);
 
@@ -271,9 +269,7 @@ class AssetTrackerDataControllerTest {
 
 		LocationDto firstLocation = new LocationDto(78.01154444, 27.16166111);
 
-		long firstTimestamp = LocalDateTime.now().minus(24, HOURS).plus(1, MINUTES).toEpochSecond(UTC);
-
-		long currentTime = LocalDateTime.now().toEpochSecond(UTC);
+		long firstTimestamp = Instant.now().minus(24, HOURS).plus(1, MINUTES).getEpochSecond();
 
 		LocationDataDto locationDataDto = new LocationDataDto(firstLocation, firstTimestamp);
 
@@ -312,11 +308,11 @@ class AssetTrackerDataControllerTest {
 
 		assertNotEquals(firstLocation.getLatitude(), assets[0].getLastReportedLocation().getLatitude());
 		assertNotEquals(firstLocation.getLongitude(), assets[0].getLastReportedLocation().getLongitude());
-		assertNotEquals(firstTimestamp, assets[0].getLastReportedTimestamp().toEpochSecond(UTC));
+		assertNotEquals(firstTimestamp, assets[0].getLastReportedTimestamp().toInstant(offset).getEpochSecond());
 
 		assertEquals(updatedLocation.getLatitude(), assets[0].getLastReportedLocation().getLatitude());
 		assertEquals(updatedLocation.getLongitude(), assets[0].getLastReportedLocation().getLongitude());
-		assertEquals(updatedTimestamp, assets[0].getLastReportedTimestamp().toEpochSecond(UTC));
+		assertEquals(updatedTimestamp, assets[0].getLastReportedTimestamp().toInstant(offset).getEpochSecond());
 
 	}
 
@@ -326,7 +322,7 @@ class AssetTrackerDataControllerTest {
 
 		LocationDto firstLocation = new LocationDto(78.01154444, 27.16166111);
 
-		long currentTimestamp = LocalDateTime.now().toEpochSecond(UTC);
+		long currentTimestamp = Instant.now().getEpochSecond();
 
 		LocationDataDto locationDataDto = new LocationDataDto(firstLocation, currentTimestamp);
 
@@ -359,8 +355,9 @@ class AssetTrackerDataControllerTest {
 		assertNotEquals(firstLocation.getLatitude(), assets[0].getLastReportedLocation().getLatitude());
 		assertNotEquals(firstLocation.getLongitude(), assets[0].getLastReportedLocation().getLongitude());
 
-		assertEquals(updatedTimestamp, assets[0].getLastReportedTimestamp().toEpochSecond(UTC));
-		assertNotEquals(currentTimestamp, assets[0].getLastReportedTimestamp().toEpochSecond(UTC));
+
+		assertEquals(updatedTimestamp, assets[0].getLastReportedTimestamp().toInstant(offset).getEpochSecond());
+		assertNotEquals(currentTimestamp, assets[0].getLastReportedTimestamp().toInstant(offset).getEpochSecond());
 
 	}
 
@@ -487,10 +484,10 @@ class AssetTrackerDataControllerTest {
 			LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
 
 
-			final long epochSecondTimestamp = LocalDateTime.now()
+			final long epochSecondTimestamp = Instant.now()
 					.plus(RandomUtils.nextLong(minSecondsToAdd, maxSecondsToAdd),
 							ChronoUnit.SECONDS)
-					.toEpochSecond(UTC);
+					.getEpochSecond();
 			LocationDataDto locationDataDto = new LocationDataDto(locationDto, epochSecondTimestamp);
 
 			AssetCreationRequest assetCreationRequest = new AssetCreationRequest(

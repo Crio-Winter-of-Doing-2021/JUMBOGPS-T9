@@ -1,13 +1,14 @@
 package com.crio.jumbotail.assettracking.entity;
 
 import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.pointFromLocation;
+import static java.time.ZoneId.systemDefault;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -55,7 +56,7 @@ public class LocationData implements Serializable {
 
 	public LocationData(Location location, Long timestampEpoch) {
 		this.location = location;
-		this.timestamp = LocalDateTime.ofEpochSecond(timestampEpoch, 0, ZoneOffset.UTC);
+		this.timestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestampEpoch), systemDefault());
 	}
 
 	@JsonBackReference("asset-data")
