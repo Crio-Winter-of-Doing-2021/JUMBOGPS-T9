@@ -30,18 +30,6 @@ public class AssetTrackerDataController {
 	private AssetDataRetrievalService retrievalService;
 
 	@Operation(description = "Get last N Assets sorted by timestamp, supports following filter combinations: \n"
-	                         + "  |Sit amet | Lorem dolor | Cosectetur elit|\n"
-	                         + "      |-------|------|\n"
-	                         + "      |`ipsum` | augue | SAGGITTIS |\n"
-	                         + "      |`dolor` | augue | SAGGITTIS |\n"
-	                         + "      |`amet+adipiscing`| augue | SAGGITTIS |\n"
-	                         + "      |`imperdiet` | augue | SAGGITTIS  |\n"
-	                         + "      |`dapibus` | augue | SAGGITTIS |\n"
-	                         + "      |`aliquam` | augue | SAGGITTIS |\n"
-	                         + "      |`nibh` | augue | SAGGITTIS |\n"
-	                         + "      |`risus` | augue | SAGGITTIS |\n"
-	                         + "      |`blandit` | augue | — |\n"
-	                         + "      |`nibh` | tortor | — |"
 	                         + "1. Type\n"
 	                         + "2. Type + Start Timestamp & End Timestamp\n"
 	                         + "3. Start Timestamp & End Timestamp\n"
