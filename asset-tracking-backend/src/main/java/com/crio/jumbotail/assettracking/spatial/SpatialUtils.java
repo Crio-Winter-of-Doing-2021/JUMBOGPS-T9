@@ -1,7 +1,10 @@
 package com.crio.jumbotail.assettracking.spatial;
 
+import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
 import java.util.List;
+import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -10,6 +13,7 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.stereotype.Component;
 
 @Component
+@Log4j2
 public class SpatialUtils {
 	// x - longitude
 	public static final int LATITUDE = 1;
@@ -46,4 +50,13 @@ public class SpatialUtils {
 		return toLocation(coordinate);
 	}
 
+	public static Location getCentroidForAssets(List<Asset> assets) {
+		final List<Point> points = assets.stream().map(Asset::getLastReportedCoordinates).collect(Collectors.toList());
+
+		final Location centroid = getCentroid(points);
+
+		LOG.info("centroid [{}]", centroid);
+
+		return centroid;
+	}
 }
