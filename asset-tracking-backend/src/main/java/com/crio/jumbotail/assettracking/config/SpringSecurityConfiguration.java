@@ -88,9 +88,9 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			http.authorizeRequests().antMatchers("/register").hasRole("ADMIN");
 		}
 
-		http.authorizeRequests().antMatchers(AUTH_WHITELIST).permitAll();
-
-		http.authorizeRequests().anyRequest().authenticated()
+		http.authorizeRequests()
+				.antMatchers(AUTH_WHITELIST).permitAll()
+				.anyRequest().authenticated()
 				.and()
 					.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
 				.and()
