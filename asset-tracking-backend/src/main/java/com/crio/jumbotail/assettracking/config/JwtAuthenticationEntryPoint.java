@@ -27,13 +27,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 		Exception exception = (Exception) request.getAttribute("exception");
 
-		String message;
 		byte[] body;
 
 		if (exception != null) {
 			body = objectMapper.writeValueAsBytes(Collections.singletonMap("cause", exception.toString()));
 		} else {
-			message = getExceptionMessage(authException);
+			String message = getExceptionMessage(authException);
 			body = objectMapper.writeValueAsBytes(Collections.singletonMap("error", message));
 		}
 
