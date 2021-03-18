@@ -1,6 +1,7 @@
 package com.crio.jumbotail.assettracking.controller;
 
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
+import com.crio.jumbotail.assettracking.exceptions.JwtAuthException;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,5 +22,10 @@ public class GlobalControllerExceptionHandler {
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ResponseEntity<String> handleAssetNotFound(RuntimeException ex) {
 		return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+	}
+	@ExceptionHandler(JwtAuthException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ResponseEntity<String> handleTokenNotExpired(RuntimeException ex) {
+		return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
 	}
 }

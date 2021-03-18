@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.controller;
 
+import static com.crio.jumbotail.assettracking.utils.SpatialUtils.addMetersToCurrent;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 
@@ -37,12 +38,14 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @RestController
+@RequestMapping("/create")
 public class DataCreationController {
 
 	@Value("classpath:locations.csv")
@@ -74,7 +77,7 @@ public class DataCreationController {
 		assetCreationService.updateLocationDataForAsset(locationUpdateRequest, assetId);
 	}
 
-	@GetMapping("/create")
+	@GetMapping("/mock-data")
 	public void createData() throws IOException {
 		final InputStream inputStream = resourceFile.getInputStream();
 		String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
@@ -102,7 +105,7 @@ public class DataCreationController {
 
 	}
 
-	@GetMapping("/create-history")
+	@GetMapping("/mock-history")
 	public List<Long> createHistoryForAssets(@RequestParam int n) {
 
 		for (Long mockAssetId : mockData.subList(0, n)) {
@@ -133,30 +136,6 @@ public class DataCreationController {
 			// add an hour
 			timestampOfNHourBefore = timestampOfNHourBefore.plus(1, HOURS);
 		}
-	}
-
-	public LocationDto addMetersToCurrent(Location location, double meters) {
-		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
-	}
-
-	public LocationDto addMetersToCurrent(LocationDto location, double meters) {
-		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
-	}
-
-	public LocationDto addMetersToCurrent(double my_lat, double my_long, double meters) {
-
-		// number of km per degree = ~111km (111.32 in google maps, but range varies
-		// between 110.567km at the equator and 111.699km at the poles)
-		// 1km in degree = 1 / 111.32km = 0.0089
-		// 1m in degree = 0.0089 / 1000 = 0.0000089
-		double coef = meters * 0.0000089;
-
-		double new_lat = my_lat + coef;
-
-		// pi / 180 = 0.018
-		double new_long = my_long + coef / Math.cos(my_lat * 0.018);
-
-		return new LocationDto(new_long, new_lat);
 	}
 
 
