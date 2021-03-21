@@ -2,7 +2,7 @@ package com.crio.jumbotail.assettracking.utils;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;

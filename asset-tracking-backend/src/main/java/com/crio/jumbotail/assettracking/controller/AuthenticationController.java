@@ -1,11 +1,11 @@
 package com.crio.jumbotail.assettracking.controller;
 
 import com.crio.jumbotail.assettracking.exceptions.JwtAuthException;
+import com.crio.jumbotail.assettracking.exchanges.request.AuthRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.CreateUserRequest;
+import com.crio.jumbotail.assettracking.exchanges.response.AuthResponse;
 import com.crio.jumbotail.assettracking.service.CustomUserDetailsService;
 import com.crio.jumbotail.assettracking.utils.JwtUtil;
-import com.crio.jumbotail.assettracking.exchanges.AuthRequest;
-import com.crio.jumbotail.assettracking.exchanges.AuthResponse;
-import com.crio.jumbotail.assettracking.exchanges.CreateUserRequest;
 import io.jsonwebtoken.impl.DefaultClaims;
 import java.util.HashMap;
 import java.util.Map;

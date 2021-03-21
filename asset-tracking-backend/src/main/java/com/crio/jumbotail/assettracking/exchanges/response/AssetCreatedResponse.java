@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

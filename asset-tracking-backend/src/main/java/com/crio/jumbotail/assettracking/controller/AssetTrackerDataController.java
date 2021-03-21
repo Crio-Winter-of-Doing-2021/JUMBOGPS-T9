@@ -6,11 +6,10 @@ import static com.crio.jumbotail.assettracking.utils.SpatialUtils.getCentroidFor
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
-import com.crio.jumbotail.assettracking.exchanges.AssetDataResponse;
-import com.crio.jumbotail.assettracking.exchanges.Subscriber;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,18 +34,20 @@ public class AssetTrackerDataController {
 	@Autowired
 	SubscriptionService subscriptionService;
 
+	@Autowired
+	private AssetDataRetrievalService retrievalService;
+
+	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
+			summary = "Subscribe to events"
+	)
 	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Subscriber sse(HttpServletResponse response) {
 		response.setHeader("Cache-Control", "no-store");
-
 
 		final Subscriber subscriber = new Subscriber();
 
 		return subscriptionService.subscribe(subscriber);
 	}
-
-	@Autowired
-	private AssetDataRetrievalService retrievalService;
 
 	@Operation(description = "Get last N Assets sorted by timestamp, supports following filter combinations: \n"
 	                         + "1. Type\n"
@@ -67,15 +68,14 @@ public class AssetTrackerDataController {
 
 		LOG.info("assets.size() [{}]", assets.size());
 		Location centroid = new Location(0.0, 0.0);
-		if(assets.size() > 0) {
+		if (!assets.isEmpty()) {
 			centroid = getCentroidForAssets(assets);
 		}
 		return new AssetDataResponse(centroid, assets);
 	}
 
 
-	@Operation(summary = "Get 24 Hour History for Asset",
-			description = "Get 24 Hour History for Asset with given id")
+	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
 	@GetMapping(value = "/assets/{assetId}/history")
 	public List<LocationData> getHistoryForAsset(
@@ -88,8 +88,7 @@ public class AssetTrackerDataController {
 		return assetHistory;
 	}
 
-	@Operation(summary = "Get Single Asset",
-			description = "Get Single Asset By Id")
+	@Operation(summary = "Get Single Asset", description = "Get Single Asset By Id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
 	@GetMapping(value = "/assets/{assetId}")
 	public Asset getAsset(
@@ -102,27 +101,4 @@ public class AssetTrackerDataController {
 		return asset;
 	}
 
-	@Hidden
-	@GetMapping(value = "v0/assets")
-	public List<Asset> getAssets(@RequestParam(required = false, defaultValue = "100") int limit,
-	                             @RequestParam(required = false) String type) {
-		List<Asset> assets = retrievalService.getAssets(type, limit);
-
-		LOG.info("assets.size() [{}]", assets.size());
-
-		return assets;
-	}
-
-	@Hidden
-	@GetMapping(value = "v0/assets/time")
-	public List<Asset> getMarkersTimeFilter(@RequestParam Long startDateTime,
-	                                        @RequestParam Long endDateTime,
-	                                        @RequestParam(required = false, defaultValue = "100") int limit) {
-
-		final List<Asset> assets = retrievalService.getAssetsWithinTimeRange(startDateTime, endDateTime, limit);
-
-		LOG.info("assets.size() [{}]", assets.size());
-
-		return assets;
-	}
 }

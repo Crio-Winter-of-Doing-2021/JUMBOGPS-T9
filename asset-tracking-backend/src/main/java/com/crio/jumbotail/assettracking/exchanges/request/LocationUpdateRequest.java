@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class CreateUserRequest {
-	private String username;
-	private String password;
-	private String role;
+public class LocationUpdateRequest {
+
+	Long id;
+	LocationDataDto location;
+
+	public LocationUpdateRequest(LocationDataDto location) {
+		this.location = location;
+	}
 }

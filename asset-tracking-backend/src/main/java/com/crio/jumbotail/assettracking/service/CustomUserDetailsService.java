@@ -1,8 +1,8 @@
 package com.crio.jumbotail.assettracking.service;
 
 
-import com.crio.jumbotail.assettracking.exchanges.CreateUserRequest;
 import com.crio.jumbotail.assettracking.entity.JumboTailUser;
+import com.crio.jumbotail.assettracking.exchanges.request.CreateUserRequest;
 import com.crio.jumbotail.assettracking.repositories.UserRepository;
 import java.util.Arrays;
 import java.util.List;

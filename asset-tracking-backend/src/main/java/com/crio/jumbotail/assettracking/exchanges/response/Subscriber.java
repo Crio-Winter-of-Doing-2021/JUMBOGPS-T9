@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.response;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 

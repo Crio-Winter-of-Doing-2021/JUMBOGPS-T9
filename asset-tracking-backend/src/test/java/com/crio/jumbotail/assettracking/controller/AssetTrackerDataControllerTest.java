@@ -21,11 +21,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
-import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.testutils.TestUtils;

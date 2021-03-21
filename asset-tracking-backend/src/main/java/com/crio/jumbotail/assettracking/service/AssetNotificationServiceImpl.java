@@ -1,7 +1,7 @@
 package com.crio.jumbotail.assettracking.service;
 
 import com.crio.jumbotail.assettracking.entity.Location;
-import com.crio.jumbotail.assettracking.exchanges.Notification;
+import com.crio.jumbotail.assettracking.exchanges.response.Notification;
 import com.crio.jumbotail.assettracking.utils.SpatialUtils;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;

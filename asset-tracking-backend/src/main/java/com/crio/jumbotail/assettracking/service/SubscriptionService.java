@@ -1,7 +1,7 @@
 package com.crio.jumbotail.assettracking.service;
 
-import com.crio.jumbotail.assettracking.exchanges.Notification;
-import com.crio.jumbotail.assettracking.exchanges.Subscriber;
+import com.crio.jumbotail.assettracking.exchanges.response.Notification;
+import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 
 public interface SubscriptionService {
 

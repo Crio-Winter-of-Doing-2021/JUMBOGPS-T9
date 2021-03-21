@@ -6,11 +6,11 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
-import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
 import java.io.IOException;
@@ -48,20 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/create")
 public class DataCreationController {
 
-//
-//	@Autowired
-//	private RabbitTemplate rabbitTemplate;
-//
-//
-//	@PostMapping("/mq")
-//	public void run() {
-//		LOG.info("Sending message...");
-//		rabbitTemplate.convertAndSend(AssetTrackingApplication.TOPIC_EXCHANGE_NAME,
-//				"geofence.notification.1",
-//				"Hello from RabbitMQ!");
-//	}
-
-
 	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
 
 	@Value("classpath:locations.csv")
@@ -71,8 +57,6 @@ public class DataCreationController {
 
 	@Autowired
 	AssetRepository assetRepository;
-
-	private List<Long> mockData = new ArrayList<>();
 
 	/**
 	 * @param assetCreationRequest request to create a new asset with its initial location
@@ -84,17 +68,30 @@ public class DataCreationController {
 		return assetCreationService.createAsset(assetCreationRequest);
 	}
 
+	/**
+	 *
+	 * @param assetId id of the asset
+	 * @param boundaryType Polygon or Linestring
+	 * @param data array of longitudes and latitudes
+	 */
 	@PostMapping("/assets/{assetId}/{boundaryType}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createGeoFence(@PathVariable Long assetId, @PathVariable String boundaryType, @RequestBody String data) {
 		assetCreationService.addBoundaryToAsset(assetId, boundaryType, data);
 	}
 
+	/**
+	 *
+	 * @param locationUpdateRequest body containing the updated data
+	 * @param assetId id of the asset
+	 */
 	@PatchMapping("/assets/{assetId}")
 	@ResponseStatus(HttpStatus.OK)
 	public void updateLocationOfAsset(@RequestBody LocationUpdateRequest locationUpdateRequest, @PathVariable Long assetId) {
 		assetCreationService.updateLocationDataForAsset(locationUpdateRequest, assetId);
 	}
+
+	private List<Long> mockData = new ArrayList<>();
 
 	@GetMapping("/mock-data")
 	public void createData() throws IOException {

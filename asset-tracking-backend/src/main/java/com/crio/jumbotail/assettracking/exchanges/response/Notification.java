@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

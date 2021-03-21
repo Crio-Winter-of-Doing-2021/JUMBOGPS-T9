@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
-import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationServiceImpl;
