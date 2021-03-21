@@ -1,7 +1,8 @@
-package com.crio.jumbotail.assettracking.spatial;
+package com.crio.jumbotail.assettracking.utils;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
@@ -58,5 +59,29 @@ public class SpatialUtils {
 		LOG.info("centroid [{}]", centroid);
 
 		return centroid;
+	}
+
+	public static LocationDto addMetersToCurrent(Location location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
+	public static LocationDto addMetersToCurrent(LocationDto location, double meters) {
+		return addMetersToCurrent(location.getLatitude(), location.getLongitude(), meters);
+	}
+
+	public static LocationDto addMetersToCurrent(double currLatitude, double currLongitude, double meters) {
+
+		// number of km per degree = ~111km (111.32 in google maps, but range varies
+		// between 110.567km at the equator and 111.699km at the poles)
+		// 1km in degree = 1 / 111.32km = 0.0089
+		// 1m in degree = 0.0089 / 1000 = 0.0000089
+		double coef = meters * 0.0000089;
+
+		double newLatitude = currLatitude + coef;
+
+		// pi / 180 = 0.018
+		double newLongitude = currLongitude + coef / Math.cos(currLatitude * 0.018);
+
+		return new LocationDto(newLongitude, newLatitude);
 	}
 }

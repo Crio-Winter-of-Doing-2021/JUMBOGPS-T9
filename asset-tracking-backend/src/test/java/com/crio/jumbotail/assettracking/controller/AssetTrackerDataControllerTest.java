@@ -21,11 +21,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreatedResponse;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
-import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.testutils.TestUtils;
@@ -49,6 +49,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -57,6 +58,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 @Disabled(value = "disabled due to api req-res api changes")
 @AutoConfigureMockMvc
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class AssetTrackerDataControllerTest {
 
 	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();

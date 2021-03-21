@@ -1,7 +1,6 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.request;
 
 import java.io.Serializable;
-import javax.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;

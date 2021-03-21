@@ -1,7 +1,7 @@
 package com.crio.jumbotail.assettracking.testutils;
 
 import com.crio.jumbotail.assettracking.entity.Location;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

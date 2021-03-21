@@ -6,11 +6,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
+import org.locationtech.jts.geom.PrecisionModel;
 
 @Disabled
-public class BasicTests {
+class BasicTests {
 
 	@Test
 	void given_timestamp_both_object_are_same() {
@@ -39,5 +45,27 @@ public class BasicTests {
 
 	}
 
+	@Test
+	void test_geo_fencing() {
+
+		GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
+
+		final ArrayList<Coordinate> points = new ArrayList<>();
+		points.add(new Coordinate(-10, -10));
+		points.add(new Coordinate(-10, 10));
+		points.add(new Coordinate(10, 10));
+		points.add(new Coordinate(10, -10));
+		points.add(new Coordinate(-10, -10));
+
+		final Polygon polygon = gf.createPolygon(points.toArray(new Coordinate[0]));
+
+		for (int i = 0; i < 20; i++) {
+			final Coordinate coord = new Coordinate(i, i);
+			final Point point = gf.createPoint(coord);
+			System.out.println(point.within(polygon));
+		}
+
+
+	}
 
 }

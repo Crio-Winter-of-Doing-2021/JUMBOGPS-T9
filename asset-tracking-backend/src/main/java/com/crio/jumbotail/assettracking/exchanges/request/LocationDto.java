@@ -1,15 +1,20 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.request;
 
+import java.io.Serializable;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class LocationDto {
+@AllArgsConstructor
+public class LocationDto implements Serializable {
 
 	@NotNull
 	@Min(-180)
@@ -21,8 +26,4 @@ public class LocationDto {
 	@Max(180)
 	private Double latitude;
 
-	public LocationDto(@NotNull @Min(-180) @Max(180) Double longitude, @NotNull @Min(-180) @Max(180) Double latitude) {
-		this.longitude = longitude;
-		this.latitude = latitude;
-	}
 }

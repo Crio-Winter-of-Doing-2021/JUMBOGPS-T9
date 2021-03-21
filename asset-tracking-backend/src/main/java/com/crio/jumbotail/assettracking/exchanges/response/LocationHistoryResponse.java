@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.response;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
@@ -15,7 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(description = "Response with the assets and centroid")
-public class AssetDataResponse {
+public class LocationHistoryResponse {
 
 	@Schema(description = "The centroid of the assets")
 	private Location centroid;

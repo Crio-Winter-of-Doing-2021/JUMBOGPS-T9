@@ -1,6 +1,6 @@
 package com.crio.jumbotail.assettracking.entity;
 
-import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.pointFromLocation;
+import static com.crio.jumbotail.assettracking.utils.SpatialUtils.pointFromLocation;
 import static java.time.ZoneId.systemDefault;
 
 
@@ -15,8 +15,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -33,7 +31,6 @@ import org.locationtech.jts.geom.Point;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class LocationData implements Serializable {
 
 	@Id
@@ -48,6 +45,9 @@ public class LocationData implements Serializable {
 	@JsonIgnore
 	@Getter
 	private Point coordinates;
+
+	private Boolean withinGeofence;
+	private Boolean followingRoute;
 
 	public LocationData(Location location, LocalDateTime timestamp) {
 		this.location = location;
