@@ -1,3 +1,5 @@
+<!-- https://inspiring-lamarr-294cdb.netlify.app/ -->
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,7 +13,7 @@
     <script>
       const authorizationToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";        
 
-      const resoureUrl = "https://jumbogps-auth.anugrahsinghal.repl.co/assets/subscribe";
+      const resoureUrl = "https://jumbogps-auth.anugrahsinghal.repl.co/create/assets/subscribe";
 
       function showNotification(data) {
         console.log("called showNotification");
@@ -23,13 +25,7 @@
       }
 
       function subscribeToSSE() {
-        const eventSource = new EventSourcePolyfill(resoureUrl, {
-          headers: {
-            Authorization: "Bearer " + authorizationToken,
-            "Access-Control-Allow-Origin": "*",
-            mode: "no-cors"
-          }
-        });
+        const eventSource = new EventSourcePolyfill(resoureUrl);
 
         eventSource.onmessage = (result) => {
           const data = JSON.parse(result.data);
