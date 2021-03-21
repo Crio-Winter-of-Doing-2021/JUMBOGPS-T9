@@ -48,11 +48,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/create")
 public class DataCreationController {
 
-	@Value("classpath:locations.csv")
-	Resource resourceFile;
+//
+//	@Autowired
+//	private RabbitTemplate rabbitTemplate;
+//
+//
+//	@PostMapping("/mq")
+//	public void run() {
+//		LOG.info("Sending message...");
+//		rabbitTemplate.convertAndSend(AssetTrackingApplication.TOPIC_EXCHANGE_NAME,
+//				"geofence.notification.1",
+//				"Hello from RabbitMQ!");
+//	}
+
 
 	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
 
+	@Value("classpath:locations.csv")
+	Resource resourceFile;
 	@Autowired
 	AssetCreationService assetCreationService;
 
@@ -69,6 +82,12 @@ public class DataCreationController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public AssetCreatedResponse createNewAsset(@RequestBody AssetCreationRequest assetCreationRequest) {
 		return assetCreationService.createAsset(assetCreationRequest);
+	}
+
+	@PostMapping("/assets/{assetId}/{boundaryType}")
+	@ResponseStatus(HttpStatus.CREATED)
+	public void createGeoFence(@PathVariable Long assetId, @PathVariable String boundaryType, @RequestBody String data) {
+		assetCreationService.addBoundaryToAsset(assetId, boundaryType, data);
 	}
 
 	@PatchMapping("/assets/{assetId}")

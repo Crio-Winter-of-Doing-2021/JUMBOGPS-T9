@@ -7,7 +7,9 @@ import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.Subscriber;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
+import com.crio.jumbotail.assettracking.service.SubscriptionService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,8 +17,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +33,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssetTrackerDataController {
 
 	@Autowired
+	SubscriptionService subscriptionService;
+
+	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Subscriber sse(HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-store");
+
+
+		final Subscriber subscriber = new Subscriber();
+
+		return subscriptionService.subscribe(subscriber);
+	}
+
+	@Autowired
 	private AssetDataRetrievalService retrievalService;
 
 	@Operation(description = "Get last N Assets sorted by timestamp, supports following filter combinations: \n"
@@ -39,7 +56,7 @@ public class AssetTrackerDataController {
 			summary = "Get Assets and apply filters"
 	)
 	@ApiResponse(responseCode = "200", description = "Found the assets")
-	@GetMapping(value = "assets")
+	@GetMapping(value = "/assets")
 	public AssetDataResponse getAssetsWithCentroid(
 			@Parameter(description = "The max number of results to return") @RequestParam(required = false, defaultValue = "100") int limit,
 			@Parameter(description = "The type of to be assets to be filtered") @RequestParam(required = false) String type,
@@ -60,7 +77,7 @@ public class AssetTrackerDataController {
 	@Operation(summary = "Get 24 Hour History for Asset",
 			description = "Get 24 Hour History for Asset with given id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
-	@GetMapping(value = "assets/{assetId}/history")
+	@GetMapping(value = "/assets/{assetId}/history")
 	public List<LocationData> getHistoryForAsset(
 			@Parameter(description = "The id of asset") @PathVariable Long assetId) {
 
@@ -74,7 +91,7 @@ public class AssetTrackerDataController {
 	@Operation(summary = "Get Single Asset",
 			description = "Get Single Asset By Id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
-	@GetMapping(value = "assets/{assetId}")
+	@GetMapping(value = "/assets/{assetId}")
 	public Asset getAsset(
 			@Parameter(description = "The id of asset") @PathVariable Long assetId) {
 

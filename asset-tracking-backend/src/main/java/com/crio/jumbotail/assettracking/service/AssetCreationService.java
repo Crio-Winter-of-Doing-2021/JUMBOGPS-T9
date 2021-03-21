@@ -8,6 +8,8 @@ public interface AssetCreationService {
 
 	AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest);
 
-	boolean updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId);
+	void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId);
+
+	void addBoundaryToAsset(Long assetId, String boundaryType, String data);
 
 }

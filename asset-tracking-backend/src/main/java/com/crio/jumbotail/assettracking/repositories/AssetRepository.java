@@ -3,13 +3,25 @@ package com.crio.jumbotail.assettracking.repositories;
 import com.crio.jumbotail.assettracking.entity.Asset;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AssetRepository extends JpaRepository<Asset, Long> {
+
+
+//	Polygon getAssetById(Long assetId);
+
+	@Query(value = "SELECT asset.geofence from Asset asset where asset.id = ?1")
+	Polygon getGeofenceForAsset(Long assetId);
+
+	@Query(value = "SELECT asset.route from Asset asset where asset.id = ?1")
+	LineString getRouteForAsset(Long assetId);
 
 	// last N assets (N = 100 by default)
 	List<Asset> findAllByOrderByLastReportedTimestampDesc(
