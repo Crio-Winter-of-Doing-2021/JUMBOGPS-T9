@@ -10,12 +10,15 @@ import static org.mockito.Mockito.verify;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
+import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
 import com.crio.jumbotail.assettracking.exceptions.InvalidFilterException;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
+import com.crio.jumbotail.assettracking.utils.SpatialUtils;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -26,13 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.annotation.DirtiesContext;
 
 @ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class AssetDataRetrievalServiceTest {
+class AssetDataRetrievalServiceShould {
 
 	@Mock
 	private AssetRepository assetRepository;
@@ -53,7 +57,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void getAssetFilteredBy_when_no_filter_defined() {
+	void return_no_assets_when_none_in_db() {
 		// given
 		Mockito.when(assetRepository.findAssets(any())).thenReturn(Collections.emptyList());
 		// when
@@ -65,7 +69,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void getAssetFilteredBy_when_type_filter_defined() {
+	void return_no_assets_with_type_filter_when_none_in_db() {
 		// given
 		Mockito.when(assetRepository.filterAssetsByType(eq("some_type"), any())).thenReturn(Collections.emptyList());
 		// when
@@ -77,7 +81,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void getAssetFilteredBy_when_time_filter_defined() {
+	void return_no_assets_with_time_filter_when_none_in_db() {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTime(any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
@@ -89,7 +93,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void getAssetFilteredBy_when_type_and_time_filter_defined() {
+	void return_no_assets_with_type_and_time_filter_when_none_in_db() {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTypeAndTime(eq("type"), any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
@@ -101,7 +105,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void expect_exception_start_timestamp_lt_end_timestamp() {
+	void expect_exception_start_timestamp_lessthan_end_timestamp() {
 		// when + then
 		assertThrows(InvalidFilterException.class,
 				() -> assetDataRetrievalService.getAssetFilteredBy("", 1L, 0L, 1));
@@ -109,7 +113,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void expect_exception_start_timestamp_lt_end_timestamp_and_valid_type() {
+	void expect_exception_when_start_timestamp_lessthan_end_timestamp_and_valid_type() {
 		// when + then
 		assertThrows(InvalidFilterException.class,
 				() -> assetDataRetrievalService.getAssetFilteredBy("type", 1L, 0L, 1));
@@ -118,7 +122,7 @@ class AssetDataRetrievalServiceTest {
 
 
 	@Test
-	void test_find_asset_for_valid_id() {
+	void return_same_asset_as_provided_by_db() {
 		// given
 		final long assetId = 1025L;
 		Asset returned = mock(Asset.class, Mockito.RETURNS_DEEP_STUBS);
@@ -131,7 +135,7 @@ class AssetDataRetrievalServiceTest {
 	}
 
 	@Test
-	void test_find_asset_for_invalid_id() {
+	void return_empty_asset_for_invalid_id() {
 		// given
 		final long assetId = 1025L;
 		// when
@@ -148,30 +152,34 @@ class AssetDataRetrievalServiceTest {
 	void get_history_for_valid_asset() {
 		final long assetId = 1025L;
 
-		Mockito.when(assetRepository.existsById(assetId)).thenReturn(true);
+		Mockito.when(assetRepository.findById(assetId)).thenReturn(Optional.of(mock(Asset.class)));
 		Mockito
 				.when(locationDataRepository.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(
 						eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class)
 				))
 				.thenReturn(Collections.singletonList(mock(LocationData.class)));
 
-		final List<LocationData> historyForAsset = assetDataRetrievalService.getHistoryForAssetOld(assetId);
+			Mockito.mockStatic(SpatialUtils.class).when((MockedStatic.Verification) SpatialUtils.getCentroidForHistory(any())).thenReturn(mock(Location.class));
 
-		verify(locationDataRepository, times(1)).findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class));
+		final AssetHistoryResponse historyForAsset1 = assetDataRetrievalService.getHistoryForAsset(assetId);
 
-		assertEquals(1, historyForAsset.size());
+		verify(locationDataRepository, times(1))
+				.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class));
+
+//		assertEquals(1, historyForAsset.size());
+		assertEquals(1, historyForAsset1.getHistory().size());
 	}
 
 
 	@Test
 	void get_history_for_invalid_asset() {
 		final long assetId = 1025L;
-		Mockito.when(assetRepository.existsById(assetId)).thenReturn(false);
+		Mockito.when(assetRepository.findById(assetId)).thenReturn(Optional.empty());
 
-		assertThrows(AssetNotFoundException.class, () -> assetDataRetrievalService.getHistoryForAssetOld(assetId));
+		assertThrows(AssetNotFoundException.class, () -> assetDataRetrievalService.getHistoryForAsset(assetId));
 
-		verify(locationDataRepository, times(0)).findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class),
-				any(LocalDateTime.class));
+		verify(locationDataRepository, times(0))
+				.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class));
 	}
 
 }
