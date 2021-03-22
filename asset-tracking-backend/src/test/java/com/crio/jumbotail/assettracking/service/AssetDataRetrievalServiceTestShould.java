@@ -36,7 +36,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 @ExtendWith(MockitoExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-class AssetDataRetrievalServiceShould {
+class AssetDataRetrievalServiceTestShould {
 
 	@Mock
 	private AssetRepository assetRepository;
