@@ -3,11 +3,13 @@ package com.crio.jumbotail.assettracking.service;
 import com.crio.jumbotail.assettracking.exchanges.response.Notification;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
@@ -23,6 +25,9 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		subscriber.onTimeout(() -> this.subscribers.remove(subscriber));
 
 		this.subscribers.add(subscriber);
+
+		LOG.info("Total Subscriber {}" , subscribers.size());
+
 		return subscriber;
 	}
 
@@ -32,14 +37,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		List<Subscriber> deadSubscribers = new ArrayList<>();
 		for (Subscriber subscriber : this.subscribers) {
 			try {
+				LOG.info("Notification Data {}", notification);
 
-				final SseEventBuilder sseEventBuilder = SseEmitter.event()
-						.id(String.valueOf(notification.getAssetId()))
-						.data(notification.getMessage())
-						.name(notification.getEventType())
+				SseEventBuilder sseEventBuilder = SseEmitter.event()
+						.id(LocalDateTime.now().toString())
+						.data(notification, MediaType.APPLICATION_JSON)
 						.reconnectTime(10_000L);
 
-				subscriber.send(sseEventBuilder);
+				subscriber.send(sseEventBuilder.build());
 
 			} catch (IOException e) {
 				LOG.info("Failed To Notify ", e);
@@ -53,8 +58,10 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
 		LOG.info("notification done");
 
-		this.subscribers.removeAll(deadSubscribers);
-
-		LOG.info("Removed Dead Subscribers");
+		if(!deadSubscribers.isEmpty()) {
+			this.subscribers.removeAll(deadSubscribers);
+			LOG.info("Removed Dead Subscribers");
+		}
+		LOG.info("Total Subscriber {}" , subscribers.size());
 	}
 }

@@ -11,55 +11,77 @@
   </head>
   <body>
     <script>
-      const authorizationToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";        
+      const authorizationToken =
+        "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
 
-      const resoureUrl = "https://jumbogps-auth.anugrahsinghal.repl.co/create/assets/subscribe";
+      const resoureUrl =
+        "https://jumbogps-auth.anugrahsinghal.repl.co/create/assets/subscribe";
 
-      function showNotification(data) {
-        console.log("called showNotification");
-        const notification = new Notification("header", {
-          body: data,
-          // icon: "./exclamation-mark.png",
+      function getNotificationHeader(eventType) {
+        let header = "";
+        console.log(eventType)
+        if (eventType === "route-deviation") {
+          header = "Route Deviation";
+        } else if (eventType === "geofence-exit") {
+          header = "Outside Geofence";
+        } else {
+          header = "Something went wrong";
+        }
+
+        return header;
+      }
+
+      function showNotification(eventData) {
+        console.group("showNotification");
+
+        let notificationData = eventData[1].data
+        console.log(notificationData)
+        
+        const header = getNotificationHeader(notificationData.eventType)
+        const message = notificationData.message
+       
+        const notification = new Notification(header, {
+          body: message,
+          icon: "./exclamation-mark.png",
         });
-        console.log("end showNotification");
+        console.groupEnd("end showNotification");
       }
 
       function subscribeToSSE() {
+        console.group("Event Subscription");
         // const eventSource = new EventSourcePolyfill(resoureUrl);
         const eventSource = new EventSource(resoureUrl);
 
-
-      
-        
-        console.log("subscribed")
+        console.log("subscribed");
 
         eventSource.onopen = (event) => {
           console.log("connection opened");
           console.log(event);
-        };    
+        };
 
-        console.log("open")
+        console.log("open");
 
         eventSource.onmessage = (result) => {
           console.log("Message Recieved");
-          console.log(JSON.stringify(result));
-          // const data = JSON.parse(result.data);
-          // console.log("Data: ", data);
-          showNotification(result);
+          // console.log(JSON.stringify(result));
+          const data = JSON.parse(result.data);
+          console.log("Data: ", data);
+          showNotification(data);
         };
-        console.log("message")
+        console.log("message");
 
         eventSource.onerror = (err) => {
           console.error("EventSource error: ", err);
         };
-        console.log("error")
+        console.log("error");
+
+        console.groupEnd("Event Subscribed");
       }
 
       console.log(Notification.permission);
 
       if (Notification.permission === "granted") {
         subscribeToSSE();
-        // showNotification();
       } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {

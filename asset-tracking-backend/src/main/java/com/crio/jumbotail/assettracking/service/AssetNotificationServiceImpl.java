@@ -3,6 +3,7 @@ package com.crio.jumbotail.assettracking.service;
 import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.exchanges.response.Notification;
 import com.crio.jumbotail.assettracking.utils.SpatialUtils;
+import java.text.MessageFormat;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -28,7 +29,7 @@ public class AssetNotificationServiceImpl implements AssetNotificationService {
 	private void notifyForRouteDeviation(Long assetId, Point point, LineString route) {
 		if (route != null && !point.within(route)) {
 			this.eventPublisher.publishEvent(new Notification(assetId,
-					assetId + "is not following defined route",
+					MessageFormat.format("{0} is not following defined route", assetId),
 					"route-deviation"
 			));
 		}
@@ -37,7 +38,7 @@ public class AssetNotificationServiceImpl implements AssetNotificationService {
 	private void notifyForGeofenceDeviation(Long assetId, Point point, Polygon geofence) {
 		if (geofence != null && !point.within(geofence)) {
 			this.eventPublisher.publishEvent(new Notification(assetId,
-					assetId + "is outside defined geofence",
+					MessageFormat.format("{0} is outside defined geofence", assetId),
 					"geofence-exit"
 			));
 		}

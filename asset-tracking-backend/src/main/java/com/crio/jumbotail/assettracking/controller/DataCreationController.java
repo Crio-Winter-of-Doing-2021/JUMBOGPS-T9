@@ -11,8 +11,11 @@ import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
+import com.crio.jumbotail.assettracking.service.SubscriptionService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -33,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +52,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/create")
 public class DataCreationController {
+
+	@Autowired
+	private SubscriptionService subscriptionService;
+
+	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
+			summary = "Subscribe to events"
+	)
+	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Subscriber sse(HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-store");
+
+		final Subscriber subscriber = new Subscriber();
+
+		return subscriptionService.subscribe(subscriber);
+	}
 
 	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
 
@@ -69,10 +89,9 @@ public class DataCreationController {
 	}
 
 	/**
-	 *
-	 * @param assetId id of the asset
+	 * @param assetId      id of the asset
 	 * @param boundaryType Polygon or Linestring
-	 * @param data array of longitudes and latitudes
+	 * @param data         array of longitudes and latitudes
 	 */
 	@PostMapping("/assets/{assetId}/{boundaryType}")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -81,9 +100,8 @@ public class DataCreationController {
 	}
 
 	/**
-	 *
 	 * @param locationUpdateRequest body containing the updated data
-	 * @param assetId id of the asset
+	 * @param assetId               id of the asset
 	 */
 	@PatchMapping("/assets/{assetId}")
 	@ResponseStatus(HttpStatus.OK)
