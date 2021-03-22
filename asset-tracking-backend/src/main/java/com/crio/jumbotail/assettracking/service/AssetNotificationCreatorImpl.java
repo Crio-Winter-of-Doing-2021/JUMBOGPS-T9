@@ -16,6 +16,7 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 
 	@Autowired
 	public ApplicationEventPublisher eventPublisher;
+
 	private static final String ROUTE_DEVIATION = "route-deviation";
 	private static final String GEO_FENCE_EXIT = "geofence-exit";
 
