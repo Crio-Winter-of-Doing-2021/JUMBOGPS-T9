@@ -16,6 +16,7 @@ import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @RestController
+@Tag(name = "Asset Data Creator", description = "The Asset Data Creator API")
 @RequestMapping("/api")
 public class DataCreationController {
 
@@ -78,10 +80,14 @@ public class DataCreationController {
 	@Autowired
 	AssetRepository assetRepository;
 
+
 	/**
 	 * @param assetCreationRequest request to create a new asset with its initial location
 	 * @return id of the created asset
 	 */
+	@Operation(description = "Create a new Asset",
+			summary = "Create Asset"
+	)
 	@PostMapping("/assets")
 	@ResponseStatus(HttpStatus.CREATED)
 	public AssetCreatedResponse createNewAsset(@RequestBody AssetCreationRequest assetCreationRequest) {
@@ -103,6 +109,10 @@ public class DataCreationController {
 	 * @param locationUpdateRequest body containing the updated data
 	 * @param assetId               id of the asset
 	 */
+
+	@Operation(description = "Update the Location of asset of provided id",
+			summary = "Update the Location of asset"
+	)
 	@PatchMapping("/assets/{assetId}")
 	@ResponseStatus(HttpStatus.OK)
 	public void updateLocationOfAsset(@RequestBody LocationUpdateRequest locationUpdateRequest, @PathVariable Long assetId) {
@@ -111,6 +121,8 @@ public class DataCreationController {
 
 	private List<Long> mockData = new ArrayList<>();
 
+
+	@Operation(summary = "Create MOCK DATA In DB")
 	@GetMapping("/mock-data")
 	public void createData() throws IOException {
 		final InputStream inputStream = resourceFile.getInputStream();
@@ -139,6 +151,8 @@ public class DataCreationController {
 
 	}
 
+	@Operation(summary = "Create History for [N] MOCK DATA In DB",
+			description = "Create 36 hour History for [N] MOCK DATA In DB, returns id for whom mock data was created")
 	@GetMapping("/mock-history")
 	public List<Long> createHistoryForAssets(@RequestParam int n) {
 
