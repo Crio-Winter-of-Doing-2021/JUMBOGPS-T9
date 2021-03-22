@@ -99,6 +99,7 @@ public class AssetTrackerDataController {
 	}
 
 
+	@Hidden
 	@Deprecated
 	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
