@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.exchanges.request;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -21,4 +22,8 @@ public class AssetCreationRequest {
 		this.location = location;
 		this.assetType = assetType;
 	}
+
+	List geofence;
+	List route;
+
 }

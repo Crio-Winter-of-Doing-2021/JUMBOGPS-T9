@@ -4,7 +4,7 @@ import com.crio.jumbotail.assettracking.entity.Location;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Polygon;
 
-public interface AssetNotificationService {
+public interface AssetNotificationCreator {
 
 	void validateAssetLocationForAnomaly(Long assetId, Location location, LineString route, Polygon geofence);
 

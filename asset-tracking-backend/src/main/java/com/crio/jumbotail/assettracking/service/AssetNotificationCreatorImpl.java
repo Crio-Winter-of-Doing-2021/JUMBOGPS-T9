@@ -12,10 +12,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AssetNotificationServiceImpl implements AssetNotificationService {
+public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 
 	@Autowired
 	public ApplicationEventPublisher eventPublisher;
+	private static final String ROUTE_DEVIATION = "route-deviation";
+	private static final String GEO_FENCE_EXIT = "geofence-exit";
 
 	public void validateAssetLocationForAnomaly(Long assetId, Location location, LineString route, Polygon geofence) {
 
@@ -28,19 +30,24 @@ public class AssetNotificationServiceImpl implements AssetNotificationService {
 
 	private void notifyForRouteDeviation(Long assetId, Point point, LineString route) {
 		if (route != null && !point.within(route)) {
-			this.eventPublisher.publishEvent(new Notification(assetId,
-					MessageFormat.format("Asset {0} is not following defined route", String.valueOf(assetId)),
-					"route-deviation"
-			));
+			this.eventPublisher.publishEvent(
+					new Notification(
+							assetId,
+							MessageFormat.format("Asset {0} is not following defined route", String.valueOf(assetId)),
+							ROUTE_DEVIATION
+					));
 		}
 	}
 
 	private void notifyForGeofenceDeviation(Long assetId, Point point, Polygon geofence) {
+
 		if (geofence != null && !point.within(geofence)) {
-			this.eventPublisher.publishEvent(new Notification(assetId,
-					MessageFormat.format("Asset {0} is outside defined geofence", String.valueOf(assetId)),
-					"geofence-exit"
-			));
+			this.eventPublisher.publishEvent(
+					new Notification(
+							assetId,
+							MessageFormat.format("Asset {0} is outside defined geofence", String.valueOf(assetId)),
+							GEO_FENCE_EXIT
+					));
 		}
 	}
 

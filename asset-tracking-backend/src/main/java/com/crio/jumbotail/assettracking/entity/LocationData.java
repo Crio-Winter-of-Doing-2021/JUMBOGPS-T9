@@ -34,20 +34,16 @@ import org.locationtech.jts.geom.Point;
 public class LocationData implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@SequenceGenerator(name = "location_id_generator")
+	@SequenceGenerator(name = "location_data_id_seq_gen", sequenceName = "location_data_id_sequence")
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "location_data_id_seq_gen")
 	private Long id;
 
 	private Location location;
-
 	private LocalDateTime timestamp;
 
 	@JsonIgnore
 	@Getter
 	private Point coordinates;
-
-	private Boolean withinGeofence;
-	private Boolean followingRoute;
 
 	public LocationData(Location location, LocalDateTime timestamp) {
 		this.location = location;

@@ -42,25 +42,32 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	private ModelMapper modelMapper;
 
 	@Autowired
-	private AssetNotificationService notificationService;
+	private AssetNotificationCreator notificationService;
 
 	@Override
 	public AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest) {
-		// TODO : validations ?
-
 		LOG.debug("assetCreationRequest [{}]", assetCreationRequest);
 
 		final Location location = modelMapper.map(assetCreationRequest.getLocation().getLocationDto(), Location.class);
 		LOG.debug("MODEL MAPPER location [{}]", location);
-		LocationData locationData = new LocationData(location, assetCreationRequest.getLocation().getDeviceTimestamp());
-		final Asset asset = new Asset(
-				assetCreationRequest.getTitle(),
-				assetCreationRequest.getDescription(),
-				assetCreationRequest.getAssetType(),
-				locationData);
+		final LocationData locationData = new LocationData(location, assetCreationRequest.getLocation().getDeviceTimestamp());
 
+		Asset.AssetBuilder assetPartial = Asset.builder()
+				.assetType(assetCreationRequest.getAssetType())
+				.description(assetCreationRequest.getDescription())
+				.title(assetCreationRequest.getTitle())
+				.history(locationData)
+				.lastReportedTimestamp(locationData.getTimestamp())
+				.lastReportedLocation(locationData.getLocation());
 
-//		asset.addLocationHistory(locationData);
+		if (assetCreationRequest.getGeofence() != null) {
+			assetPartial.geofence(gf.createPolygon());
+		}
+		if (assetCreationRequest.getRoute() != null) {
+			assetPartial.route(gf.createLineString());
+		}
+
+		final Asset asset = assetPartial.build();
 
 		final Asset save = assetRepository.save(asset);
 
@@ -72,9 +79,9 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	@Override
 	public void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId) {
-		// find the proxy asset
-		// will throw an exception if not present
 		try {
+			// find the proxy asset
+			// will throw an exception if not present
 			final Asset asset = assetRepository.getOne(assetId);
 
 			final Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
@@ -91,8 +98,6 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 					getGeofenceForAsset(assetId)
 			);
 
-//			updateLocationDataBasedOnAssetRestrictions(assetId, asset, locationData);
-
 		} catch (EntityNotFoundException e) {
 			throw new AssetNotFoundException("Asset with " + assetId + " not found.");
 		}
@@ -106,27 +111,6 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	private LineString getRouteForAsset(Long assetId) {
 		return assetRouteCache.computeIfAbsent(assetId, id -> assetRepository.getRouteForAsset(id));
 	}
-
-//	private void updateLocationDataBasedOnAssetRestrictions(Long assetId, Asset asset, LocationData locationData) {
-//		checkForGeofenceRestriction(assetId, asset, locationData);
-//		checkForRouteRestriction(assetId, asset, locationData);
-//	}
-//
-//	private void checkForGeofenceRestriction(Long assetId, Asset asset, LocationData locationData) {
-//		Polygon geofence = assetGeofenceCache.getOrDefault(assetId, asset.getGeofence());
-//		if (geofence != null) {
-//			final Point point = SpatialUtils.pointFromLocation(locationData.getLocation());
-//			locationData.setWithinGeofence(point.within(geofence));
-//		}
-//	}
-//
-//	private void checkForRouteRestriction(Long assetId, Asset asset, LocationData locationData) {
-//		final LineString routeToFollow = assetRouteCache.getOrDefault(assetId, asset.getRoute());
-//		if (routeToFollow != null) {
-//			final Point point = SpatialUtils.pointFromLocation(locationData.getLocation());
-//			locationData.setWithinGeofence(point.within(routeToFollow));
-//		}
-//	}
 
 	@Override
 	public void addBoundaryToAsset(Long assetId, String boundaryType, String data) {

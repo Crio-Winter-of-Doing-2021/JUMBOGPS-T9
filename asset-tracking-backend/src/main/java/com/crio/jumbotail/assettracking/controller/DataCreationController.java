@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Log4j2
 @RestController
-@RequestMapping("/create")
+@RequestMapping("/api")
 public class DataCreationController {
 
 	@Autowired
