@@ -35,7 +35,7 @@
       // const authorizationToken =
       //   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
 
-      const resoureUrl =
+      const resourceUrl =
         "https://jumbogps-auth-sse.anugrahsinghal.repl.co/create/assets/subscribe";
 
       function getNotificationHeader(eventType) {
@@ -70,8 +70,8 @@
 
       function subscribeToSSE() {
         console.group("Event Subscription");
-        // const eventSource = new EventSourcePolyfill(resoureUrl);
-        const eventSource = new EventSource(resoureUrl);
+        // const eventSource = new EventSourcePolyfill(resourceUrl);
+        const eventSource = new EventSource(resourceUrl);
 
         console.log("subscribed");
 
