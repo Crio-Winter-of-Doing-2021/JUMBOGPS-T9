@@ -27,18 +27,22 @@
       function subscribeToSSE() {
         // const eventSource = new EventSourcePolyfill(resoureUrl);
         const eventSource = new EventSource(resoureUrl);
+
+
+      
         
         console.log("subscribed")
 
         eventSource.onopen = (event) => {
           console.log("connection opened");
           console.log(event);
-        }    
+        };    
 
         console.log("open")
 
         eventSource.onmessage = (result) => {
-          console.log("Message Recieved" +  result);
+          console.log("Message Recieved");
+          console.log(JSON.stringify(result));
           // const data = JSON.parse(result.data);
           // console.log("Data: ", data);
           showNotification(result);
