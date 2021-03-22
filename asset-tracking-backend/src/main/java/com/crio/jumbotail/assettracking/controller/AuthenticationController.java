@@ -4,7 +4,7 @@ import com.crio.jumbotail.assettracking.exceptions.JwtAuthException;
 import com.crio.jumbotail.assettracking.exchanges.request.AuthRequest;
 import com.crio.jumbotail.assettracking.exchanges.request.CreateUserRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AuthResponse;
-import com.crio.jumbotail.assettracking.service.CustomUserDetailsService;
+import com.crio.jumbotail.assettracking.service.UserCreationService;
 import com.crio.jumbotail.assettracking.utils.JwtUtil;
 import io.jsonwebtoken.impl.DefaultClaims;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +19,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +34,10 @@ public class AuthenticationController {
 	private AuthenticationManager authenticationManager;
 
 	@Autowired
-	private CustomUserDetailsService userDetailsService;
+	private UserDetailsService userDetailsService;
+
+	@Autowired
+	private UserCreationService userCreationService;
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -58,7 +62,7 @@ public class AuthenticationController {
 	@PostMapping(value = "/register")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void saveUser(@RequestBody CreateUserRequest user) {
-		userDetailsService.save(user);
+		userCreationService.save(user);
 	}
 
 	@GetMapping(value = "/refreshtoken")
