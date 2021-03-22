@@ -29,7 +29,7 @@ public class AssetNotificationServiceImpl implements AssetNotificationService {
 	private void notifyForRouteDeviation(Long assetId, Point point, LineString route) {
 		if (route != null && !point.within(route)) {
 			this.eventPublisher.publishEvent(new Notification(assetId,
-					MessageFormat.format("{0} is not following defined route", String.valueOf(assetId)),
+					MessageFormat.format("Asset {0} is not following defined route", String.valueOf(assetId)),
 					"route-deviation"
 			));
 		}
@@ -38,7 +38,7 @@ public class AssetNotificationServiceImpl implements AssetNotificationService {
 	private void notifyForGeofenceDeviation(Long assetId, Point point, Polygon geofence) {
 		if (geofence != null && !point.within(geofence)) {
 			this.eventPublisher.publishEvent(new Notification(assetId,
-					MessageFormat.format("{0} is outside defined geofence", String.valueOf(assetId)),
+					MessageFormat.format("Asset {0} is outside defined geofence", String.valueOf(assetId)),
 					"geofence-exit"
 			));
 		}
