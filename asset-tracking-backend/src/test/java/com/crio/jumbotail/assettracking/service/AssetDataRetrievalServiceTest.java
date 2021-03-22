@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
+import com.crio.jumbotail.assettracking.exceptions.InvalidFilterException;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
@@ -102,7 +103,7 @@ class AssetDataRetrievalServiceTest {
 	@Test
 	void expect_exception_start_timestamp_lt_end_timestamp() {
 		// when + then
-		assertThrows(IllegalArgumentException.class,
+		assertThrows(InvalidFilterException.class,
 				() -> assetDataRetrievalService.getAssetFilteredBy("", 1L, 0L, 1));
 		verify(assetRepository, times(0)).filterAssetsByTime(any(), any(), any());
 	}
@@ -110,7 +111,7 @@ class AssetDataRetrievalServiceTest {
 	@Test
 	void expect_exception_start_timestamp_lt_end_timestamp_and_valid_type() {
 		// when + then
-		assertThrows(IllegalArgumentException.class,
+		assertThrows(InvalidFilterException.class,
 				() -> assetDataRetrievalService.getAssetFilteredBy("type", 1L, 0L, 1));
 		verify(assetRepository, times(0)).filterAssetsByTypeAndTime(eq("type"), any(), any(), any());
 	}
