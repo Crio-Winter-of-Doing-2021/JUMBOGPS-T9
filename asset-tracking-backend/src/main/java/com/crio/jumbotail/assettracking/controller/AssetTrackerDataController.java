@@ -7,6 +7,7 @@ import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -29,11 +30,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssetTrackerDataController {
 
 	@Autowired
-	SubscriptionService subscriptionService;
+	private SubscriptionService subscriptionService;
 
 	@Autowired
 	private AssetDataRetrievalService retrievalService;
 
+	@Hidden
 	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
 			summary = "Subscribe to events"
 	)
