@@ -53,7 +53,7 @@ public class SpringSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			"/h2-console/**?**",
 			"/h2-console/**/**",
 			// data creation api
-			"/create/**"
+			"/api/**"
 
 	};
 
