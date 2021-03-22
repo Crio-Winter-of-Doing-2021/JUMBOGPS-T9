@@ -67,14 +67,11 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 			assetPartial.route(gf.createLineString());
 		}
 
-		final Asset asset = assetPartial.build();
+		Asset asset = assetPartial.build();
 
-		final Asset save = assetRepository.save(asset);
+		final Asset savedAsset = assetRepository.save(asset);
 
-		final AssetCreatedResponse assetCreatedResponse = new AssetCreatedResponse();
-		assetCreatedResponse.setId(save.getId());
-
-		return assetCreatedResponse;
+		return new AssetCreatedResponse(savedAsset.getId());
 	}
 
 	@Override
@@ -82,14 +79,19 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 		try {
 			// find the proxy asset
 			// will throw an exception if not present
-			final Asset asset = assetRepository.getOne(assetId);
+			Asset assetProxy = assetRepository.getOne(assetId);
 
-			final Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
-			final LocationData locationData = new LocationData(location, locationUpdateRequest.getLocation().getDeviceTimestamp());
-			locationData.setAsset(asset);
+			// create instance of location to hold the co-ordinates
+			Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
+			// create instance of location data
+			LocationData newLocationData = new LocationData(
+					location,
+					locationUpdateRequest.getLocation().getDeviceTimestamp()
+			);
+			newLocationData.setAsset(assetProxy);
 
 
-			locationDataRepository.save(locationData);
+			locationDataRepository.save(newLocationData);
 
 			notificationService.validateAssetLocationForAnomaly(
 					assetId,

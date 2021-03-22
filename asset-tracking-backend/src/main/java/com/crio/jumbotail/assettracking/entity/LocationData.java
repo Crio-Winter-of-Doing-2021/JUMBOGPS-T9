@@ -60,9 +60,12 @@ public class LocationData implements Serializable {
 	private Asset asset;
 
 
+	/**
+	 * updates the properties for the asset mapped to it and stores location data as Point[Geometry]
+	 */
 	@PrePersist
 	@PreUpdate
-	public void updateCoordinate() {
+	public void updateCoordinateAndAssetProperties() {
 		if (this.getLocation().getLongitude() == null || this.getLocation().getLatitude() == null) {
 			this.coordinates = null;
 		} else {

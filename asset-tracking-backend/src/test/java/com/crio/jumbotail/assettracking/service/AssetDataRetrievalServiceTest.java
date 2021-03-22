@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import java.time.LocalDateTime;
@@ -55,7 +56,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.findAssets(any())).thenReturn(Collections.emptyList());
 		// when
-		final List<Asset> assets = assetDataRetrievalService.getAssetFilteredBy("", null, null, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("", null, null, 1);
+		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).findAssets(any());
 		assertEquals(0, assets.size());
@@ -66,7 +68,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByType(eq("some_type"), any())).thenReturn(Collections.emptyList());
 		// when
-		final List<Asset> assets = assetDataRetrievalService.getAssetFilteredBy("some_type", null, null, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("some_type", null, null, 1);
+		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByType(eq("some_type"), any());
 		assertEquals(0, assets.size());
@@ -77,7 +80,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTime(any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
-		final List<Asset> assets = assetDataRetrievalService.getAssetFilteredBy("", 0L, 1L, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("", 0L, 1L, 1);
+		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByTime(any(), any(), any());
 		assertEquals(0, assets.size());
@@ -88,7 +92,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTypeAndTime(eq("type"), any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
-		final List<Asset> assets = assetDataRetrievalService.getAssetFilteredBy("type", 0L, 1L, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("type", 0L, 1L, 1);
+		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByTypeAndTime(eq("type"), any(), any(), any());
 		assertEquals(0, assets.size());
@@ -149,7 +154,7 @@ class AssetDataRetrievalServiceTest {
 				))
 				.thenReturn(Collections.singletonList(mock(LocationData.class)));
 
-		final List<LocationData> historyForAsset = assetDataRetrievalService.getHistoryForAsset(assetId);
+		final List<LocationData> historyForAsset = assetDataRetrievalService.getHistoryForAssetOld(assetId);
 
 		verify(locationDataRepository, times(1)).findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class));
 
@@ -162,7 +167,7 @@ class AssetDataRetrievalServiceTest {
 		final long assetId = 1025L;
 		Mockito.when(assetRepository.existsById(assetId)).thenReturn(false);
 
-		assertThrows(AssetNotFoundException.class, () -> assetDataRetrievalService.getHistoryForAsset(assetId));
+		assertThrows(AssetNotFoundException.class, () -> assetDataRetrievalService.getHistoryForAssetOld(assetId));
 
 		verify(locationDataRepository, times(0)).findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class),
 				any(LocalDateTime.class));

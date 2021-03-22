@@ -2,9 +2,9 @@ package com.crio.jumbotail.assettracking.utils;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.Location;
+import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Coordinate;
@@ -25,7 +25,11 @@ public class SpatialUtils {
 
 
 	public static Location toLocation(Coordinate coordinate) {
-		return new Location(coordinate.getOrdinate(LONGITUDE), coordinate.getOrdinate(LATITUDE));
+		if (coordinate != null) {
+			return new Location(coordinate.getOrdinate(LONGITUDE), coordinate.getOrdinate(LATITUDE));
+		} else {
+			return new Location(0.0, 0.0);
+		}
 	}
 
 	public static Coordinate fromLocation(Location location) {
@@ -41,10 +45,7 @@ public class SpatialUtils {
 		return geometryFactory.createPoint(coordinate);
 	}
 
-	public static Location getCentroid(List<Point> points) {
-
-		final Coordinate[] coordinates = points.stream().map(Point::getCoordinate).toArray(Coordinate[]::new);
-
+	public static Location getCentroid(Coordinate[] coordinates) {
 		final Point centroid = new ConvexHull(coordinates, new GeometryFactory()).getConvexHull().getCentroid();
 		final Coordinate coordinate = centroid.getCoordinate();
 
@@ -52,9 +53,24 @@ public class SpatialUtils {
 	}
 
 	public static Location getCentroidForAssets(List<Asset> assets) {
-		final List<Point> points = assets.stream().map(Asset::getLastReportedCoordinates).collect(Collectors.toList());
+		final Coordinate[] coordinates = assets.stream()
+				.map(Asset::getLastReportedCoordinates)
+				.map(Point::getCoordinate).toArray(Coordinate[]::new);
 
-		final Location centroid = getCentroid(points);
+		final Location centroid = getCentroid(coordinates);
+
+		LOG.info("centroid [{}]", centroid);
+
+		return centroid;
+	}
+
+	public static Location getCentroidForHistory(List<LocationData> locationData) {
+		final Coordinate[] coordinates = locationData.stream()
+				.map(LocationData::getCoordinates)
+				.map(Point::getCoordinate)
+				.toArray(Coordinate[]::new);
+
+		final Location centroid = getCentroid(coordinates);
 
 		LOG.info("centroid [{}]", centroid);
 

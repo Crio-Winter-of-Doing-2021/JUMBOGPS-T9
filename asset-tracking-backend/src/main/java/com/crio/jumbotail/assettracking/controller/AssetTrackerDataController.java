@@ -1,12 +1,9 @@
 package com.crio.jumbotail.assettracking.controller;
 
-import static com.crio.jumbotail.assettracking.utils.SpatialUtils.getCentroidForAssets;
-
-
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
@@ -64,29 +61,27 @@ public class AssetTrackerDataController {
 			@Parameter(description = "Starting timestamp in UTC - 0 is epoch time at January 1, 1970 12:00:00 AM", example = "0") @RequestParam(required = false) Long startTimeStamp,
 			@Parameter(description = "Ending timestamp in UTC - 1609459200 is epoch time at January 1, 2021 12:00:00 AM", example = "1609459200") @RequestParam(required = false) Long endTimeStamp) {
 
-		List<Asset> assets = retrievalService.getAssetFilteredBy(type, startTimeStamp, endTimeStamp, limit);
+		AssetDataResponse assetDataResponse = retrievalService.getAssetFilteredBy(type, startTimeStamp, endTimeStamp, limit);
 
-		LOG.info("assets.size() [{}]", assets.size());
-		Location centroid = new Location(0.0, 0.0);
-		if (!assets.isEmpty()) {
-			centroid = getCentroidForAssets(assets);
-		}
-		return new AssetDataResponse(centroid, assets);
+		LOG.info("assets.size() [{}]", assetDataResponse.getAssets().size());
+
+		return assetDataResponse;
 	}
 
 
 	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
 	@GetMapping(value = "/assets/{assetId}/history")
-	public List<LocationData> getHistoryForAsset(
+	public AssetHistoryResponse getHistoryForAsset(
 			@Parameter(description = "The id of asset") @PathVariable Long assetId) {
 
-		final List<LocationData> assetHistory = retrievalService.getHistoryForAsset(assetId);
+		final AssetHistoryResponse assetHistoryResponse = retrievalService.getHistoryForAsset(assetId);
 
-		LOG.info("location history size [{}]", assetHistory.size());
+		LOG.info("location history size [{}]", assetHistoryResponse.getHistory().size());
 
-		return assetHistory;
+		return assetHistoryResponse;
 	}
+
 
 	@Operation(summary = "Get Single Asset", description = "Get Single Asset By Id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
@@ -101,4 +96,18 @@ public class AssetTrackerDataController {
 		return asset;
 	}
 
+
+	@Deprecated
+	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
+	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
+	@GetMapping(value = "/v0/assets/{assetId}/history")
+	public List<LocationData> getHistoryForAssetOld(
+			@Parameter(description = "The id of asset") @PathVariable Long assetId) {
+
+		final List<LocationData> assetHistory = retrievalService.getHistoryForAssetOld(assetId);
+
+		LOG.info("location history size [{}]", assetHistory.size());
+
+		return assetHistory;
+	}
 }
