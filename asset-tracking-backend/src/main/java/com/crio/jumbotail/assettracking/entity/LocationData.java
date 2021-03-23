@@ -52,6 +52,7 @@ public class LocationData implements Serializable {
 
 	public LocationData(Location location, Long timestampEpoch) {
 		this.location = location;
+		// convert epoch timestamp to LocalDateTime object
 		this.timestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestampEpoch), systemDefault());
 	}
 

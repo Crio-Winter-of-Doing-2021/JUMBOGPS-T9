@@ -30,24 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssetTrackerDataController {
 
 	@Autowired
-	private SubscriptionService subscriptionService;
-
-	@Autowired
 	private AssetDataRetrievalService retrievalService;
-
-	@Hidden
-	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
-			summary = "Subscribe to events"
-	)
-	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Subscriber sse(HttpServletResponse response) {
-		response.setHeader("Cache-Control", "no-store");
-
-		final Subscriber subscriber = new Subscriber();
-
-		return subscriptionService.subscribe(subscriber);
-	}
-
 	@Operation(description = "Get last N Assets sorted by timestamp, supports following filter combinations: \n"
 	                         + "1. Type\n"
 	                         + "2. Type + Start Timestamp & End Timestamp\n"
@@ -99,6 +82,7 @@ public class AssetTrackerDataController {
 	}
 
 
+	//region hidden
 	@Hidden
 	@Deprecated
 	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
@@ -113,4 +97,22 @@ public class AssetTrackerDataController {
 
 		return assetHistory;
 	}
+
+	@Autowired
+	private SubscriptionService subscriptionService;
+
+	@Hidden
+	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
+			summary = "Subscribe to events"
+	)
+	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public Subscriber sse(HttpServletResponse response) {
+		response.setHeader("Cache-Control", "no-store");
+
+		final Subscriber subscriber = new Subscriber();
+
+		return subscriptionService.addSubscriber(subscriber);
+	}
+	//endregion
+
 }

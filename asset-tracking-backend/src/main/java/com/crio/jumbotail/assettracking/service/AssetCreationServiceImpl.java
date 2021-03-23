@@ -95,7 +95,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 			locationDataRepository.save(newLocationData);
 
-			notificationService.validateAssetLocationForAnomaly(
+			notificationService.validateAssetLocation(
 					assetId,
 					location,
 					getRouteForAsset(assetId),

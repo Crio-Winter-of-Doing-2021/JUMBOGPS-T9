@@ -7,6 +7,7 @@ import com.crio.jumbotail.assettracking.exchanges.response.AuthResponse;
 import com.crio.jumbotail.assettracking.service.UserCreationService;
 import com.crio.jumbotail.assettracking.utils.JwtUtil;
 import io.jsonwebtoken.impl.DefaultClaims;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,7 @@ public class AuthenticationController {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	@Operation(summary = "Authentication API", description = "Authenticate with username and password")
 	@PostMapping(value = "/authenticate")
 	@ResponseStatus(HttpStatus.OK)
 	public AuthResponse createAuthenticationToken(@RequestBody AuthRequest authenticationRequest) {
@@ -59,12 +61,14 @@ public class AuthenticationController {
 		return new AuthResponse(token);
 	}
 
+	@Operation(summary = "User Registration", description = "Create New User")
 	@PostMapping(value = "/register")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void saveUser(@RequestBody CreateUserRequest user) {
 		userCreationService.save(user);
 	}
 
+	@Operation(summary = "Refresh Expired JWT token", description = "Refresh Expired JWT token")
 	@GetMapping(value = "/refreshtoken")
 	@ResponseStatus(HttpStatus.OK)
 	public AuthResponse refreshtoken(HttpServletRequest request) {

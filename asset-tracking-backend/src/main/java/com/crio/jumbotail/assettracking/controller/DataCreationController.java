@@ -61,16 +61,16 @@ public class DataCreationController {
 	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
 			summary = "Subscribe to events"
 	)
-	@GetMapping(value = "assets/subscribe",
-			produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Subscriber subscribeToSSE(HttpServletResponse response) {
 		response.setHeader("Cache-Control", "no-store");
 
 		final Subscriber subscriber = new Subscriber();
 
-		return subscriptionService.subscribe(subscriber);
+		return subscriptionService.addSubscriber(subscriber);
 	}
 
+	//region hidden-content
 	private static final ZoneOffset offset = OffsetDateTime.now().getOffset();
 
 	@Value("classpath:locations.csv")
@@ -186,6 +186,7 @@ public class DataCreationController {
 			timestampOfNHourBefore = timestampOfNHourBefore.plus(1, HOURS);
 		}
 	}
+	//endregion
 
 
 }

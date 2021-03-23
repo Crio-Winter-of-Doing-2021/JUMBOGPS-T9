@@ -30,21 +30,37 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class AppConfig {
 
 
+	/**
+	 *
+	 * @return Module for Jdk8 support for Jackson
+	 */
 	@Bean
 	public Jdk8Module jdk8Module() {
 		return new Jdk8Module();
 	}
 
+	/**
+	 *
+	 * @return Module for Jdk8 Time Libraries support for Jackson
+	 */
 	@Bean
 	public JavaTimeModule javaTimeModule() {
 		return new JavaTimeModule();
 	}
 
+	/**
+	 *
+	 * @return Module to stop serialization by object mapper of lazy loaded entities
+	 */
 	@Bean
 	public Hibernate5Module hibernate5Module() {
 		return new Hibernate5Module();
 	}
 
+	/**
+	 *
+	 * @return Module for geometry types deserialization
+	 */
 	@Bean
 	public JtsModule jtsModule() {
 		return new JtsModule(new GeometryFactory(new PrecisionModel(), 4326));

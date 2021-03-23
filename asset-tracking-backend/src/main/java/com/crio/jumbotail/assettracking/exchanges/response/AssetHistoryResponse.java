@@ -14,14 +14,16 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Response with the Asset, its location history and centroid")
 public class AssetHistoryResponse {
 
-	@Schema(description = "The centroid of the assets")
+	@Schema(description = "The centroid of the locations for better rendering on map apis")
 	private Location centroid;
 
 	@Schema(description = "Asset for the Id found")
 	private Asset asset;
 
+	@Schema(description = "The location history for the asset")
 	private List<LocationData> history;
 
 }

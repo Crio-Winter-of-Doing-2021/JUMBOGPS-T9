@@ -5,8 +5,8 @@ import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 
 public interface SubscriptionService {
 
-	Subscriber subscribe(Subscriber subscriber);
+	Subscriber addSubscriber(Subscriber subscriber);
 
-	void notifySubscriber(Notification data);
+	void notifySubscribers(Notification data);
 
 }

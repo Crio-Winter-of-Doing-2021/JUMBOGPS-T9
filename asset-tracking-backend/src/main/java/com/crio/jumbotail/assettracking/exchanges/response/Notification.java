@@ -18,5 +18,4 @@ public class Notification {
 
 	private String eventType;
 
-
 }

@@ -20,7 +20,7 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 	private static final String ROUTE_DEVIATION = "route-deviation";
 	private static final String GEO_FENCE_EXIT = "geofence-exit";
 
-	public void validateAssetLocationForAnomaly(Long assetId, Location location, LineString route, Polygon geofence) {
+	public void validateAssetLocation(Long assetId, Location location, LineString route, Polygon geofence) {
 
 		final Point point = SpatialUtils.pointFromLocation(location);
 
