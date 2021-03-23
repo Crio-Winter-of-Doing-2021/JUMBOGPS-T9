@@ -9,6 +9,8 @@ import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,7 +58,6 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 				.assetType(assetCreationRequest.getAssetType())
 				.description(assetCreationRequest.getDescription())
 				.title(assetCreationRequest.getTitle())
-				.history(locationData)
 				.lastReportedTimestamp(locationData.getTimestamp())
 				.lastReportedLocation(locationData.getLocation());
 
@@ -68,6 +69,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 		}
 
 		Asset asset = assetPartial.build();
+		asset.addLocationHistory(locationData);
 
 		final Asset savedAsset = assetRepository.save(asset);
 
@@ -114,27 +116,48 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 		return assetRouteCache.computeIfAbsent(assetId, id -> assetRepository.getRouteForAsset(id));
 	}
 
+	@Autowired
+	private ObjectMapper objectMapper;
+
 	@Override
 	public void addBoundaryToAsset(Long assetId, String boundaryType, String data) {
-		final ArrayList<Coordinate> points = new ArrayList<>();
-		points.add(new Coordinate(-10, -10));
-		points.add(new Coordinate(-10, 10));
-		points.add(new Coordinate(10, 10));
-		points.add(new Coordinate(10, -10));
-		points.add(new Coordinate(-10, -10));
 
-		final Coordinate[] shell = points.toArray(new Coordinate[0]);
+		try {
+			final ArrayList<Coordinate> points = new ArrayList<>();
+			if(data==null || data.isEmpty()) {
+				points.add(new Coordinate(-10, -10));
+				points.add(new Coordinate(-10, 10));
+				points.add(new Coordinate(10, 10));
+				points.add(new Coordinate(10, -10));
+				points.add(new Coordinate(-10, -10));
 
-		Asset asset = assetRepository.getOne(assetId);
-		if ("POLYGON".equalsIgnoreCase(boundaryType)) {
-			final Polygon geofence = gf.createPolygon(shell);
-			asset.setGeofence(geofence);
-		} else if ("LINESTRING".equalsIgnoreCase(boundaryType)) {
-			final LineString route = gf.createLineString(shell);
-			asset.setRoute(route);
+			} else {
+				final Double[][] coordinates = objectMapper.readValue(data, Double[][].class);
+
+				for (final Double[] coordinate : coordinates) {
+					Coordinate c = new Coordinate(coordinate[0], coordinate[1]);
+					points.add(c);
+				}
+
+			}
+			final Coordinate[] shell = points.toArray(new Coordinate[0]);
+
+			Asset asset = assetRepository.getOne(assetId);
+			if ("POLYGON".equalsIgnoreCase(boundaryType)) {
+				final Polygon geofence = gf.createPolygon(shell);
+				asset.setGeofence(geofence);
+			} else if ("LINESTRING".equalsIgnoreCase(boundaryType)) {
+				final LineString route = gf.createLineString(shell);
+				asset.setRoute(route);
+			}
+
+			assetRepository.save(asset);
+
+
+		} catch (JsonProcessingException e) {
+			LOG.error(e);
+			throw new IllegalArgumentException(e);
 		}
-
-		assetRepository.save(asset);
 
 	}
 

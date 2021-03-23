@@ -25,7 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.Singular;
 import lombok.ToString;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
@@ -51,11 +50,10 @@ public class Asset implements Serializable {
 	private Polygon geofence;
 	private LineString route;
 
-	@Singular("history")
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@JsonManagedReference("asset-data")
 	@OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "asset", fetch = FetchType.LAZY)
-	private List<LocationData> locationHistory = new ArrayList<>();
+	private List<LocationData> locationHistory;
 
 	// extra properties
 	private LocalDateTime lastReportedTimestamp;
@@ -70,6 +68,15 @@ public class Asset implements Serializable {
 		} else {
 			this.lastReportedCoordinates = pointFromLocation(this.lastReportedLocation);
 		}
+	}
+
+	public void addLocationHistory(LocationData locationData) {
+		locationData.setAsset(this);
+		if (locationHistory == null) {
+			locationHistory = new ArrayList<>();
+		}
+
+		this.locationHistory.add(locationData);
 	}
 
 }
