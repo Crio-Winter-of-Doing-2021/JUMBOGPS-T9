@@ -61,7 +61,7 @@ public class DataCreationController {
 	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
 			summary = "Subscribe to events"
 	)
-	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@GetMapping(value = "/assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public Subscriber subscribeToSSE(HttpServletResponse response) {
 		response.setHeader("Cache-Control", "no-store");
 
