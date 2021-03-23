@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
 import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
@@ -37,6 +38,7 @@ import org.locationtech.jts.geom.Polygon;
 @Entity
 @AllArgsConstructor
 @Builder
+@DynamicUpdate
 public class Asset implements Serializable {
 
 	@Id
