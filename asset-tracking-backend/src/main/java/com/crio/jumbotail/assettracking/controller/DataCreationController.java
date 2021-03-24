@@ -15,6 +15,7 @@ import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
+import com.github.javafaker.Faker;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
@@ -28,11 +29,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -125,31 +126,47 @@ public class DataCreationController {
 
 	@Operation(summary = "Create MOCK DATA In DB")
 	@GetMapping("/mock-data")
-	public void createData() throws IOException {
-		final InputStream inputStream = resourceFile.getInputStream();
-		String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+	public void createData(@RequestParam String global) throws IOException {
 
-		final String[] locations = data.split("\n");
+		Faker faker = new Faker(new Locale("en-IND"));
 
-		for (String location : locations) {
-			final String[] s = location.split("\t");
-			LOG.info("location = " + Arrays.toString(s));
-			assert (s.length == 2);
-			LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
+		if (global != null) {
 
-			LocationDataDto locationDataDto = new LocationDataDto(locationDto,
-					Instant.now().plus((long) (Math.random() * 15000), ChronoUnit.SECONDS).getEpochSecond());
+			for (int i = 0; i < 100; i++) {
+				LocationDto locationDto = new LocationDto(Double.valueOf(faker.address().longitude()), Double.valueOf(faker.address().latitude()));
 
-			AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
-					RandomStringUtils.randomAlphabetic(10),
-					RandomStringUtils.randomAlphabetic(40),
-					locationDataDto, RandomUtils.nextInt() % 2 == 0 ? "TRUCK" : "SALESPERSON");
+				makeMockData(faker, locationDto);
+			}
 
-			final AssetCreatedResponse newAsset = createNewAsset(assetCreationRequest);
+		} else {
+			final InputStream inputStream = resourceFile.getInputStream();
+			String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
 
-			mockData.add(newAsset.getId());
+			final String[] locations = data.split("\n");
+
+			for (String location : locations) {
+				final String[] s = location.split("\t");
+				LOG.info("location = " + Arrays.toString(s));
+				assert (s.length == 2);
+				LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
+
+				makeMockData(faker, locationDto);
+			}
 		}
+	}
 
+	private void makeMockData(Faker faker, LocationDto locationDto) {
+		LocationDataDto locationDataDto = new LocationDataDto(locationDto,
+				Instant.now().plus((long) (Math.random() * 15000), ChronoUnit.SECONDS).getEpochSecond());
+
+		AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
+				faker.commerce().material(),
+				faker.commerce().productName(),
+				locationDataDto, RandomUtils.nextInt() % 2 == 0 ? "TRUCK" : "SALESPERSON");
+
+		final AssetCreatedResponse newAsset = createNewAsset(assetCreationRequest);
+
+		mockData.add(newAsset.getId());
 	}
 
 	@Operation(summary = "Create History for [N] MOCK DATA In DB",
@@ -160,7 +177,9 @@ public class DataCreationController {
 		for (Long mockAssetId : mockData.subList(0, n)) {
 			final Optional<Asset> assetsFirstLocation = assetRepository.findById(mockAssetId);
 			if (assetsFirstLocation.isPresent()) {
-				final Location firstLocation = assetsFirstLocation.get().getLastReportedLocation();
+				// TODO
+				// FIXME
+				final Location firstLocation = null;//assetsFirstLocation.get().getLastReportedLocation();
 				final LocalDateTime firstTimestamp = assetsFirstLocation.get().getLastReportedTimestamp();
 
 				makeHistoryStartingBeforeNHours(mockAssetId, firstLocation, firstTimestamp, 36);
