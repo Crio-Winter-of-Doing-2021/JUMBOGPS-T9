@@ -1,6 +1,5 @@
 const mainUrl = 'https://jumbogps.anugrahsinghal.repl.co/assets';
 const getAllAssetsUrl = `${mainUrl}?limit=100`;
-const getAssetHistoryUrl = 'https://jumbogps.anugrahsinghal.repl.co/assets/2555/history';
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -28,10 +27,11 @@ async function getAssetData(url,current) {
 		centroid = body.data.centroid?body.data.centroid:body.data.lastReportedLocation;
 })
 	.catch((err) => {
-		console.log("no assets found!");
-		return;
+		if(err.response){
+			alert("no assets found for that id/type");
+			throw new Error("no assets");
+		}
 	});
-
 
 	// long,lat of a random asset
 	let { longitude, latitude } = centroid;
@@ -42,7 +42,7 @@ async function getAssetData(url,current) {
 		essential: true // this animation is considered essential with respect to prefers-reduced-motion
 	});
 
-	features = [];
+	features = [],features1=[];
 
 	assets.forEach((asset) => {
 		// console.log(asset);
@@ -56,7 +56,7 @@ async function getAssetData(url,current) {
                 <span><strong>Type:</strong> ${asset.assetType}</span>
                 <p>${asset.description}</p>
                 <span>${asset.lastReportedTimestamp}</span>
-                <div><a onclick="getAssetHistory('${asset.id}','${getAssetHistoryUrl}','history')">See last 24 hrs view</a></div>
+                <div><a onclick="getAssetHistory('${asset.id}','history')">See last 24 hrs view</a></div>
                 `
 			},
 			geometry: {
@@ -64,6 +64,7 @@ async function getAssetData(url,current) {
 				coordinates: [ long, lat ]
 			}
 		});
+	
 	});
 
 	addMapLayer(current);
@@ -71,8 +72,10 @@ async function getAssetData(url,current) {
 
 // getting details popup of an asset
 function addMapLayer(current) {
+
 	map.loadImage(
-		'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+		"https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png",
+	
 		// Add an image to use as a custom marker
 		function(error, image) {
 			if (error) throw error;
@@ -89,7 +92,7 @@ function addMapLayer(current) {
 				type: 'geojson',
 					data: {
 						type: 'FeatureCollection',
-						features: features
+						features
 					}
 				});
 	
@@ -99,8 +102,9 @@ function addMapLayer(current) {
 					type: 'symbol',
 					source: current,
 					layout: {
-						'icon-image': 'custom-marker',
+						'icon-image': "custom-marker",
 						'icon-allow-overlap': true,
+						'icon-size':0.6,
 						visibility: 'visible'
 					}
 				});
@@ -114,8 +118,10 @@ function addMapLayer(current) {
 		}
 	);
 
-	for(let layer of layers) createAssetPopup(layer)
+
 }
+
+for(let layer of layers) createAssetPopup(layer)
 
 function createAssetPopup(layer) {
 	// Create a popup, but don't add it to the map yet.
@@ -151,24 +157,8 @@ async function getAllAssets(url,layer){
 	await getAssetData(url,layer);
 }
 
-// for searching asset by timestamp
-function searchByTimeStamp(url,layer) {
-	getAssetData(url, layer);
-}
-
-// for searching assets by type
-function searchByType(url,layer){
-	getAssetData(url,layer);
-}
-
-// for searching assets by id
-function searchById(url,layer){
-	getAssetData(url,layer);
-}
-
-
 // for getting loc history of an asset
-async function getAssetHistory(assetId,url,current){
+async function getAssetHistory(assetId,current){
 	let asset,centroid,history;
 
 	let searchByIdUrl = `${mainUrl}/${assetId}`;
@@ -179,7 +169,9 @@ async function getAssetHistory(assetId,url,current){
 		asset = body.data;
 	centroid = body.data.centroid?body.data.centroid:body.data.lastReportedLocation;
 })
-	.catch((err) => console.log(err));
+	.catch((err) =>{
+		alert("no history for that asset found.try another asset.");
+	});
 
 	let {id,assetType,description,title} = asset;
 
@@ -190,17 +182,23 @@ async function getAssetHistory(assetId,url,current){
 	// for recentering the map to a marker
 	map.flyTo({
 		center: [ longitude, latitude ],
+		zoom:8,
 		essential: true // this animation is considered essential with respect to prefers-reduced-motion
 	});
 
 	features = [];
 
-	await axios.get(url)
+	let getAssetHistoryUrl = `${mainUrl}/${assetId}/history`;
+
+	await axios.get(getAssetHistoryUrl)
 	.then(body => history = body.data)
 	.catch(err => console.log(err));
 
+	if(history.length==0){
+		alert("no history found for that asset");
+		return;
+	}
 	history.forEach((record) => {
-		// console.log(asset);
 		let long = record.location.longitude;
 		let lat = record.location.latitude;
 
@@ -223,84 +221,6 @@ async function getAssetHistory(assetId,url,current){
 	addMapLayer(current);
 }
 
-
-const form = document.getElementsByTagName("form")[0];
-const searchFilter = document.getElementsByName("criteria")[0];
-const startTimeFilter = document.getElementsByName("startTime")[0];
-const maxAssetsCount = document.getElementsByName("maxAssetsCount")[0];
-const endTimeFilter = document.getElementsByName("endTime")[0];
-const assetsCount = document.querySelector("#assetsCount");
-const assetsTypes = document.querySelector("#assetsType");
-const assetsShown = document.querySelector(".sec2 span");
-
-form.addEventListener("submit",handleSubmit);
-
-// function to handle form submit
-function handleSubmit(e){
-	e.preventDefault();
-
-	let searchType = searchFilter.value.trim();
-	let searchId = parseInt(searchType);
-	let startTimeValue = startTimeFilter.value;
-	let endTimeValue = endTimeFilter.value;
-	let count = maxAssetsCount.value;
-
-	assetsShown.innerHTML = count;
-
-	let startTime = getUTCTime(startTimeValue);
-	let endTime = getUTCTime(endTimeValue);
-
-
-	if(Number.isInteger(searchId)){
-		let searchByIdUrl = `${mainUrl}/${searchId}`;
-
-		searchById(searchByIdUrl,"byId");
-	}
-
-	else{
-
-		let searchByTimeUrl = `${mainUrl}?limit=${count}&type=${searchType}&startTimeStamp=${startTime}&endTimeStamp=${endTime}`;
-
-		searchByTimeStamp(searchByTimeUrl,'byTime');
-
-	}
-
-}
-
-// for converting local time to GMT
-function getUTCTime(time){
-	let datetime = new Date(time);
-	datetime.setHours(datetime.getHours()+5); 
-	datetime.setMinutes(datetime.getMinutes()+30);
-	
-	return Date.parse(datetime).toString().slice(0,-3);
-}
-
-// function for populating more info section
-async function getMapInfo(){
-	console.log(assetsCount.innerHTML);
-
-	let assets,typeArr=[];
-
-	await axios.get(mainUrl)
-	.then((body) => assets = body.data.assets)
-	.catch((err)=> console.log(err));
-
-	assetsCount.innerHTML=assets.length;
-
-	assets.forEach((asset)=>{
-		let type = asset.assetType.toLowerCase();
-		if(typeArr.indexOf(type)==-1){
-			typeArr.push(type);
-			assetsTypes.innerHTML += `${type}, `;
-		}
-	})
-
-	assetsTypes.innerHTML.slice(0,-2);
-}
-
-
-getMapInfo();
-
 // index view
 getAllAssets(getAllAssetsUrl,'all');
+

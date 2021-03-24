@@ -1,7 +1,0 @@
-https://www.aspsnippets.com/Articles/Google-Maps-API-V3-Add-multiple-markers-with-InfoWindow-to-Google-Map.aspx
-
-https://developers.google.com/maps/documentation/javascript/adding-a-legend
-
-https://developers.google.com/maps/documentation/javascript/examples
-
-https://developers.google.com/maps/documentation/javascript/infowindows
