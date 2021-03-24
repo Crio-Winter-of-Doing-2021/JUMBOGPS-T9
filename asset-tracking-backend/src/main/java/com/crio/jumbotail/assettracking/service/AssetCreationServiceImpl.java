@@ -12,27 +12,26 @@ import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Polygon;
-import org.locationtech.jts.geom.PrecisionModel;
+import org.locationtech.jts.geom.Point;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Log4j2
 @Service
 public class AssetCreationServiceImpl implements AssetCreationService {
 
-	public static final GeometryFactory gf = new GeometryFactory(new PrecisionModel(), 4326);
-	private final Map<Long, Polygon> assetGeofenceCache = new ConcurrentHashMap<>();
-	private final Map<Long, LineString> assetRouteCache = new ConcurrentHashMap<>();
+	@Autowired
+	private GeometryFactory geometryFactory;
 
+	@Autowired
+	private AssetBoundaryCacheService cacheService;
 
 	@Autowired
 	private LocationDataRepository locationDataRepository;
@@ -46,26 +45,33 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	@Autowired
 	private AssetNotificationCreator notificationService;
 
+	/**
+	 * @see <a href="https://stackoverflow.com/questions/2155037/what-are-the-distance-units-in-com-vividsolutions-jts-geom-geometry-class#:~:text=1%20radian%20%3D%20180%20degrees%20divided,get%20distance%20between%20two%20points.">
+	 * Unit of Distance in JTS SRID 4326
+	 * </a>
+	 */
+	@Value("${route.padding.decimal.degrees:0}")
+	private Double routePaddingInDecimalDegrees;
+
 	@Override
 	public AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest) {
 		LOG.debug("assetCreationRequest [{}]", assetCreationRequest);
 
-		final Location location = modelMapper.map(assetCreationRequest.getLocation().getLocationDto(), Location.class);
-		LOG.debug("MODEL MAPPER location [{}]", location);
-		final LocationData locationData = new LocationData(location, assetCreationRequest.getLocation().getDeviceTimestamp());
+		final Point coordinates = assetCreationRequest.getLocation().getCoordinates();
+		final long deviceTimestamp = assetCreationRequest.getLocation().getDeviceTimestamp();
 
 		Asset.AssetBuilder assetPartial = Asset.builder()
 				.assetType(assetCreationRequest.getAssetType())
 				.description(assetCreationRequest.getDescription())
-				.title(assetCreationRequest.getTitle())
-				.lastReportedTimestamp(locationData.getTimestamp())
-				.lastReportedLocation(locationData.getLocation());
+				.title(assetCreationRequest.getTitle());
+
+		final LocationData locationData = new LocationData(coordinates, deviceTimestamp);
 
 		if (assetCreationRequest.getGeofence() != null) {
-			assetPartial.geofence(gf.createPolygon());
+			assetPartial.geofence(geometryFactory.createPolygon());
 		}
 		if (assetCreationRequest.getRoute() != null) {
-			assetPartial.route(gf.createLineString());
+			assetPartial.route(geometryFactory.createLineString());
 		}
 
 		Asset asset = assetPartial.build();
@@ -87,7 +93,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 			Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
 			// create instance of location data
 			LocationData newLocationData = new LocationData(
-					location,
+					locationUpdateRequest.getLocation().getCoordinates(),
 					locationUpdateRequest.getLocation().getDeviceTimestamp()
 			);
 			newLocationData.setAsset(assetProxy);
@@ -108,12 +114,15 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	}
 
-	private Polygon getGeofenceForAsset(Long assetId) {
-		return assetGeofenceCache.computeIfAbsent(assetId, id -> assetRepository.getGeofenceForAsset(id));
+	private Geometry getGeofenceForAsset(Long assetId) {
+
+		return cacheService.get("geofence-" + assetId)
+				.orElseGet(() -> assetRepository.getGeofenceForAsset(assetId));
 	}
 
-	private LineString getRouteForAsset(Long assetId) {
-		return assetRouteCache.computeIfAbsent(assetId, id -> assetRepository.getRouteForAsset(id));
+	private Geometry getRouteForAsset(Long assetId) {
+		return cacheService.get("geofence-" + assetId)
+				.orElseGet(() -> assetRepository.getRouteForAsset(assetId));
 	}
 
 	@Autowired
@@ -124,7 +133,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 		try {
 			final ArrayList<Coordinate> points = new ArrayList<>();
-			if(data==null || data.isEmpty()) {
+			if (data == null || data.isEmpty()) {
 				points.add(new Coordinate(-10, -10));
 				points.add(new Coordinate(-10, 10));
 				points.add(new Coordinate(10, 10));
@@ -144,10 +153,16 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 			Asset asset = assetRepository.getOne(assetId);
 			if ("POLYGON".equalsIgnoreCase(boundaryType)) {
-				final Polygon geofence = gf.createPolygon(shell);
+				final Geometry geofence = geometryFactory.createPolygon(shell);
+
 				asset.setGeofence(geofence);
 			} else if ("LINESTRING".equalsIgnoreCase(boundaryType)) {
-				final LineString route = gf.createLineString(shell);
+				Geometry route = geometryFactory.createLineString(shell);
+
+				if (routePaddingInDecimalDegrees != 0) {
+					route = route.buffer(routePaddingInDecimalDegrees);
+				}
+
 				asset.setRoute(route);
 			}
 
