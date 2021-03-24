@@ -1,11 +1,9 @@
 package com.crio.jumbotail.assettracking.entity;
 
-import static com.crio.jumbotail.assettracking.utils.SpatialUtils.pointFromLocation;
 import static java.time.ZoneId.systemDefault;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -19,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -38,20 +37,30 @@ public class LocationData implements Serializable {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "location_data_id_seq_gen")
 	private Long id;
 
-	private Location location;
+	//	private Location location;
+	@NotNull
 	private LocalDateTime timestamp;
 
-	@JsonIgnore
-	@Getter
+	@NotNull
 	private Point coordinates;
 
-	public LocationData(Location location, LocalDateTime timestamp) {
-		this.location = location;
+	public LocationData(Point coordinates, LocalDateTime timestamp) {
+		this.coordinates = coordinates;
 		this.timestamp = timestamp;
 	}
+//	public LocationData(Location location, LocalDateTime timestamp) {
+//		this.location = location;
+//		this.timestamp = timestamp;
+//	}
+//
+//	public LocationData(Location location, Long timestampEpoch) {
+//		this.location = location;
+//		// convert epoch timestamp to LocalDateTime object
+//		this.timestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestampEpoch), systemDefault());
+//	}
 
-	public LocationData(Location location, Long timestampEpoch) {
-		this.location = location;
+	public LocationData(Point coordinates, Long timestampEpoch) {
+		this.coordinates = coordinates;
 		// convert epoch timestamp to LocalDateTime object
 		this.timestamp = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestampEpoch), systemDefault());
 	}
@@ -60,19 +69,33 @@ public class LocationData implements Serializable {
 	@ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY, optional = false)
 	private Asset asset;
 
+//
+//	/**
+//	 * updates the properties for the asset mapped to it and stores location data as Point[Geometry]
+//	 */
+//	@PrePersist
+//	@PreUpdate
+//	public void updateCoordinateAndAssetProperties() {
+//		if (this.getLocation().getLongitude() == null || this.getLocation().getLatitude() == null) {
+//			this.coordinates = null;
+//		} else {
+//			this.coordinates = pointFromLocation(this.location);
+//			this.asset.setLastReportedLocation(this.location);
+//			this.asset.setLastReportedTimestamp(this.timestamp);
+//		}
+//	}
+
 
 	/**
 	 * updates the properties for the asset mapped to it and stores location data as Point[Geometry]
+	 * this way manually updating the owner Asset when a location is updated
 	 */
 	@PrePersist
 	@PreUpdate
-	public void updateCoordinateAndAssetProperties() {
-		if (this.getLocation().getLongitude() == null || this.getLocation().getLatitude() == null) {
-			this.coordinates = null;
-		} else {
-			this.coordinates = pointFromLocation(this.location);
-			this.asset.setLastReportedLocation(this.location);
-			this.asset.setLastReportedTimestamp(this.timestamp);
-		}
+	public void updateAsset() {
+		this.asset.setLastReportedCoordinates(this.coordinates);
+		this.asset.setLastReportedTimestamp(this.timestamp);
 	}
+
+
 }

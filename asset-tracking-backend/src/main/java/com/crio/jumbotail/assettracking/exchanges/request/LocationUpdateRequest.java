@@ -12,10 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LocationUpdateRequest {
 
-	private Long id;
 	private LocationDataDto location;
 
-	public LocationUpdateRequest(LocationDataDto location) {
-		this.location = location;
-	}
 }

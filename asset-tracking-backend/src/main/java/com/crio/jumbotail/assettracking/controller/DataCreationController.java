@@ -5,10 +5,8 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
@@ -32,14 +30,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,14 +53,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Validated
 @Log4j2
 @RestController
 @Tag(name = "Asset Data Creator", description = "The Asset Data Creator API")
 @RequestMapping("/api")
 public class DataCreationController {
 
+	private final SubscriptionService subscriptionService;
+	private final GeometryFactory geometryFactory;
+
 	@Autowired
-	private SubscriptionService subscriptionService;
+	public DataCreationController(SubscriptionService subscriptionService, GeometryFactory geometryFactory) {
+		this.subscriptionService = subscriptionService;
+		this.geometryFactory = geometryFactory;
+	}
 
 	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
 			summary = "Subscribe to events"
@@ -92,7 +102,8 @@ public class DataCreationController {
 	)
 	@PostMapping("/assets")
 	@ResponseStatus(HttpStatus.CREATED)
-	public AssetCreatedResponse createNewAsset(@RequestBody AssetCreationRequest assetCreationRequest) {
+	public AssetCreatedResponse createNewAsset(@Valid @RequestBody AssetCreationRequest assetCreationRequest) {
+
 		return assetCreationService.createAsset(assetCreationRequest);
 	}
 
@@ -133,9 +144,9 @@ public class DataCreationController {
 		if (global != null) {
 
 			for (int i = 0; i < 100; i++) {
-				LocationDto locationDto = new LocationDto(Double.valueOf(faker.address().longitude()), Double.valueOf(faker.address().latitude()));
+				Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(faker.address().longitude()), Double.parseDouble(faker.address().longitude())));
 
-				makeMockData(faker, locationDto);
+				makeMockData(faker, point);
 			}
 
 		} else {
@@ -148,15 +159,15 @@ public class DataCreationController {
 				final String[] s = location.split("\t");
 				LOG.info("location = " + Arrays.toString(s));
 				assert (s.length == 2);
-				LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
+				Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(s[0]), Double.parseDouble(s[1])));
 
-				makeMockData(faker, locationDto);
+				makeMockData(faker, point);
 			}
 		}
 	}
 
-	private void makeMockData(Faker faker, LocationDto locationDto) {
-		LocationDataDto locationDataDto = new LocationDataDto(locationDto,
+	private void makeMockData(Faker faker, Point point) {
+		LocationDataDto locationDataDto = new LocationDataDto(point,
 				Instant.now().plus((long) (Math.random() * 15000), ChronoUnit.SECONDS).getEpochSecond());
 
 		AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
@@ -177,9 +188,7 @@ public class DataCreationController {
 		for (Long mockAssetId : mockData.subList(0, n)) {
 			final Optional<Asset> assetsFirstLocation = assetRepository.findById(mockAssetId);
 			if (assetsFirstLocation.isPresent()) {
-				// TODO
-				// FIXME
-				final Location firstLocation = null;//assetsFirstLocation.get().getLastReportedLocation();
+				final Point firstLocation = assetsFirstLocation.get().getLastReportedCoordinates();
 				final LocalDateTime firstTimestamp = assetsFirstLocation.get().getLastReportedTimestamp();
 
 				makeHistoryStartingBeforeNHours(mockAssetId, firstLocation, firstTimestamp, 36);
@@ -191,15 +200,16 @@ public class DataCreationController {
 		return mockData.subList(0, n);
 	}
 
-	private void makeHistoryStartingBeforeNHours(Long mockAssetId, Location firstLocation, LocalDateTime firstTimestamp, int hoursBefore) {
-		LocationDto locationDto = new LocationDto(firstLocation.getLongitude(), firstLocation.getLatitude());
+	private void makeHistoryStartingBeforeNHours(Long mockAssetId, Point firstLocation, LocalDateTime firstTimestamp, int hoursBefore) {
+		Point point = geometryFactory.createPoint(new Coordinate(firstLocation.getX(), firstLocation.getY()));
+
 		Instant timestampOfNHourBefore = firstTimestamp.toInstant(offset).minus(hoursBefore, HOURS);
 		for (int i = 0; i < hoursBefore; i++) {
 
-			locationDto = addMetersToCurrent(locationDto, 5000);
-			LocationDataDto locationDataDto = new LocationDataDto(locationDto, timestampOfNHourBefore.getEpochSecond());
+			point = addMetersToCurrent(point, 5000);
+			LocationDataDto locationDataDto = new LocationDataDto(point, timestampOfNHourBefore.getEpochSecond());
 
-			updateLocationOfAsset(new LocationUpdateRequest(mockAssetId, locationDataDto), mockAssetId);
+			updateLocationOfAsset(new LocationUpdateRequest(locationDataDto), mockAssetId);
 
 			// add an hour
 			timestampOfNHourBefore = timestampOfNHourBefore.plus(1, HOURS);

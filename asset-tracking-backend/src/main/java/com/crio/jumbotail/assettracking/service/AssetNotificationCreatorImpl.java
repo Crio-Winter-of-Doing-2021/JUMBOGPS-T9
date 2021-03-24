@@ -1,9 +1,8 @@
 package com.crio.jumbotail.assettracking.service;
 
-import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.exchanges.response.Notification;
-import com.crio.jumbotail.assettracking.utils.SpatialUtils;
 import java.text.MessageFormat;
+import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -21,17 +20,18 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 	private static final String ROUTE_DEVIATION = "route-deviation";
 	private static final String GEO_FENCE_EXIT = "geofence-exit";
 
-	public void validateAssetLocation(Long assetId, Location location, Geometry route, Geometry geofence) {
+	public void validateAssetLocation(Long assetId, Point point, Optional<Geometry> route, Optional<Geometry> geofence) {
 
-		final Point point = SpatialUtils.pointFromLocation(location);
+//		final Point point = SpatialUtils.pointFromLocation(location);
 
 		notifyForRouteDeviation(assetId, point, route);
 		notifyForGeofenceDeviation(assetId, point, geofence);
 
 	}
 
-	private void notifyForRouteDeviation(Long assetId, Point point, Geometry route) {
-		if (route != null && !point.within(route)) {
+	private void notifyForRouteDeviation(Long assetId, Point point, Optional<Geometry> route) {
+
+		if (route.isPresent() && !point.within(route.get())) {
 			this.eventPublisher.publishEvent(
 					new Notification(
 							assetId,
@@ -42,9 +42,9 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 		}
 	}
 
-	private void notifyForGeofenceDeviation(Long assetId, Point point, Geometry geofence) {
+	private void notifyForGeofenceDeviation(Long assetId, Point point, Optional<Geometry> geofence) {
 
-		if (geofence != null && !point.within(geofence)) {
+		if (geofence.isPresent() && !point.within(geofence.get())) {
 			this.eventPublisher.publishEvent(
 					new Notification(
 							assetId,

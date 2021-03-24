@@ -1,7 +1,6 @@
 package com.crio.jumbotail.assettracking.service;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
 import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
@@ -9,16 +8,18 @@ import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
+import com.crio.jumbotail.assettracking.utils.SpatialUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,6 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	private AssetRepository assetRepository;
 
 	@Autowired
-	private ModelMapper modelMapper;
-
-	@Autowired
 	private AssetNotificationCreator notificationService;
 
 	/**
@@ -55,6 +53,9 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	@Override
 	public AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest) {
+
+		SpatialUtils.validateCoordinates(assetCreationRequest.getLocation().getCoordinates());
+
 		LOG.debug("assetCreationRequest [{}]", assetCreationRequest);
 
 		final Point coordinates = assetCreationRequest.getLocation().getCoordinates();
@@ -84,13 +85,12 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	@Override
 	public void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId) {
+		SpatialUtils.validateCoordinates(locationUpdateRequest.getLocation().getCoordinates());
 		try {
 			// find the proxy asset
 			// will throw an exception if not present
 			Asset assetProxy = assetRepository.getOne(assetId);
 
-			// create instance of location to hold the co-ordinates
-			Location location = modelMapper.map(locationUpdateRequest.getLocation().getLocationDto(), Location.class);
 			// create instance of location data
 			LocationData newLocationData = new LocationData(
 					locationUpdateRequest.getLocation().getCoordinates(),
@@ -103,7 +103,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 			notificationService.validateAssetLocation(
 					assetId,
-					location,
+					locationUpdateRequest.getLocation().getCoordinates(),
 					getRouteForAsset(assetId),
 					getGeofenceForAsset(assetId)
 			);
@@ -114,15 +114,19 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	}
 
-	private Geometry getGeofenceForAsset(Long assetId) {
+	private Optional<Geometry> getGeofenceForAsset(Long assetId) {
 
-		return cacheService.get("geofence-" + assetId)
-				.orElseGet(() -> assetRepository.getGeofenceForAsset(assetId));
+		return Stream.of(Optional.of(cacheService.get("geofence-" + assetId)), assetRepository.getGeofenceForAsset(assetId))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.findFirst();
 	}
 
-	private Geometry getRouteForAsset(Long assetId) {
-		return cacheService.get("geofence-" + assetId)
-				.orElseGet(() -> assetRepository.getRouteForAsset(assetId));
+	private Optional<Geometry> getRouteForAsset(Long assetId) {
+		return Stream.of(Optional.of(cacheService.get("route-" + assetId)), assetRepository.getRouteForAsset(assetId))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.findFirst();
 	}
 
 	@Autowired

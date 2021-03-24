@@ -3,8 +3,8 @@ package com.crio.jumbotail.assettracking.repositories;
 import com.crio.jumbotail.assettracking.entity.Asset;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.locationtech.jts.geom.Geometry;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,14 +13,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AssetRepository extends JpaRepository<Asset, Long> {
 
-
-//	Polygon getAssetById(Long assetId);
-
 	@Query(value = "SELECT asset.geofence from Asset asset where asset.id = ?1")
-	Geometry getGeofenceForAsset(Long assetId);
+	Optional<Geometry> getGeofenceForAsset(Long assetId);
 
 	@Query(value = "SELECT asset.route from Asset asset where asset.id = ?1")
-	Geometry getRouteForAsset(Long assetId);
+	Optional<Geometry> getRouteForAsset(Long assetId);
 
 	// last N assets (N = 100 by default)
 	List<Asset> findAllByOrderByLastReportedTimestampDesc(
@@ -72,7 +69,7 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
 	}
 
 
-	default List<Asset> filterAssetsByTime(LocalDateTime startDateTime, LocalDateTime endDateTime, PageRequest pageReqWithLimit) {
-		return findAllByLastReportedTimestampBetween(startDateTime, endDateTime, pageReqWithLimit);
+	default List<Asset> filterAssetsByTime(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable) {
+		return findAllByLastReportedTimestampBetween(startDateTime, endDateTime, pageable);
 	}
 }

@@ -6,7 +6,6 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.Location;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
 import com.crio.jumbotail.assettracking.exceptions.InvalidFilterException;
@@ -20,21 +19,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService {
 
-	@Autowired
-	private AssetRepository assetRepository;
+	private final AssetRepository assetRepository;
 
-	@Autowired
-	private LocationDataRepository locationDataRepository;
+	private final LocationDataRepository locationDataRepository;
+
+	private final GeometryFactory geometryFactory;
 
 	@Override
 	public List<LocationData> getHistoryForAssetOld(Long assetId) {
@@ -75,7 +77,7 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 			if (!last24HourHistory.isEmpty()) {
 				assetHistoryResponse.setCentroid(SpatialUtils.getCentroidForHistory(last24HourHistory));
 			} else { // no history for last 24 hours then the current location is the centroid
-				assetHistoryResponse.setCentroid(asset.get().getLastReportedLocation());
+				assetHistoryResponse.setCentroid(asset.get().getLastReportedCoordinates());
 			}
 
 		}
@@ -131,7 +133,9 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 		}
 
 		LOG.info("assets.size() [{}]", assets.size());
-		Location centroid = new Location(0.0, 0.0);
+
+		// MAYBE
+		Point centroid = geometryFactory.createPoint();
 		if (!assets.isEmpty()) {
 			centroid = getCentroidForAssets(assets);
 		}

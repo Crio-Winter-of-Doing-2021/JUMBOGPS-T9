@@ -1,7 +1,6 @@
 package com.crio.jumbotail.assettracking.service;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.context.annotation.Primary;
@@ -19,8 +18,8 @@ public class AssetBoundaryCacheServiceInMemoryImpl implements AssetBoundaryCache
 	}
 
 	@Override
-	public Optional<Geometry> get(String key) {
-		return Optional.ofNullable(assetBoundaryCache.get(key));
+	public Geometry get(String key) {
+		return assetBoundaryCache.get(key);
 	}
 
 }
