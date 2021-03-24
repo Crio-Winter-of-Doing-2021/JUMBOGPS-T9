@@ -10,6 +10,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
@@ -33,6 +34,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 		return subscriber;
 	}
 
+	@Async("notificationThreadPoolTaskExecutor")
 	@EventListener
 	@Override
 	public void notifySubscribers(Notification notification) {

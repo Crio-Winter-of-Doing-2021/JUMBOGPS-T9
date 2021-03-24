@@ -21,8 +21,9 @@ public class SpatialUtils {
 	// y - latitude
 	public static final int LONGITUDE = 0;
 
-	private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
+	private static final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
 
+	private SpatialUtils(){}
 
 	public static Location toLocation(Coordinate coordinate) {
 		if (coordinate != null) {
