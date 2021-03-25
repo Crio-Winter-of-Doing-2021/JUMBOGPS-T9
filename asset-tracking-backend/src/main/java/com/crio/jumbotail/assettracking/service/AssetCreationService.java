@@ -7,15 +7,15 @@ import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 public interface AssetCreationService {
 
 	/**
-	 *
+	 * Should create an asset and return it's id in the AssetCreatedResponse object
 	 * @param assetCreationRequest request to create a new asset
 	 * @return the id of the created asset
 	 */
 	AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest);
 
 	/**
-	 *
-	 * @param locationUpdateRequest to update the assets loaction
+	 * Should update location for the asset
+	 * @param locationUpdateRequest to update the assets location
 	 * @param assetId the asset id to be updated
 	 */
 	void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId);
