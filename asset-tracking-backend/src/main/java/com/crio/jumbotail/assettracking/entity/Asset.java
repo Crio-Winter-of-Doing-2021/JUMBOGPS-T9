@@ -1,5 +1,6 @@
 package com.crio.jumbotail.assettracking.entity;
 
+import com.crio.jumbotail.assettracking.utils.LocationConstraint;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
@@ -57,6 +58,7 @@ public class Asset implements Serializable {
 
 	// extra properties - depend on LocationData to set value to these properties
 	private LocalDateTime lastReportedTimestamp;
+	@LocationConstraint
 	private Point lastReportedCoordinates;
 
 	public void addLocationHistory(LocationData locationData) {

@@ -39,7 +39,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	public void notifySubscribers(Notification notification) {
 		List<Subscriber> deadSubscribers = new ArrayList<>();
-		// loop throgh all subscribers
+		// loop through all subscribers
 		for (Subscriber subscriber : this.subscribers) {
 			try {
 				LOG.info("Notification Data {}", notification);

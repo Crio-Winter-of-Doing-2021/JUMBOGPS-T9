@@ -3,6 +3,7 @@ package com.crio.jumbotail.assettracking.service;
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
+import com.crio.jumbotail.assettracking.exceptions.InvalidLocationException;
 import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
@@ -19,7 +20,9 @@ import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.LineString;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -54,8 +57,6 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	@Override
 	public AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest) {
 
-		SpatialUtils.validateCoordinates(assetCreationRequest.getLocation().getCoordinates());
-
 		LOG.debug("assetCreationRequest [{}]", assetCreationRequest);
 
 		final Point coordinates = assetCreationRequest.getLocation().getCoordinates();
@@ -69,10 +70,26 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 		final LocationData locationData = new LocationData(coordinates, deviceTimestamp);
 
 		if (assetCreationRequest.getGeofence() != null) {
-			assetPartial.geofence(geometryFactory.createPolygon());
+			SpatialUtils.validateGeometry(assetCreationRequest.getGeofence());
+			LOG.info("GEOFENCE FOUND");
+			final Geometry geofence = assetCreationRequest.getGeofence();
+			if(geofence instanceof Polygon) {
+				assetPartial.geofence(geofence);
+				LOG.debug("GEOFENCE CREATED");
+			}else {
+				throw new InvalidLocationException("Provided Geofence is invalid");
+			}
 		}
 		if (assetCreationRequest.getRoute() != null) {
-			assetPartial.route(geometryFactory.createLineString());
+			SpatialUtils.validateGeometry(assetCreationRequest.getRoute());
+			LOG.info("ROUTE FOUND");
+			final Geometry route = assetCreationRequest.getRoute();
+			if(route instanceof LineString) {
+				assetPartial.route(route);
+				LOG.debug("ROUTE CREATED");
+			} else {
+				throw new InvalidLocationException("Provided Route is invalid");
+			}
 		}
 
 		Asset asset = assetPartial.build();
@@ -85,7 +102,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	@Override
 	public void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId) {
-		SpatialUtils.validateCoordinates(locationUpdateRequest.getLocation().getCoordinates());
+		SpatialUtils.validateGeometry(locationUpdateRequest.getLocation().getCoordinates());
 		try {
 			// find the proxy asset
 			// will throw an exception if not present

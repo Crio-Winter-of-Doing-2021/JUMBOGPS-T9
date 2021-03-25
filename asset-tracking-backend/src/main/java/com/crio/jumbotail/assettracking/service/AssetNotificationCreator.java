@@ -15,6 +15,6 @@ public interface AssetNotificationCreator {
 	 * @param route    the route the asset needs to follow
 	 * @param geofence the geofence the asset needs to limit itself to
 	 */
-	void validateAssetLocation(Long assetId, Point location, Optional<Geometry> route, Optional<Geometry> geofence);
+	void validateAssetLocation(Long assetId, Point point, Optional<Geometry> route, Optional<Geometry> geofence);
 
 }

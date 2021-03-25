@@ -19,41 +19,24 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @Log4j2
-@RequiredArgsConstructor
 public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService {
 
-	private final AssetRepository assetRepository;
-
-	private final LocationDataRepository locationDataRepository;
-
-	private final GeometryFactory geometryFactory;
-
-	@Override
-	public List<LocationData> getHistoryForAssetOld(Long assetId) {
-
-		final boolean assetExists = assetRepository.existsById(assetId);
-		if (!assetExists) {
-			throw new AssetNotFoundException("Asset not found for Id - " + assetId);
-		}
-
-		final List<LocationData> last24HourHistory = locationDataRepository.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(assetId,
-				LocalDateTime.now().minus(24, HOURS),
-				LocalDateTime.now());
-
-		LOG.info("last24HourHistory [{}]", last24HourHistory);
-
-		return last24HourHistory;
-	}
+	@Autowired
+	private AssetRepository assetRepository;
+	@Autowired
+	private LocationDataRepository locationDataRepository;
+	@Autowired
+	private GeometryFactory geometryFactory;
 
 	@Override
 	public AssetHistoryResponse getHistoryForAsset(Long assetId) {
@@ -92,18 +75,6 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 		return asset.orElseThrow(() -> new AssetNotFoundException("Asset not found for Id - " + assetId));
 	}
 
-
-	// TODO : filters
-	// (all will support limits + and will be sorted based on timestamp)
-	// TODO 1. Filter on (start-time and end-time)
-	// add validation
-	// query - done
-	// TODO 2. Filter on (start-time and end-time) + type
-	// add validation
-	// query - done
-	// TODO 3. Filter on type
-	// add validation
-	// query - done
 	@Override
 	public AssetDataResponse getAssetFilteredBy(String assetType, Long startTimestamp, Long endTimestamp, int limit) {
 		List<Asset> assets = new ArrayList<>();

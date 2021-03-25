@@ -31,11 +31,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.annotation.DirtiesContext;
 
 @ExtendWith(MockitoExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class AssetDataRetrievalServiceTest {
 
 	@Mock
@@ -44,12 +44,13 @@ class AssetDataRetrievalServiceTest {
 	@Mock
 	private LocationDataRepository locationDataRepository;
 
+	@Spy
 	GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
 
 
 	@InjectMocks
 	// @Spy // to mock internal method calls https://stackoverflow.com/questions/42371869/mockito-internal-method-call
-	AssetDataRetrievalService assetDataRetrievalService = new AssetDataRetrievalServiceImpl(assetRepository, locationDataRepository, geometryFactory);
+	AssetDataRetrievalService assetDataRetrievalService = new AssetDataRetrievalServiceImpl();
 
 
 	@Test
@@ -57,7 +58,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.findAssets(any())).thenReturn(Collections.emptyList());
 		// when
-		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("", null, null, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService
+				.getAssetFilteredBy("", null, null, 1);
 		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).findAssets(any());
@@ -69,7 +71,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByType(eq("some_type"), any())).thenReturn(Collections.emptyList());
 		// when
-		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("some_type", null, null, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService
+				.getAssetFilteredBy("some_type", null, null, 1);
 		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByType(eq("some_type"), any());
@@ -81,7 +84,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTime(any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
-		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("", 0L, 1L, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService
+				.getAssetFilteredBy("", 0L, 1L, 1);
 		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByTime(any(), any(), any());
@@ -93,7 +97,8 @@ class AssetDataRetrievalServiceTest {
 		// given
 		Mockito.when(assetRepository.filterAssetsByTypeAndTime(eq("type"), any(), any(), any())).thenReturn(Collections.emptyList());
 		// when
-		AssetDataResponse assetDataResponse = assetDataRetrievalService.getAssetFilteredBy("type", 0L, 1L, 1);
+		AssetDataResponse assetDataResponse = assetDataRetrievalService
+				.getAssetFilteredBy("type", 0L, 1L, 1);
 		final List<Asset> assets = assetDataResponse.getAssets();
 		// then
 		verify(assetRepository, times(1)).filterAssetsByTypeAndTime(eq("type"), any(), any(), any());
@@ -170,7 +175,7 @@ class AssetDataRetrievalServiceTest {
 
 
 	@Test
-	void should_get_history_for_invalid_asset() {
+	void should_throw_exception_for_invalid_asset() {
 		final long assetId = 1025L;
 		Mockito.when(assetRepository.findById(assetId)).thenReturn(Optional.empty());
 
@@ -179,5 +184,6 @@ class AssetDataRetrievalServiceTest {
 		verify(locationDataRepository, times(0))
 				.findAllByAsset_IdAndTimestampBetweenOrderByTimestampDesc(eq(assetId), any(LocalDateTime.class), any(LocalDateTime.class));
 	}
+
 
 }

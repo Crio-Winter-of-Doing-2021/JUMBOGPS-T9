@@ -1,7 +1,6 @@
 package com.crio.jumbotail.assettracking.controller;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
@@ -13,7 +12,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,20 +81,6 @@ public class AssetTrackerDataController {
 
 
 	//region hidden
-	@Hidden
-	@Deprecated
-	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
-	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
-	@GetMapping(value = "/v0/assets/{assetId}/history")
-	public List<LocationData> getHistoryForAssetOld(
-			@Parameter(description = "The id of asset") @PathVariable Long assetId) {
-
-		final List<LocationData> assetHistory = retrievalService.getHistoryForAssetOld(assetId);
-
-		LOG.info("location history size [{}]", assetHistory.size());
-
-		return assetHistory;
-	}
 
 	@Autowired
 	private SubscriptionService subscriptionService;

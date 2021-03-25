@@ -3,6 +3,7 @@ package com.crio.jumbotail.assettracking.entity;
 import static java.time.ZoneId.systemDefault;
 
 
+import com.crio.jumbotail.assettracking.utils.LocationConstraint;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.io.Serializable;
 import java.time.Instant;
@@ -41,6 +42,7 @@ public class LocationData implements Serializable {
 	@NotNull
 	private LocalDateTime timestamp;
 
+	@LocationConstraint
 	@NotNull
 	private Point coordinates;
 

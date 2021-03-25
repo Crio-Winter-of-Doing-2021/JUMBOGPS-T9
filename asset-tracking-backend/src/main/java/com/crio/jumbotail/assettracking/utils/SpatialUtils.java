@@ -8,6 +8,7 @@ import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.algorithm.ConvexHull;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
@@ -83,20 +84,37 @@ public class SpatialUtils {
 		// pi / 180 = 0.018
 		double newLongitude = currLongitude + coef / Math.cos(currLatitude * 0.018);
 
-		return new Point(null, null);
-//		return new LocationDto(newLongitude, newLatitude);
+		return geometryFactory.createPoint(new Coordinate(newLongitude, newLatitude));
 	}
 
-	public static void validateCoordinates(Point p) {
-		final Coordinate coordinate = p.getCoordinate();
-		final double longitude = coordinate.getX();
-		final double latitude = coordinate.getY();
+	public static void validateGeometry(Geometry g) {
 
-		if (!(longitude >= -180 && longitude <= 180 &&
-		      latitude >= -180 && latitude <= 180)) {
-			throw new InvalidLocationException(MessageFormat.format("Longitude {0} or Latitude {1} is invalid",longitude,latitude));
+		if (g != null) {
+			final Coordinate[] coordinates1 = g.getCoordinates();
+			validateCoordinatesForEarthLatLong(coordinates1);
+		}
+//		if (g instanceof Polygon) {
+//			Polygon polygon = (Polygon) g;
+//			final Coordinate[] coordinates = polygon.getCoordinates();
+//			// all coordinates must be within lat and long
+//			validateCoordinatesForEarthLatLong(coordinates);
+//		} else if (g instanceof LineString) {
+//			LineString lineString = (LineString) g;
+//			final Coordinate[] coordinates = lineString.getCoordinates();
+//			// all coordinates must be within lat and long
+//			validateCoordinatesForEarthLatLong(coordinates);
+//		}
+
+	}
+
+	private static void validateCoordinatesForEarthLatLong(Coordinate[] coordinates) {
+		for (Coordinate coordinate : coordinates) {
+			final double longitude = coordinate.getX();
+			final double latitude = coordinate.getY();
+
+			if (!(longitude >= -180 && longitude <= 180 && latitude >= -180 && latitude <= 180)) {
+				throw new InvalidLocationException(MessageFormat.format("Longitude {0} or Latitude {1} is invalid", longitude, latitude));
+			}
 		}
 	}
-
-
 }

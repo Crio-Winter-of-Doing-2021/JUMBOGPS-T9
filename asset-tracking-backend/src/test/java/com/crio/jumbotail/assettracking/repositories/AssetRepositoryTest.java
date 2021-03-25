@@ -27,9 +27,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
 
-//@Disabled
 @DataJpaTest
-//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class AssetRepositoryTest {
 
 	@Autowired
@@ -225,6 +223,7 @@ class AssetRepositoryTest {
 		assertEquals(6, assets.size());
 
 	}
+
 
 
 //	@Test
