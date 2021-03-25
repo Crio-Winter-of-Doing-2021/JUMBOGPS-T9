@@ -26,6 +26,12 @@ public class AssetCreationRequest {
 		this.assetType = assetType;
 	}
 
-
-
+	public AssetCreationRequest(String title, String description, @NotNull LocationDataDto location, String assetType, Geometry geofence, Geometry route) {
+		this.title = title;
+		this.description = description;
+		this.location = location;
+		this.assetType = assetType;
+		this.geofence = geofence;
+		this.route = route;
+	}
 }

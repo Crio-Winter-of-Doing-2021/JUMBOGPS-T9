@@ -73,10 +73,10 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 			SpatialUtils.validateGeometry(assetCreationRequest.getGeofence());
 			LOG.info("GEOFENCE FOUND");
 			final Geometry geofence = assetCreationRequest.getGeofence();
-			if(geofence instanceof Polygon) {
+			if (geofence instanceof Polygon) {
 				assetPartial.geofence(geofence);
 				LOG.debug("GEOFENCE CREATED");
-			}else {
+			} else {
 				throw new InvalidLocationException("Provided Geofence is invalid");
 			}
 		}
@@ -84,7 +84,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 			SpatialUtils.validateGeometry(assetCreationRequest.getRoute());
 			LOG.info("ROUTE FOUND");
 			final Geometry route = assetCreationRequest.getRoute();
-			if(route instanceof LineString) {
+			if (route instanceof LineString) {
 				assetPartial.route(route);
 				LOG.debug("ROUTE CREATED");
 			} else {

@@ -4,6 +4,7 @@ import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.InvalidLocationException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.algorithm.ConvexHull;
@@ -90,24 +91,14 @@ public class SpatialUtils {
 	public static void validateGeometry(Geometry g) {
 
 		if (g != null) {
-			final Coordinate[] coordinates1 = g.getCoordinates();
-			validateCoordinatesForEarthLatLong(coordinates1);
+			final Coordinate[] coordinates = g.getCoordinates();
+			validateCoordinatesForEarthLatLong(coordinates);
 		}
-//		if (g instanceof Polygon) {
-//			Polygon polygon = (Polygon) g;
-//			final Coordinate[] coordinates = polygon.getCoordinates();
-//			// all coordinates must be within lat and long
-//			validateCoordinatesForEarthLatLong(coordinates);
-//		} else if (g instanceof LineString) {
-//			LineString lineString = (LineString) g;
-//			final Coordinate[] coordinates = lineString.getCoordinates();
-//			// all coordinates must be within lat and long
-//			validateCoordinatesForEarthLatLong(coordinates);
-//		}
 
 	}
 
 	private static void validateCoordinatesForEarthLatLong(Coordinate[] coordinates) {
+		LOG.debug(Arrays.toString(coordinates));
 		for (Coordinate coordinate : coordinates) {
 			final double longitude = coordinate.getX();
 			final double latitude = coordinate.getY();
