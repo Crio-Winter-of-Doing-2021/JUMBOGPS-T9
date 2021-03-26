@@ -4,6 +4,7 @@ const startTimeFilter = document.getElementsByName('startTime')[0];
 const endTimeFilter = document.getElementsByName('endTime')[0];
 const assetsCount = document.getElementsByName('maxAssetsCount')[0];
 const errors = document.getElementsByClassName('error');
+const inputLabels = document.getElementsByTagName('label');
 
 form.addEventListener('submit', handleSubmit);
 
@@ -11,13 +12,13 @@ form.addEventListener('submit', handleSubmit);
 function handleSubmit(e) {
 	e.preventDefault();
 
-	let searchType = searchFilter.value.trim();
+	let searchType = searchFilter.value.toUpperCase().trim();
 	let searchId = parseInt(searchType);
 	let startTimeValue = startTimeFilter.value;
 	let endTimeValue = endTimeFilter.value;
 	let count = assetsCount.value;
 
-	// if (validate(count, startTimeValue, endTimeValue, searchType)) return;
+	validate(count, startTimeValue, endTimeValue, searchType);
 
 	let startTime =
 		startTimeValue == endTimeValue ? getUTCTime(startTimeValue, true, 00) : getUTCTime(startTimeValue, false, 00);
@@ -51,35 +52,6 @@ function getUTCTime(time, same, seconds) {
 	return Date.parse(datetime).toString().slice(0, -3);
 }
 
-// function for populating more info section
-async function getMapInfo() {
-	console.log(assetsCount.innerHTML);
-
-	let assets,trucksCountValue=0,typeArr = [];
-
-	await axios.get(mainUrl).then((body) => (assets = body.data.assets)).catch((err) => console.log(err));
-
-	assetsCount.innerHTML = assets.length;
-
-	assets.forEach((asset) => {
-        if(asset.assetType.toLowerCase()=='truck') trucksCountValue++;
-
-		let type = asset.assetType.toLowerCase();
-		if (typeArr.indexOf(type) == -1) {
-			typeArr.push(type);
-			assetsTypes.innerHTML += `${type}, `;
-		}
-	});
-
-    console.log(trucksCountValue);
-    
-    salesCount.innerHTML = assets.length - trucksCountValue;
-    trucksCount.innerHTML = trucksCountValue;
-
-	assetsTypes.innerHTML.slice(0, -2);
-}
-
-// getMapInfo();
 
 // validations
 function validate(count, startTimeValue, endTimeValue, searchType) {
@@ -92,14 +64,15 @@ function validate(count, startTimeValue, endTimeValue, searchType) {
 	let startTimeCheck = parseInt(Date.parse(startTimeValue).toString().slice(0, -3));
 	let currentTimeCheck = parseInt(Date.now().toString().slice(0, -3));
 
-	if (searchType != 'SALESPERSON' && searchType != 'TRUCK' && searchType != '') {
+	if (!Number.isInteger(parseInt(searchType)) && searchType != 'SALESPERSON' && searchType != 'TRUCK' && searchType != '') {
 		
-		showErrorMsg(errors[0],"invalid asset type",searchType);
+		showErrorMsg(errors[0],"invalid asset type",searchFilter);
 		return true;
 	}
 
-	if (count <= 0) {
-		showErrorMsg(errors[1],'no. of assets cannot be less than 0',assetsCount);
+	if(count!="" && count<0 ){
+		showErrorMsg(errors[1],"count cannot be less than 0",assetsCount);
+		
 		return true;
 	}
 
@@ -116,3 +89,34 @@ function showErrorMsg(errorElement,msg,inputElement){
 		errorElement.style.opacity=0;
 	})
 }
+
+function disbaleTimeInput(){
+
+		let value = parseInt(searchFilter.value.toUpperCase().trim());
+
+		console.log(value);
+
+		if(value!=null && Number.isInteger(value)){
+			startTimeFilter.disabled = true;
+			endTimeFilter.disabled = true;
+			assetsCount.disabled = true;
+
+			for(let x=0;x<inputLabels.length;x++){
+				inputLabels[x].style.opacity = 0;
+			}
+		}
+
+		else{
+			startTimeFilter.disabled = false;
+			endTimeFilter.disabled = false;
+			assetsCount.disabled = false;
+
+			for(let x=0;x<inputLabels.length;x++){
+				inputLabels[x].style.opacity = 1;
+			}
+		}
+
+}
+
+
+searchFilter.onkeypress = disbaleTimeInput;
