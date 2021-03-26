@@ -31,7 +31,8 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 
 	private void notifyForRouteDeviation(Long assetId, Point point, Optional<Geometry> route) {
 
-		if (route.isPresent() && !point.within(route.get())) {
+//		if (route.isPresent() && !point.within(route.get())) {
+		if (route.isPresent() && !route.get().covers(point)) {
 			this.eventPublisher.publishEvent(
 					new Notification(
 							assetId,
@@ -44,7 +45,8 @@ public class AssetNotificationCreatorImpl implements AssetNotificationCreator {
 
 	private void notifyForGeofenceDeviation(Long assetId, Point point, Optional<Geometry> geofence) {
 
-		if (geofence.isPresent() && !point.within(geofence.get())) {
+//		if (geofence.isPresent() && !point.within(geofence.get())) {
+		if (geofence.isPresent() && !geofence.get().covers(point)) {
 			this.eventPublisher.publishEvent(
 					new Notification(
 							assetId,

@@ -13,7 +13,6 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -21,14 +20,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 /**
  * To Inject Bean Dependencies Needed by other classes
  */
+//@EnableJpaAuditing
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories
 @EnableAsync
-//@EnableJpaAuditing
 @Log4j2
 public class AppConfig {
-
 
 	/**
 	 * @return Module for Jdk8 support for Jackson

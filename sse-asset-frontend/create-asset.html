@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    input{
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+    #create-asset-form {
+        margin: 1em;
+    }
+
+    #create-asset {
+        /*color: olivedrab;*/
+        background: olivedrab;
+        border: 1em;
+        padding: 1em;
+        border-radius: 1em;
+    }
+</style>
+<body>
+
+
+<form id="create-asset-form" onsubmit="createAsset()">
+    <label for="asset-description">Description</label><br><input type="text" name="asset-description" id="asset-description"><br>
+    <label for="asset-type">Asset Type</label><br><input type="text" name="asset-type" id="asset-type"><br>
+    <label for="asset-title">Title</label><br><input type="text" name="asset-title" id="asset-title"><br>
+    <label for="asset-source">Source</label><br><input type="text" name="asset-source" id="asset-source"><br>
+    <label for="asset-destination">Destination</label><br><input type="text" name="asset-destination" id="asset-destination"><br>
+
+    <input type="button" value="Add Geofence" id="geofence"><br>
+    <input type="button" value="Add Route" id="route"><br>
+
+    <button id="create-asset" type="submit">Create Asset</button>
+</form>
+<script>
+	const createAsset = () => {
+        var form = document.getElementById("create-asset-form");
+	};
+
+	document.getElementById("create-asset-form").addEventListener("click", function (event) {
+		console.log("prevent")
+		event.preventDefault()
+      createAsset();
+	});
+</script>
+
+</body>
+</html>

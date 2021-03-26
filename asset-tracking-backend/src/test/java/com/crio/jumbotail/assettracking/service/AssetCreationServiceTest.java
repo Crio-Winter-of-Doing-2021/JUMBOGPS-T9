@@ -1,11 +1,17 @@
 package com.crio.jumbotail.assettracking.service;
 
+import static java.time.ZoneId.systemDefault;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,14 +19,21 @@ import static org.mockito.Mockito.verify;
 
 import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.crio.jumbotail.assettracking.entity.Asset;
+import com.crio.jumbotail.assettracking.entity.LocationData;
+import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
 import com.crio.jumbotail.assettracking.exceptions.InvalidLocationException;
 import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
 import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Optional;
+import javax.persistence.EntityNotFoundException;
 import lombok.SneakyThrows;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -28,6 +41,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -323,6 +337,113 @@ class AssetCreationServiceTest {
 								geometryFactory.createPoint()// wrong datatype
 						)
 				));
+	}
+
+
+	// TEST updateLocationDataForAsset
+
+	@Test
+	void exception_when_asset_not_found() {
+
+		final long assetId = 1000L;
+		doThrow(EntityNotFoundException.class)
+				.when(assetRepository).getOne(assetId);
+
+		assertThrows(AssetNotFoundException.class,
+				() -> assetCreationService.updateLocationDataForAsset(
+						new LocationUpdateRequest(new LocationDataDto(geometryFactory.createPoint(new Coordinate(0, 0)
+						), 0))
+						, assetId));
+
+	}
+
+
+	@Test
+	void notification_service_is_called_to_validate_asset_location() {
+
+		final long assetId = 1000L;
+		doReturn(mock(Asset.class))
+				.when(assetRepository).getOne(assetId);
+		doReturn(mock(LocationData.class))
+				.when(locationDataRepository).save(any(LocationData.class));
+		doReturn(null)
+				.when(cacheService).get(any());
+		doReturn(Optional.empty())
+				.when(assetRepository).getRouteForAsset(assetId);
+		doReturn(Optional.empty())
+				.when(assetRepository).getGeofenceForAsset(assetId);
+
+		// when
+		assetCreationService.updateLocationDataForAsset(
+				new LocationUpdateRequest(
+						new LocationDataDto(geometryFactory.createPoint(new Coordinate(0, 0)),
+								0))
+				, assetId);
+
+		// then
+		verify(notificationService, times(1))
+				.validateAssetLocation(eq(assetId),
+						any(Point.class),
+						eq(Optional.empty()),
+						eq(Optional.empty())
+				);
+
+	}
+
+	@Test
+	void fields_are_mapped_correctly() {
+
+		// given
+		final long assetId = 1000L;
+		doNothing()
+				.when(notificationService).validateAssetLocation(any(), any(), any(), any());
+		final Asset mock = mock(Asset.class);
+		doReturn(mock)
+				.when(assetRepository).getOne(assetId);
+
+		// when
+		assetCreationService.updateLocationDataForAsset(
+				new LocationUpdateRequest(
+						new LocationDataDto(
+								geometryFactory.createPoint(new Coordinate(0, 0)),
+								0))
+				, assetId);
+
+		// then
+		ArgumentCaptor<LocationData> captor = ArgumentCaptor.forClass(LocationData.class);
+		verify(locationDataRepository, times(1)).save(captor.capture());
+		final LocationData value = captor.getValue();
+		assertNotNull(value.getAsset());
+		assertEquals(mock, value.getAsset());
+		assertEquals(0, value.getCoordinates().getCoordinate().getX());
+		assertEquals(0, value.getCoordinates().getCoordinate().getY());
+		assertNotNull(value.getTimestamp());
+		assertEquals(LocalDateTime.ofInstant(Instant.ofEpochSecond(0), systemDefault()), value.getTimestamp());
+
+	}
+
+	@Test
+	void no_exception_when_updating_location() {
+		// given
+		final long assetId = 1000L;
+		doNothing()
+				.when(notificationService)
+				.validateAssetLocation(any(), any(), any(), any());
+		final Asset mock = mock(Asset.class);
+		doReturn(mock)
+				.when(assetRepository).getOne(assetId);
+		doReturn(mock(LocationData.class))
+				.when(locationDataRepository).save(any(LocationData.class));
+
+		// when
+		// then
+		assertDoesNotThrow(() -> assetCreationService.updateLocationDataForAsset(
+				new LocationUpdateRequest(
+						new LocationDataDto(
+								geometryFactory.createPoint(new Coordinate(0, 0)),
+								0))
+				, assetId));
+
 	}
 
 

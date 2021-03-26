@@ -133,14 +133,14 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	private Optional<Geometry> getGeofenceForAsset(Long assetId) {
 
-		return Stream.of(Optional.of(cacheService.get("geofence-" + assetId)), assetRepository.getGeofenceForAsset(assetId))
+		return Stream.of(Optional.ofNullable(cacheService.get("geofence-" + assetId)), assetRepository.getGeofenceForAsset(assetId))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.findFirst();
 	}
 
 	private Optional<Geometry> getRouteForAsset(Long assetId) {
-		return Stream.of(Optional.of(cacheService.get("route-" + assetId)), assetRepository.getRouteForAsset(assetId))
+		return Stream.of(Optional.ofNullable(cacheService.get("route-" + assetId)), assetRepository.getRouteForAsset(assetId))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.findFirst();

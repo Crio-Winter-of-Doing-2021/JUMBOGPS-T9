@@ -101,4 +101,5 @@ public class LocationData implements Serializable {
 	public String toString() {
 		return "LocationData(id=" + this.getId() + ", timestamp=" + this.getTimestamp() + ", coordinates=" + this.getCoordinates().getCoordinate() + ")";
 	}
+
 }

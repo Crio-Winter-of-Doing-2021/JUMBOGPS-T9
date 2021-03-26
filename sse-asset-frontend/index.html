@@ -94,6 +94,7 @@
 
 		eventSource.onerror = (err) => {
 			console.error("EventSource error: ", err);
+			eventSource.close();
 		};
 		console.log("error");
 
@@ -117,6 +118,7 @@
 <h2>Notification Demo Site</h2>
 
 <img src="img.png" alt="map image" height="500px" width="700px">
+<h2>Hello</h2>
 
 </body>
 </html>
