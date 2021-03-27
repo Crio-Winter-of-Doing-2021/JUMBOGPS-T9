@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../stylesheets/index.css" />
+    <link rel="stylesheet" href="../stylesheets/login.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Sign in</title>
+
+</head>
+<body>
+    <div class="main">
+            <div class="filters">
+                <!-- search bar,filters goes here -->
+                <div class="signIn">Sign In</div>
+                <form >
+
+                    <div class="group">      
+                        <input type="text"  name="username" autocomplete="off"/>
+                        <span class="error"></span>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Enter your username</label>
+                      </div>
+                    <div class="group">      
+                        <input type="text"  name="password" autocomplete="off"/>
+                        <span class="error"></span>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Enter your password</label>
+                      </div>
+                 <div>Don't have an account yet?<span id="signup">Sign up</span></div>
+                <button id="searchBtn">LOGIN</button>
+            </form>
+            </div>
+            
+<div id='banner'>
+    <div class="header">
+        Welcome to 
+        JumboGPS
+    </div>
+    <div class="description">
+        <img src="../assets/undraw_My_location_re_r52x.png" />
+        <div>
+            Keep track of your assets 24x7,live monitor your assets and much more!!
+        </div>
+    </div>
+    <div class="mapImg">
+        <img src="../assets/undraw_Map_dark_re_36sy.png" />
+    </div>
+</div>
+
+            
+    </div>
+<script src="../javascripts/Auth.js"></script>
+</body>
+</html>
