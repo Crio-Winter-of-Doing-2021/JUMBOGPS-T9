@@ -121,7 +121,7 @@ function disbaleTimeInput(){
 
 function handleLogout(){
 	localStorage.setItem("token",null);
-	window.location.href="../templates/login.html";
+	window.location.href="../templates/index.html";
 }
 searchFilter.onkeypress = disbaleTimeInput;
 logoutBtn.onclick = handleLogout;

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../stylesheets/index.css" />
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <title>Dashboard</title>
+
+</head>
+<body>
+    <div class="main">
+            <div class="filters">
+                <form >
+
+                    <div class="group">      
+                        <input type="text"  name="criteria" autocomplete="off"/>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Search with asset id/type</label>
+                        <span class="error"></span>
+                      </div>
+                    <div class="group">      
+                        <input type="number" name="maxAssetsCount" value=100 autocomplete="off"/>
+                        
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Set no. of assets shown</label>
+                        <span class="error"></span>
+                      </div>
+                    <div class="group">      
+                        <input type="datetime-local" name="startTime"  autocomplete="off"/>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Set start time value</label>
+                      </div>
+                    <div class="group">      
+                        <input placeholder="demo" type="datetime-local" name="endTime"  autocomplete="off"/>
+                        <span class="highlight"></span>
+                        <span class="bar"></span>
+                        <label>Set end time value</label>
+                        <span class="error"></span>
+                      </div>
+                <button id="searchBtn">SEARCH</button>
+            </form>
+            <div class="logout"><button id="logoutBtn">LOGOUT</button></div>
+            </div>
+            
+<div id='map'></div>
+
+            
+    </div>
+
+    <script type="text/javascript" src="../config.js"></script>
+    <script type="text/javascript" src="../javascripts/MapViews.js"></script>
+    <script type="text/javascript" src="../javascripts/FormHandler.js"></script>
+
+</body>
+</html>

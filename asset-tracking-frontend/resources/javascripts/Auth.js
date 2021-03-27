@@ -17,7 +17,7 @@ form.onsubmit =  handleLogin;
         data: {username,password}
       }).then(({data})=>{
           localStorage.setItem("token",data.token);
-          window.location.href = "../templates/index.html";
+          window.location.href = "../templates/dashboard.html";
         })
       .catch(()=>{
         handleAuthFailure();
