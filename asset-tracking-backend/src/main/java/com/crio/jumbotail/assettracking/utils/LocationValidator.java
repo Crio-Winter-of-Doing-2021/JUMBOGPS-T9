@@ -25,7 +25,7 @@ public class LocationValidator implements ConstraintValidator<LocationConstraint
 		//	@Min(-180)
 //	@Max(180)
 		return (longitude >= -180 && longitude <= 180) &&
-		       (latitude >= -180 && latitude <= 180) &&
+		       (latitude >= -90 && latitude <= 90) &&
 		       numPoints == 1;
 //        return contactField != null && contactField.matches("[0-9]+")
 //          && (contactField.length() > 8) && (contactField.length() < 14);

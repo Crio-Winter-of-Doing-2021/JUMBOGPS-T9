@@ -137,11 +137,11 @@ public class DataCreationController {
 
 	@Operation(summary = "Create MOCK DATA In DB")
 	@GetMapping("/mock-data")
-	public void createData(@RequestParam String global) throws IOException {
+	public void createData(@RequestParam(required = false, defaultValue = "false") boolean global) throws IOException {
 
 		Faker faker = new Faker(new Locale("en-IND"));
 
-		if (global != null) {
+		if (global) {
 
 			for (int i = 0; i < 100; i++) {
 				Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(faker.address().longitude()), Double.parseDouble(faker.address().longitude())));

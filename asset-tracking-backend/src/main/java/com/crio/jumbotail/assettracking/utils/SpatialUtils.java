@@ -103,7 +103,7 @@ public class SpatialUtils {
 			final double longitude = coordinate.getX();
 			final double latitude = coordinate.getY();
 
-			if (!(longitude >= -180 && longitude <= 180 && latitude >= -180 && latitude <= 180)) {
+			if (!(longitude >= -180 && longitude <= 180 && latitude >= -90 && latitude <= 90)) {
 				throw new InvalidLocationException(MessageFormat.format("Longitude {0} or Latitude {1} is invalid", longitude, latitude));
 			}
 		}
