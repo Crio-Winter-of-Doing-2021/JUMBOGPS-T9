@@ -135,34 +135,52 @@ public class DataCreationController {
 	private List<Long> mockData = new ArrayList<>();
 
 
+	// Lying entirely in the Northern hemisphere (Figure 1.1) the main land extends between latitudes 8°4'N and 37°6'N and longitudes 68°7'E and 97°25'E.
 	@Operation(summary = "Create MOCK DATA In DB")
 	@GetMapping("/mock-data")
-	public void createData(@RequestParam(required = false, defaultValue = "false") boolean global) throws IOException {
-
+	public void createData(@RequestParam(required = false, defaultValue = "false") boolean withinIndia,
+	                       @RequestParam(required = false, defaultValue = "false") boolean mockFromFile) throws IOException {
 		Faker faker = new Faker(new Locale("en-IND"));
-
-		if (global) {
-
-			for (int i = 0; i < 100; i++) {
-				Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(faker.address().longitude()), Double.parseDouble(faker.address().longitude())));
-
-				makeMockData(faker, point);
-			}
-
+		if (mockFromFile) {
+			mockDataFromFile(faker);
 		} else {
-			final InputStream inputStream = resourceFile.getInputStream();
-			String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+			int i = 0;
+			while (i < 100) {
 
-			final String[] locations = data.split("\n");
-
-			for (String location : locations) {
-				final String[] s = location.split("\t");
-				LOG.info("location = " + Arrays.toString(s));
-				assert (s.length == 2);
-				Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(s[0]), Double.parseDouble(s[1])));
+				double latitude = Double.parseDouble(faker.address().latitude());
+				double longitude = Double.parseDouble(faker.address().longitude());
+				if (withinIndia) {
+					// not within indian coordinates
+					if (notWithinIndianCoordinates(latitude, longitude)) {
+						continue;
+					}
+				}
+				Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
 
 				makeMockData(faker, point);
+				i++;
 			}
+		}
+		LOG.info("DATA FULLY CREATED");
+	}
+
+	private boolean notWithinIndianCoordinates(double latitude, double longitude) {
+		return (latitude >= 8.4 && latitude <= 37.6 && longitude >= 68.7 && longitude <= 97.25) == false;
+	}
+
+	private void mockDataFromFile(Faker faker) throws IOException {
+		final InputStream inputStream = resourceFile.getInputStream();
+		String data = IOUtils.toString(inputStream, StandardCharsets.UTF_8.name());
+
+		final String[] locations = data.split("\n");
+
+		for (String location : locations) {
+			final String[] s = location.split("\t");
+			LOG.info("location = " + Arrays.toString(s));
+			assert (s.length == 2);
+			Point point = geometryFactory.createPoint(new Coordinate(Double.parseDouble(s[0]), Double.parseDouble(s[1])));
+
+			makeMockData(faker, point);
 		}
 	}
 
