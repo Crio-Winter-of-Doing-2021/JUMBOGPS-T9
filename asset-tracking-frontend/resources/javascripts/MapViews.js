@@ -1,4 +1,4 @@
-const mainUrl = 'https://jumbogps.anugrahsinghal.repl.co/assets';
+const mainUrl = 'https://jumbogps-auth-sse.anugrahsinghal.repl.co/assets';
 const getAllAssetsUrl = `${mainUrl}?limit=100`;
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -14,9 +14,16 @@ const layers = ['byTime','byType','byId','all','history'];
 
 // for getting asset data from appropriate API call
 async function getAssetData(url,current) {
-	let assets=[], centroid;
+	
+	let token = localStorage.getItem("token");
 
-	await axios.get(url)
+	let assets=[], centroid;
+	
+	await axios.get(url,{
+		"headers": {
+			"Authorization": `Bearer ${token}`
+		  }
+	})
 	.then((body) => {
 		if(body.data.assets){
 			assets = body.data.assets
