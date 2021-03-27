@@ -1,124 +1,203 @@
-<!-- https://notification-demo.netlify.app/ -->
-
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Document</title>
-    <script src="eventsource.min.js"></script>
-    <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
-            type="text/javascript"
-    ></script>
-</head>
-<body>
-<script>
-	// let client = new Paho.MQTT.Client(
-	//   "mr1x0rtfny22gj.messaging.solace.cloud",
-	//   8443,
-	//   "",
-	//   "clientId"
-	// );
-	//
-	// new Paho.MQTT.Client()
-	//
-	// var options = {
-	//   timeout: 3,
-	//   onSuccess: onConnect,
-	//   useSSL: true,
-	// };
-	// client.connect(options);
-	// console.log(client);
-	//
-	// const authorizationToken =
-	//   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Show drawn polygon area</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 80%;
+      }
+    </style>
+  </head>
+  <body>
+    <style>
+      .calculation-box {
+        height: 75px;
+        width: 150px;
+        position: absolute;
+        bottom: 40px;
+        left: 10px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        text-align: center;
+      }
 
-	const resourceUrl = "https://jumbogps-auth-sse.anugrahsinghal.repl.co/api/assets/subscribe";
+      p {
+        font-family: "Open Sans";
+        margin: 0;
+        font-size: 13px;
+      }
+    </style>
 
-	// const resourceUrl = "http://localhost:8080/api/assets/subscribe";
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.css"
+      type="text/css"
+    />
 
-	function getNotificationHeader(eventType) {
-		let header = "";
-		console.log(eventType);
-		if (eventType === "route-deviation") {
-			header = "Route Deviation";
-		} else if (eventType === "geofence-exit") {
-			header = "Outside Geofence";
-		} else {
-			header = "Something went wrong";
-		}
+    <div id="map"></div>
+    <div class="calculation-box">
+      <p>Draw a polygon using the draw tools.</p>
+      <button id="route">Save Route</button>
+      <button id="polygon">Save Polygon</button>
+      <button id="source-point">Save Current Location</button>
+      <button id="show-all">Render</button>
+      <div id="calculated-area"></div>
+    </div>
 
-		return header;
-	}
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
+      var map = new mapboxgl.Map({
+        container: "map", // container id
+        style: "mapbox://styles/mapbox/streets-v8",
+        center: [19.874, 42.76], // starting position
+        zoom: 13, // starting zoom
+      });
 
-	function showNotification(eventData) {
-		console.group("showNotification");
+      let opt = {
+        displayControlsDefault: false,
+        controls: {
+          polygon: true,
+          trash: true,
+          line_string: true,
+          point: true,
+        },
+        touchEnabled: true,
+      };
 
-		let notificationData = eventData[1].data;
-		console.log(notificationData);
+      var draw = new MapboxDraw(opt);
+      map.addControl(draw);
 
-		const header = getNotificationHeader(notificationData.eventType);
-		const message = notificationData.message;
+      map.on("draw.create", updateArea);
+      map.on("draw.delete", updateArea);
+      map.on("draw.update", updateArea);
 
-		const notification = new Notification(header, {
-			body: message,
-			icon: "./exclamation-mark.png",
-		});
-		console.groupEnd();
-	}
+      function updateArea(e) {
+        var data = draw.getAll();
+        var answer = document.getElementById("calculated-area");
+        if (data.features.length > 0) {
+          var area = turf.area(data);
+          // restrict to area to 2 decimal points
+          var rounded_area = Math.round(area * 100) / 100;
+          answer.innerHTML =
+            "<p><strong>" + rounded_area + "</strong></p><p>square meters</p>";
+        } else {
+          answer.innerHTML = "";
+          if (e.type !== "draw.delete")
+            alert("Use the draw tools to draw a polygon!");
+        }
+      }
 
-	function subscribeToSSE() {
-		console.group("Event Subscription");
-		// const eventSource = new EventSourcePolyfill(resourceUrl);
-		const eventSource = new EventSource(resourceUrl);
+      let polygon;
+      let route;
+      let sourcePoint;
 
-		console.log("subscribed");
+      document
+        .getElementById("polygon")
+        .addEventListener("click", function (e) {
+          let data = draw.getAll();
+          console.log(data);
+          if (data.features.length == 1) {
+            console.log("single feature found");
+            if (data.features[0].geometry.type == "Polygon") {
+              polygon = data.features[0];
+            } else {
+              alert("Invalid Polygon");
+              // call clear all
+              // delete yourself
+            }
+          } else {
+            alert("Only 1 feature allowed at a time");
+            // call clear all
+            // delete yourself
+          }
+        });
 
-		eventSource.onopen = (event) => {
-			console.log("connection opened");
-			console.log(event);
-		};
+      document.getElementById("route").addEventListener("click", function (e) {
+        let data = draw.getAll();
+        console.log(data);
+        if (data.features.length == 1) {
+          console.log("single feature found");
+          if (data.features[0].geometry.type == "LineString") {
+            route = data.features[0];
+          } else {
+            alert("Invalid Route");
+            // call clear all
+            // delete yourself
+          }
+        } else {
+          alert("Only 1 feature allowed at a time");
+          // call clear all
+          // delete yourself
+        }
+      });
 
-		console.log("open");
+      document
+        .getElementById("source-point")
+        .addEventListener("click", function (e) {
+          let data = draw.getAll();
+          console.log(data);
+          if (data.features.length == 1) {
+            console.log("single feature found");
+            if (data.features[0].geometry.type == "Point") {
+              sourcePoint = data.features[0];
+            } else {
+              alert("Invalid Point");
+              // call clear all
+              // delete yourself
+            }
+          } else {
+            alert("Only 1 feature allowed at a time");
+            // call clear all
+            // delete yourself
+          }
+        });
 
-		eventSource.onmessage = (result) => {
-			console.log("Message Received");
-			// console.log(JSON.stringify(result));
-			const data = JSON.parse(result.data);
-			console.log("Data: ", data);
-			showNotification(data);
-		};
-		console.log("message");
+      document
+        .getElementById("show-all")
+        .addEventListener("click", function (e) {
+          let allStoredFeatures = [];
+          if (polygon !== undefined) {
+            allStoredFeatures.push(polygon);
+          }
+          if (route !== undefined) {
+            allStoredFeatures.push(route);
+          }
+          if (sourcePoint !== undefined) {
+            allStoredFeatures.push(sourcePoint);
+          }
+          if (allStoredFeatures.length == 0) {
+            alert("no valid features");
+            return;
+          }
 
-		eventSource.onerror = (err) => {
-			console.error("EventSource error: ", err);
-			eventSource.close();
-		};
-		console.log("error");
+          draw.deleteAll();
 
-		console.groupEnd();
-	}
-
-	console.log("Notification Permission => " + Notification.permission);
-
-	if (Notification.permission === "granted") {
-		subscribeToSSE();
-	} else if (Notification.permission !== "denied") {
-		Notification.requestPermission()
-			.then((permission) => {
-				if (permission === "granted") {
-					subscribeToSSE();
-				}
-			});
-	}
-</script>
-
-<h2>Notification Demo Site</h2>
-
-<img src="img.png" alt="map image" height="500px" width="700px">
-<h2>Hello</h2>
-
-</body>
+          var ids = draw.set({
+            type: "FeatureCollection",
+            features: allStoredFeatures,
+          });
+        });
+    </script>
+  </body>
 </html>

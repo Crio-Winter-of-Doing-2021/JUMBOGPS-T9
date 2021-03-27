@@ -1,0 +1,124 @@
+<!-- https://notification-demo.netlify.app/ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Document</title>
+    <script src="eventsource.min.js"></script>
+    <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js"
+            type="text/javascript"
+    ></script>
+</head>
+<body>
+<script>
+	// let client = new Paho.MQTT.Client(
+	//   "mr1x0rtfny22gj.messaging.solace.cloud",
+	//   8443,
+	//   "",
+	//   "clientId"
+	// );
+	//
+	// new Paho.MQTT.Client()
+	//
+	// var options = {
+	//   timeout: 3,
+	//   onSuccess: onConnect,
+	//   useSSL: true,
+	// };
+	// client.connect(options);
+	// console.log(client);
+	//
+	// const authorizationToken =
+	//   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
+
+	const resourceUrl = "https://jumbogps-auth-sse.anugrahsinghal.repl.co/api/assets/subscribe";
+
+	// const resourceUrl = "http://localhost:8080/api/assets/subscribe";
+
+	function getNotificationHeader(eventType) {
+		let header = "";
+		console.log(eventType);
+		if (eventType === "route-deviation") {
+			header = "Route Deviation";
+		} else if (eventType === "geofence-exit") {
+			header = "Outside Geofence";
+		} else {
+			header = "Something went wrong";
+		}
+
+		return header;
+	}
+
+	function showNotification(eventData) {
+		console.group("showNotification");
+
+		let notificationData = eventData[1].data;
+		console.log(notificationData);
+
+		const header = getNotificationHeader(notificationData.eventType);
+		const message = notificationData.message;
+
+		const notification = new Notification(header, {
+			body: message,
+			icon: "./exclamation-mark.png",
+		});
+		console.groupEnd();
+	}
+
+	function subscribeToSSE() {
+		console.group("Event Subscription");
+		// const eventSource = new EventSourcePolyfill(resourceUrl);
+		const eventSource = new EventSource(resourceUrl);
+
+		console.log("subscribed");
+
+		eventSource.onopen = (event) => {
+			console.log("connection opened");
+			console.log(event);
+		};
+
+		console.log("open");
+
+		eventSource.onmessage = (result) => {
+			console.log("Message Received");
+			// console.log(JSON.stringify(result));
+			const data = JSON.parse(result.data);
+			console.log("Data: ", data);
+			showNotification(data);
+		};
+		console.log("message");
+
+		eventSource.onerror = (err) => {
+			console.error("EventSource error: ", err);
+			eventSource.close();
+		};
+		console.log("error");
+
+		console.groupEnd();
+	}
+
+	console.log("Notification Permission => " + Notification.permission);
+
+	if (Notification.permission === "granted") {
+		subscribeToSSE();
+	} else if (Notification.permission !== "denied") {
+		Notification.requestPermission()
+			.then((permission) => {
+				if (permission === "granted") {
+					subscribeToSSE();
+				}
+			});
+	}
+</script>
+
+<h2>Notification Demo Site</h2>
+
+<img src="img.png" alt="map image" height="500px" width="700px">
+<h2>Hello</h2>
+
+</body>
+</html>
