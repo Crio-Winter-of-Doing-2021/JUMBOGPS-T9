@@ -5,6 +5,7 @@ const endTimeFilter = document.getElementsByName('endTime')[0];
 const assetsCount = document.getElementsByName('maxAssetsCount')[0];
 const errors = document.getElementsByClassName('error');
 const inputLabels = document.getElementsByTagName('label');
+const logoutBtn = document.getElementById("logoutBtn");
 
 form.addEventListener('submit', handleSubmit);
 
@@ -118,5 +119,9 @@ function disbaleTimeInput(){
 
 }
 
-
+function handleLogout(){
+	localStorage.setItem("token",null);
+	window.location.href="../templates/login.html";
+}
 searchFilter.onkeypress = disbaleTimeInput;
+logoutBtn.onclick = handleLogout;

@@ -1,6 +1,8 @@
 const mainUrl = 'https://jumbogps-auth-sse.anugrahsinghal.repl.co/assets';
 const getAllAssetsUrl = `${mainUrl}?limit=100`;
 
+let token = localStorage.getItem("token");
+
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 let map = new mapboxgl.Map({
@@ -15,7 +17,6 @@ const layers = ['byTime','byType','byId','all','history'];
 // for getting asset data from appropriate API call
 async function getAssetData(url,current) {
 	
-	let token = localStorage.getItem("token");
 
 	let assets=[], centroid;
 	
@@ -151,12 +152,13 @@ function createAssetPopup(layer) {
 		// Populate the popup and set its coordinates
 		// based on the feature found.
 		popup.setLngLat(coordinates).setHTML(description).addTo(map);
+
 	});
 
-	popup.on('mouseleave', layer, function() {
-		map.getCanvas().style.cursor = '';
-		popup.remove();
-	});
+	// popup.on('mouseleave', layer, function() {
+	// 	map.getCanvas().style.cursor = '';
+	// 	popup.remove();
+	// });
 }
 
 // for getting all assets available
@@ -168,20 +170,21 @@ async function getAllAssets(url,layer){
 async function getAssetHistory(assetId,current){
 	let asset,centroid,history;
 
-	let searchByIdUrl = `${mainUrl}/${assetId}`;
+	let getAssetHistoryUrl = `${mainUrl}/${assetId}/history`;
 
-	await axios.get(searchByIdUrl)
-	.then((body) => {
-		
-		asset = body.data;
-	centroid = body.data.centroid?body.data.centroid:body.data.lastReportedLocation;
-})
-	.catch((err) =>{
-		alert("no history for that asset found.try another asset.");
-	});
+	await axios.get(getAssetHistoryUrl,{
+		headers:{
+			Authorization:`Bearer ${token}`
+		}
+	})
+	.then(({data}) => {
+		asset = data.asset;
+		history = data.history;
+		centroid = data.centroid;
+	})
+	.catch(err => console.log(err));
 
-	let {id,assetType,description,title} = asset;
-
+	let {title,description,assetType} = asset;
 
 	// long,lat of a random asset
 	let { longitude, latitude } = centroid;
@@ -195,16 +198,11 @@ async function getAssetHistory(assetId,current){
 
 	features = [];
 
-	let getAssetHistoryUrl = `${mainUrl}/${assetId}/history`;
-
-	await axios.get(getAssetHistoryUrl)
-	.then(body => history = body.data)
-	.catch(err => console.log(err));
-
 	if(history.length==0){
 		alert("no history found for that asset");
 		return;
 	}
+
 	history.forEach((record) => {
 		let long = record.location.longitude;
 		let lat = record.location.latitude;
@@ -216,6 +214,7 @@ async function getAssetHistory(assetId,current){
                 <span><strong>Type:</strong> ${assetType}</span>
                 <p>${description}</p>
                 <span>${record.timestamp}</span>
+                <span>${long} -- ${lat}</span>
                 `
 			},
 			geometry: {
