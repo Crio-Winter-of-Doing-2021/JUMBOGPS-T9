@@ -5,9 +5,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../stylesheets/index.css" />
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/eventsource-polyfill/0.9.6/eventsource.min.js" integrity="sha512-2yFxlFMuyG+/BzPxBPJIqVDQtYXs/Vf/Y9TU37Cu3W8nMgXf+isJZM0OgWUS/wv9BypnST+Z3g36yLmnrSMoQQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../javascripts/GeoFence.js"></script>
+
     <title>Dashboard</title>
 
 </head>
@@ -15,10 +22,9 @@
     <div class="main">
             <div class="filters">
                 <form >
-
-                    <div class="group">      
-                        <input type="text"  name="criteria" autocomplete="off"/>
-                        <span class="highlight"></span>
+                    <div class="group">
+                      <input type="text"  name="criteria" autocomplete="off" />
+                      <span class="highlight"></span>
                         <span class="bar"></span>
                         <label>Search with asset id/type</label>
                         <span class="error"></span>

@@ -96,7 +96,7 @@ function disbaleTimeInput(){
 		let value = parseInt(searchFilter.value.toUpperCase().trim());
 
 		console.log(value);
-
+		
 		if(value!=null && Number.isInteger(value)){
 			startTimeFilter.disabled = true;
 			endTimeFilter.disabled = true;
@@ -124,4 +124,5 @@ function handleLogout(){
 	window.location.href="../templates/index.html";
 }
 searchFilter.onkeypress = disbaleTimeInput;
+searchFilter.onchange = disbaleTimeInput;
 logoutBtn.onclick = handleLogout;
