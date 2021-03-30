@@ -413,7 +413,7 @@
       const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
-        marker: false
+        marker: false,
       });
 
       map.addControl(geocoder, "top-left");
@@ -491,24 +491,36 @@
             }
 
             let html = "";
-            html = html + "<p>" + e.features[0].properties.id + "</p>";
-            html =
-              html +
-              "<span><strong>Type:</strong>" +
-              e.features[0].properties.title +
-              "</span>";
-            html = html + "<p>" + e.features[0].properties.type + "</p>";
-            html =
-              html +
-              "<span>" +
-              e.features[0].properties.description +
-              "</span><br/>";
-            html =
-              html +
-              "<span>" +
-              e.features[0].properties.timestamp +
-              "</span><br>";
-
+            if (e.features[0].properties.id !== undefined) {
+              html = html + "<p>" + e.features[0].properties.id + "</p>";
+            }
+            if (e.features[0].properties.title !== undefined) {
+              html =
+                html +
+                "<span><strong>Type:</strong>" +
+                e.features[0].properties.title +
+                "</span>";
+            }
+            if (e.features[0].properties.type !== undefined) {
+              html = html + "<p>" + e.features[0].properties.type + "</p>";
+            }
+            if (e.features[0].properties.description !== undefined) {
+              html =
+                html +
+                "<span>" +
+                e.features[0].properties.description +
+                "</span><br/>";
+            }
+            if (e.features[0].properties.timestamp !== undefined) {
+              html =
+                html +
+                "<span>" +
+                e.features[0].properties.timestamp +
+                "</span><br>";
+            }
+            if (html === "") {
+              html = <p>No Data</p>;
+            }
             popup.setLngLat(coordinates).setHTML(html).addTo(map);
           }
         });
