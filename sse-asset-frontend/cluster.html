@@ -771,7 +771,11 @@
         // If these two layers have been added to the style,
         // add the toggle buttons.
         // Enumerate ids of the layers.
-        var toggleableLayerIds = ["asset-view", "timeline-view"];
+        var toggleableLayerIds = [
+          "asset-view",
+          "timeline-view",
+          "timeline-view-with-polygon",
+        ];
         // Set up the corresponding toggle button for each layer.
         for (var i = 0; i < toggleableLayerIds.length; i++) {
           var id = toggleableLayerIds[i];
@@ -790,8 +794,10 @@
 
               if (clickedLayer === "asset-view") {
                 showAssetView(dummyGeoJson);
-              } else {
+              } else if (clickedLayer === "timeline-view-with-polygon") {
                 showTimeLineView(multipleGeometryJson);
+              } else if (clickedLayer === "timeline-view") {
+                showTimeLineView(dummyGeoJson);
               }
             };
 
