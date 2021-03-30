@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
+import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,7 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 		LOG.info("assets.size() [{}]", assets.size());
 
 		// MAYBE
-		Point centroid = geometryFactory.createPoint();
+		Point centroid = geometryFactory.createPoint(new Coordinate(0,0));
 		if (!assets.isEmpty()) {
 			centroid = getCentroidForAssets(assets);
 		}
