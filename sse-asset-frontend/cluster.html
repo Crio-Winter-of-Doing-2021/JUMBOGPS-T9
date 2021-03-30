@@ -495,28 +495,16 @@
               html = html + "<p>" + e.features[0].properties.id + "</p>";
             }
             if (e.features[0].properties.title !== undefined) {
-              html =
-                html +
-                "<span><strong>Type:</strong>" +
-                e.features[0].properties.title +
-                "</span>";
+              html = `${html}<span><strong>Type:</strong>${e.features[0].properties.title}</span>`;
             }
             if (e.features[0].properties.type !== undefined) {
-              html = html + "<p>" + e.features[0].properties.type + "</p>";
+              html = `${html}<p>${e.features[0].properties.type}</p>`;
             }
             if (e.features[0].properties.description !== undefined) {
-              html =
-                html +
-                "<span>" +
-                e.features[0].properties.description +
-                "</span><br/>";
+              html = `${html}<span>${e.features[0].properties.description}</span><br/>`;
             }
             if (e.features[0].properties.timestamp !== undefined) {
-              html =
-                html +
-                "<span>" +
-                e.features[0].properties.timestamp +
-                "</span><br>";
+              html = `${html}<span>${e.features[0].properties.timestamp}</span><br>`;
             }
             if (html === "") {
               html = <p>No Data</p>;
@@ -906,39 +894,6 @@
         }
       }
 
-      function showThePopup(e) {
-        map.getCanvas().style.cursor = "pointer";
-
-        var coordinates = e.features[0].geometry.coordinates.slice();
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-
-        let html = "";
-        html = html + "<p>" + e.features[0].properties.id + "</p>";
-        html =
-          html +
-          "<span><strong>Type:</strong>" +
-          e.features[0].properties.title +
-          "</span>";
-        html = html + "<p>" + e.features[0].properties.type + "</p>";
-        html =
-          html +
-          "<span>" +
-          e.features[0].properties.description +
-          "</span><br/>";
-        html =
-          html + "<span>" + e.features[0].properties.timestamp + "</span><br>";
-
-        new mapboxgl.Popup({ closeOnMove: true })
-          .setLngLat(coordinates)
-          .setHTML(html)
-          .addTo(map);
-      }
 
       function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
         let features = timelineViewGeoJsonData.features;
@@ -1146,6 +1101,40 @@
 
     <script>
       // old code
+
+      function showThePopup(e) {
+        map.getCanvas().style.cursor = "pointer";
+
+        var coordinates = e.features[0].geometry.coordinates.slice();
+
+        // Ensure that if the map is zoomed out such that
+        // multiple copies of the feature are visible, the
+        // popup appears over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        let html = "";
+        html = html + "<p>" + e.features[0].properties.id + "</p>";
+        html =
+          html +
+          "<span><strong>Type:</strong>" +
+          e.features[0].properties.title +
+          "</span>";
+        html = html + "<p>" + e.features[0].properties.type + "</p>";
+        html =
+          html +
+          "<span>" +
+          e.features[0].properties.description +
+          "</span><br/>";
+        html =
+          html + "<span>" + e.features[0].properties.timestamp + "</span><br>";
+
+        new mapboxgl.Popup({ closeOnMove: true })
+          .setLngLat(coordinates)
+          .setHTML(html)
+          .addTo(map);
+      }
 
       const salesperson = ["==", ["get", "assetType"], "SALESPERSON"];
       const truck = ["==", ["get", "assetType"], "TRUCK"];
