@@ -296,7 +296,7 @@
         zoom: 3,
       });
 
-      map.addControl(new mapboxgl.NavigationControl());
+      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
       map.on("load", function () {
         addImages(map, [
@@ -949,6 +949,7 @@
               visibility: "none",
             },
           },
+          // add layer before given layer
           "waterway-label"
         );
 
