@@ -58,7 +58,7 @@ function convertFromAssetResponseToGeoJson(data) {
 function getTimelineDataAndRenderOnMap(assetId) {
   // call API using assetId
 
-  showTimeLineView(responseData);
+  showTimeLineView(historyDataFromAPIExtended);
 }
 
 function convertHistoryResponseToGeoJson(data) {
