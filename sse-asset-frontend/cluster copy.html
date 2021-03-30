@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Create and style clusters</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+      .history {
+        color: blue;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/dark-v10",
+        center: [-103.59179687498357, 40.66995747013945],
+        zoom: 3,
+      });
+
+      getDataAndRenderOnMap();
+
+      function getDataAndRenderOnMap() {
+        let geoJson;
+        fetch("https://jumbogps-geo.anugrahsinghal.repl.co/assets?limit=100", {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ",
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+
+            let centroid = data.centroid;
+            let assetAsFeatures = getAllFeaturesFromAssets(data);
+
+            let geoJson = {
+              type: "FeatureCollection",
+              features: assetAsFeatures,
+            };
+
+            renderMapForAssetViewData(centroid, geoJson);
+          })
+          .catch((err) => {
+            console.log("err");
+          });
+      }
+
+      function getAllFeaturesFromAssets(data) {
+        let assets = data.assets;
+        console.log(assets);
+        let features = [];
+        for (let i = 0; i < assets.length; i++) {
+          features.push({
+            type: "Feature",
+            properties: {
+              id: assets[i].id,
+              title: assets[i].title,
+              description: assets[i].description,
+              type: assets[i].assetType,
+              timestamp: assets[i].lastReportedTimestamp,
+            },
+            geometry: assets[i].lastReportedCoordinates,
+          });
+        }
+        return features;
+      }
+
+      function renderMapForAssetViewData(centroid, geoJsonData) {
+        console.log(geoJsonData);
+        // for recentering the map to a marker
+        map.flyTo({
+          center: centroid.coordinates,
+          essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+          zoom: 1,
+          bearing: 0,
+
+          // These options control the flight curve, making it move
+          // slowly and zoom out almost completely before starting
+          // to pan.
+          speed: 0.2, // make the flying slow
+          curve: 1, // change the speed at which it zooms out
+        });
+
+        map.on("load", function () {
+          // Add a new source from our GeoJSON data and
+          // set the 'cluster' option to true. GL-JS will
+          // add the point_count property to your source data.
+          map.addSource("asset-tracking-data", {
+            type: "geojson",
+            // Point to GeoJSON data. This example visualizes all M1.0+ asset-tracking-data
+            // from 12/22/15 to 1/21/16 as logged by USGS' Earthquake hazards program.
+            data: geoJsonData,
+            //   "https://docs.mapbox.com/mapbox-gl-js/assets/asset-tracking-data.geojson",
+            cluster: true,
+            clusterMaxZoom: 14, // Max zoom to cluster points on
+            clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+            clusterProperties: {
+              has_truck: ["any", ["==", ["get", "type"], "truck"], "false"],
+              has_salesperson: ["any", ["==", ["get", "type"], "salesperson"], "false"],
+              only_truck: [
+                "all",
+                ["==", ["get", "type"], "truck"],
+                "false",
+              ],
+              only_salesperson: ["all", ["==", ["get", "type"], "salesperson"], "false"],
+            },
+          });
+
+          map.addLayer({
+            id: "clusters",
+            type: "circle",
+            source: "asset-tracking-data",
+            filter: ["has", "point_count"],
+            paint: {
+              // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+              // with three steps to implement three types of circles:
+              //   * Blue, 20px circles when point count is less than 100
+              //   * Yellow, 30px circles when point count is between 100 and 750
+              //   * Pink, 40px circles when point count is greater than or equal to 750
+              "circle-color": [
+                "step",
+                ["get", "point_count"],
+                "#51bbd6",
+                100,
+                "#f1f075",
+                750,
+                "#f28cb1",
+              ],
+              "circle-radius": [
+                "step",
+                ["get", "point_count"],
+                20,
+                100,
+                30,
+                750,
+                40,
+              ],
+            },
+          });
+
+          map.addLayer({
+            id: "cluster-count",
+            type: "symbol",
+            source: "asset-tracking-data",
+            filter: ["has", "point_count"],
+            layout: {
+              "text-field": "{point_count_abbreviated}",
+              "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+              "text-size": 12,
+            },
+          });
+
+          map.addLayer({
+            id: "unclustered-point",
+            type: "circle",
+            source: "asset-tracking-data",
+            filter: ["!", ["has", "point_count"]],
+            paint: {
+              "circle-color": "#11b4da",
+              "circle-radius": 4,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+            },
+          });
+          // Add an image to use as a custom marker
+          map.loadImage(
+            "https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png",
+            // callback function
+            function (error, image) {
+              if (error) throw error;
+
+              if (map.hasImage("custom-marker"))
+                map.removeImage("custom-marker", image);
+              map.addImage("custom-marker", image);
+              // for adding diff map views
+              map.addLayer({
+                id: "custom-image-layer",
+                type: "symbol",
+                source: "asset-tracking-data",
+                filter: ["!", ["has", "point_count"]],
+                layout: {
+                  "icon-image": "custom-marker",
+                  "icon-allow-overlap": true,
+                  "icon-size": 0.6,
+                  visibility: "visible",
+                },
+              });
+            }
+          );
+
+          // inspect a cluster on click
+          map.on("click", "clusters", function (e) {
+            var features = map.queryRenderedFeatures(e.point, {
+              layers: ["clusters"],
+            });
+            var clusterId = features[0].properties.cluster_id;
+            map
+              .getSource("asset-tracking-data")
+              .getClusterExpansionZoom(clusterId, function (err, zoom) {
+                if (err) return;
+
+                map.easeTo({
+                  center: features[0].geometry.coordinates,
+                  zoom: zoom,
+                });
+              });
+          });
+
+          // When a click event occurs on a feature in
+          // the unclustered-point layer, open a popup at
+          // the location of the feature, with
+          // description HTML from its properties.
+          map.on("click", "unclustered-point", showThePopup);
+
+          map.on("mouseenter", "clusters", function () {
+            map.getCanvas().style.cursor = "pointer";
+          });
+          map.on("mouseleave", "clusters", function () {
+            map.getCanvas().style.cursor = "";
+          });
+          map.on("mouseenter", "unclustered-point", showThePopup);
+          map.on("mouseleave", "unclustered-point", function () {
+            map.getCanvas().style.cursor = "";
+          });
+
+          function showThePopup(e) {
+            map.getCanvas().style.cursor = "pointer";
+
+            var coordinates = e.features[0].geometry.coordinates.slice();
+
+            // Ensure that if the map is zoomed out such that
+            // multiple copies of the feature are visible, the
+            // popup appears over the copy being pointed to.
+            while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+              coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+
+            let html = "";
+            html = html + "<p>" + e.features[0].properties.id + "</p>";
+            html =
+              html +
+              "<span><strong>Type:</strong>" +
+              e.features[0].properties.title +
+              "</span>";
+            html = html + "<p>" + e.features[0].properties.type + "</p>";
+            html =
+              html +
+              "<span>" +
+              e.features[0].properties.description +
+              "</span><br/>";
+            html =
+              html +
+              "<span>" +
+              e.features[0].properties.timestamp +
+              "</span><br>";
+
+            new mapboxgl.Popup()
+              .setLngLat(coordinates)
+              .setHTML(html)
+              .addTo(map);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
