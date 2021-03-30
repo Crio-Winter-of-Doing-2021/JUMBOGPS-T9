@@ -102,6 +102,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 
 	@Override
 	public void updateLocationDataForAsset(LocationUpdateRequest locationUpdateRequest, Long assetId) {
+		LOG.info(locationUpdateRequest);
 		SpatialUtils.validateGeometry(locationUpdateRequest.getLocation().getCoordinates());
 		try {
 			// find the proxy asset
@@ -115,6 +116,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 			);
 			newLocationData.setAsset(assetProxy);
 
+			LOG.info("update location {} for asset {}", newLocationData, assetId);
 
 			locationDataRepository.save(newLocationData);
 

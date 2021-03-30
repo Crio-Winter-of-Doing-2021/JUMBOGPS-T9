@@ -1,6 +1,5 @@
 package com.crio.jumbotail.assettracking.exchanges.request;
 
-import com.crio.jumbotail.assettracking.utils.LocationConstraint;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -12,7 +11,7 @@ import org.locationtech.jts.geom.Point;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LocationDataDto implements Serializable {
 
-	@LocationConstraint
+//	@LocationConstraint
 	@NotNull
 	private Point coordinates;
 

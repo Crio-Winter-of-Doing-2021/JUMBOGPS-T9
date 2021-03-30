@@ -35,6 +35,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,12 @@ public class DataCreationController {
 
 	private final SubscriptionService subscriptionService;
 	private final GeometryFactory geometryFactory;
+	private static final Envelope INDIA = new Envelope(68.0753944015233,
+			97.3950629309158,
+			6.65718310150864,
+			35.6732489160381
+	);
+
 
 	@Autowired
 	public DataCreationController(SubscriptionService subscriptionService, GeometryFactory geometryFactory) {
@@ -149,13 +156,14 @@ public class DataCreationController {
 
 				double latitude = Double.parseDouble(faker.address().latitude());
 				double longitude = Double.parseDouble(faker.address().longitude());
+				final Coordinate coordinate = new Coordinate(longitude, latitude);
 				if (withinIndia) {
 					// not within indian coordinates
-					if (notWithinIndianCoordinates(latitude, longitude)) {
+					if (notWithinIndianCoordinates(coordinate)) {
 						continue;
 					}
 				}
-				Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+				Point point = geometryFactory.createPoint(coordinate);
 
 				makeMockData(faker, point);
 				i++;
@@ -164,8 +172,9 @@ public class DataCreationController {
 		LOG.info("DATA FULLY CREATED");
 	}
 
-	private boolean notWithinIndianCoordinates(double latitude, double longitude) {
-		return (latitude >= 8.4 && latitude <= 37.6 && longitude >= 68.7 && longitude <= 97.25) == false;
+
+	private boolean notWithinIndianCoordinates(Coordinate coordinate) {
+		return !INDIA.covers(coordinate);
 	}
 
 	private void mockDataFromFile(Faker faker) throws IOException {

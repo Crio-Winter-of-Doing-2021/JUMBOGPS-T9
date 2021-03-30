@@ -15,9 +15,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Envelope;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -107,26 +109,26 @@ class BasicTests {
 	@Test
 	void marshalling_geojson() throws JsonProcessingException {
 		String linestring = "{\n"
-		              + "\t\t\t\t\"type\": \"LineString\",\n"
-		              + "\t\t\t\t\"coordinates\": [\n"
-		              + "\t\t\t\t\t[\n"
-		              + "\t\t\t\t\t\t80.911444,\n"
-		              + "\t\t\t\t\t\t26.828994\n"
-		              + "\t\t\t\t\t],\n"
-		              + "\t\t\t\t\t[\n"
-		              + "\t\t\t\t\t\t80.916357,\n"
-		              + "\t\t\t\t\t\t26.836392\n"
-		              + "\t\t\t\t\t],\n"
-		              + "\t\t\t\t\t[\n"
-		              + "\t\t\t\t\t\t80.925416,\n"
-		              + "\t\t\t\t\t\t26.841461\n"
-		              + "\t\t\t\t\t],\n"
-		              + "\t\t\t\t\t[\n"
-		              + "\t\t\t\t\t\t80.94123,\n"
-		              + "\t\t\t\t\t\t26.838173\n"
-		              + "\t\t\t\t\t]\n"
-		              + "\t\t\t\t]\n"
-		              + "\t\t\t}";
+		                    + "\t\t\t\t\"type\": \"LineString\",\n"
+		                    + "\t\t\t\t\"coordinates\": [\n"
+		                    + "\t\t\t\t\t[\n"
+		                    + "\t\t\t\t\t\t80.911444,\n"
+		                    + "\t\t\t\t\t\t26.828994\n"
+		                    + "\t\t\t\t\t],\n"
+		                    + "\t\t\t\t\t[\n"
+		                    + "\t\t\t\t\t\t80.916357,\n"
+		                    + "\t\t\t\t\t\t26.836392\n"
+		                    + "\t\t\t\t\t],\n"
+		                    + "\t\t\t\t\t[\n"
+		                    + "\t\t\t\t\t\t80.925416,\n"
+		                    + "\t\t\t\t\t\t26.841461\n"
+		                    + "\t\t\t\t\t],\n"
+		                    + "\t\t\t\t\t[\n"
+		                    + "\t\t\t\t\t\t80.94123,\n"
+		                    + "\t\t\t\t\t\t26.838173\n"
+		                    + "\t\t\t\t\t]\n"
+		                    + "\t\t\t\t]\n"
+		                    + "\t\t\t}";
 
 		String polygon = "{\n"
 		                 + "\t\t\t\t\"type\": \"Polygon\",\n"
@@ -169,5 +171,36 @@ class BasicTests {
 
 	}
 
+
+	@Test
+	void box() {
+//[minX, minY, maxX, maxY]
+//		"bbox": [
+//		        68.0753944015233,
+//				6.65718310150864,
+//				97.3950629309158,
+//				35.6732489160381
+//  ],
+		Envelope india = new Envelope(68.0753944015233,
+				97.3950629309158,
+				6.65718310150864,
+				35.6732489160381
+		);
+
+
+		print(india);
+		System.out.println(india.covers(new Coordinate(78.476681027237,
+				22.1991660760527)));
+	}
+
+	@SneakyThrows
+	void print(Object o) {
+		GeometryFactory gf = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JtsModule(gf));
+
+		System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(o));
+
+	}
 }
 
