@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <title>Create and style clusters</title>
@@ -259,7 +259,7 @@
             type: "Feature",
             properties: {
               description:
-                "<strong>Big Backyard Beach Bash and Wine Fest</strong><p>EatBar (2761 Washington Boulevard Arlington VA) is throwing a Big Backyard Beach Bash and Wine Fest on Saturday, serving up conch fritters, fish tacos and crab sliders, and Red Apron hot dogs. 12:00-3:00 p.m. $25.</p>",
+                "<strong>Big Backyard Beach Bash and Wine Fest</strong><p>EatBar (2761 Washington Bouleletd Arlington VA) is throwing a Big Backyard Beach Bash and Wine Fest on Saturday, serving up conch fritters, fish tacos and crab sliders, and Red Apron hot dogs. 12:00-3:00 p.m. $25.</p>",
             },
             geometry: {
               type: "Point",
@@ -416,7 +416,7 @@
        */
       const coordinatesGeocoder = function (query) {
         // match anything which looks like a decimal degrees coordinate pair
-        var matches = query.match(
+        let matches = query.match(
           /^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
         );
         if (!matches) {
@@ -437,9 +437,9 @@
           };
         }
 
-        var coord1 = Number(matches[1]);
-        var coord2 = Number(matches[2]);
-        var geocodes = [];
+        let coord1 = Number(matches[1]);
+        let coord2 = Number(matches[2]);
+        let geocodes = [];
 
         if (coord1 < -90 || coord1 > 90) {
           // must be lng, lat
@@ -483,10 +483,10 @@
 
           // inspect a cluster on click
           map.on("click", "clusters", function (e) {
-            var features = map.queryRenderedFeatures(e.point, {
+            let features = map.queryRenderedFeatures(e.point, {
               layers: ["clusters"],
             });
-            var clusterId = features[0].properties.cluster_id;
+            let clusterId = features[0].properties.cluster_id;
             map
               .getSource("asset-tracking-data")
               .getClusterExpansionZoom(clusterId, function (err, zoom) {
@@ -506,7 +506,7 @@
             map.getCanvas().style.cursor = "";
           });
 
-          var popup = new mapboxgl.Popup({});
+          let popup = new mapboxgl.Popup({});
 
           // When a click event occurs on a feature in
           // the unclustered-point layer, open a popup at
@@ -954,25 +954,25 @@
         // If these two layers have been added to the style,
         // add the toggle buttons.
         // Enumerate ids of the layers.
-        var toggleableLayerIds = [
+        let toggleableLayerIds = [
           "asset-view",
           "timeline-view",
           "timeline-view-with-polygon",
           "heatmap-layer",
         ];
         // Set up the corresponding toggle button for each layer.
-        for (var i = 0; i < toggleableLayerIds.length; i++) {
-          var id = toggleableLayerIds[i];
+        for (let i = 0; i < toggleableLayerIds.length; i++) {
+          let id = toggleableLayerIds[i];
           // Create a link.
           if (!document.getElementById(id)) {
-            var link = document.createElement("a");
+            let link = document.createElement("a");
             link.id = id;
             link.href = "#";
             link.textContent = id;
             link.className = "active";
             // Show or hide layer when the toggle is clicked.
             link.onclick = function (e) {
-              var clickedLayer = this.textContent;
+              let clickedLayer = this.textContent;
               e.preventDefault();
               e.stopPropagation();
 
@@ -994,7 +994,7 @@
               }
             };
 
-            var layers = document.getElementById("menu");
+            let layers = document.getElementById("menu");
             layers.appendChild(link);
           }
         }
@@ -1141,7 +1141,7 @@
       function showThePopup(e) {
         map.getCanvas().style.cursor = "pointer";
 
-        var coordinates = e.features[0].geometry.coordinates.slice();
+        let coordinates = e.features[0].geometry.coordinates.slice();
 
         // Ensure that if the map is zoomed out such that
         // multiple copies of the feature are visible, the
@@ -1347,24 +1347,24 @@
           // add the toggle buttons.
           if (map.getLayer("clusters") && map.getLayer("unclustered-point")) {
             // Enumerate ids of the layers.
-            var toggleableLayerIds = ["clusters", "unclustered-point"];
+            let toggleableLayerIds = ["clusters", "unclustered-point"];
             // Set up the corresponding toggle button for each layer.
-            for (var i = 0; i < toggleableLayerIds.length; i++) {
-              var id = toggleableLayerIds[i];
+            for (let i = 0; i < toggleableLayerIds.length; i++) {
+              let id = toggleableLayerIds[i];
               if (!document.getElementById(id)) {
                 // Create a link.
-                var link = document.createElement("a");
+                let link = document.createElement("a");
                 link.id = id;
                 link.href = "#";
                 link.textContent = id;
                 link.className = "active";
                 // Show or hide layer when the toggle is clicked.
                 link.onclick = function (e) {
-                  var clickedLayer = this.textContent;
+                  let clickedLayer = this.textContent;
                   e.preventDefault();
                   e.stopPropagation();
 
-                  var visibility = map.getLayoutProperty(
+                  let visibility = map.getLayoutProperty(
                     clickedLayer,
                     "visibility"
                   );
@@ -1383,7 +1383,7 @@
                   }
                 };
 
-                var layers = document.getElementById("menu");
+                let layers = document.getElementById("menu");
                 layers.appendChild(link);
               }
             }
