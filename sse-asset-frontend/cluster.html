@@ -90,14 +90,6 @@
       //     hide assetView Layer
       //     call set data on the timeline-data source
       //     call showLayer
-      const salesperson = ["==", ["get", "assetType"], "SALESPERSON"];
-      const truck = ["==", ["get", "assetType"], "TRUCK"];
-      const others = [
-        "any",
-        ["==", ["get", "assetType"], "Cogeneration"],
-        ["==", ["get", "assetType"], ""],
-      ];
-
       let dummyGeoJson = {
         type: "FeatureCollection",
         features: [
@@ -229,16 +221,6 @@
         ],
       };
 
-      mapboxgl.accessToken =
-        "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
-      let map = new mapboxgl.Map({
-        container: "map",
-        // style: "mapbox://styles/mapbox/dark-v10",
-        style: "mapbox://styles/mapbox/streets-v11",
-        center: [0, 0],
-        zoom: 3,
-      });
-
       const defaultCentroid = [0, 0];
       const defaultGeoJsonForAssetView = {
         type: "FeatureCollection",
@@ -299,102 +281,17 @@
       ];
       const defaultClusterRadius = 50;
 
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
+      let map = new mapboxgl.Map({
+        container: "map",
+        // style: "mapbox://styles/mapbox/dark-v10",
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [0, 0],
+        zoom: 3,
+      });
+
       map.addControl(new mapboxgl.NavigationControl());
-
-      // getDataAndRenderOnMap();
-
-      function getDataAndRenderOnMap() {
-        let geoJson;
-        fetch("https://jumbogps-geo.anugrahsinghal.repl.co/assets?limit=100", {
-          method: "GET", // *GET, POST, PUT, DELETE, etc.
-          headers: {
-            Authorization:
-              "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ",
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log(data);
-
-            let centroid = data.centroid;
-            let assetAsFeatures = getAllFeaturesFromAssets(data);
-
-            let geoJson = {
-              type: "FeatureCollection",
-              features: assetAsFeatures,
-            };
-
-            renderMapForAssetViewData(centroid, geoJson);
-          })
-          .catch((err) => {
-            console.log(err);
-            renderMapForAssetViewData(
-              defaultCentroid,
-              defaultGeoJsonForAssetView
-            );
-            alert("Asset Data Not Found");
-          });
-      }
-
-      function getAllFeaturesFromAssets(data) {
-        let assets = data.assets;
-        console.log(assets);
-        let features = [];
-        for (let i = 0; i < assets.length; i++) {
-          features.push({
-            type: "Feature",
-            properties: {
-              id: assets[i].id,
-              title: assets[i].title,
-              description: assets[i].description,
-              assetType: assets[i].assetType,
-              timestamp: assets[i].lastReportedTimestamp,
-            },
-            geometry: assets[i].lastReportedCoordinates,
-          });
-        }
-        return features;
-      }
-
-      function renderMapForAssetViewData(centroid, geoJsonData) {
-        console.log(geoJsonData);
-        // for recentering the map to a marker
-        map.flyTo({
-          center: centroid.coordinates,
-          essential: true, // this animation is considered essential with respect to prefers-reduced-motion
-          zoom: 1,
-          bearing: 0,
-
-          // These options control the flight curve, making it move
-          // slowly and zoom out almost completely before starting
-          // to pan.
-          speed: 0.2, // make the flying slow
-          curve: 1, // change the speed at which it zooms out
-        });
-      }
-
-      function showAssetView(geoJsonData) {
-        hideLayers(timelineViewLayers);
-
-        map.getSource("asset-tracking-data").setData(geoJsonData);
-
-        map.fitBounds(turf.bbox(geoJsonData), { padding: 20 });
-
-        showLayers(assetViewLayers);
-      }
-
-      function showTimeLineView(geoJsonData) {
-        hideLayers(assetViewLayers);
-
-        map.getSource("timeline-view").setData(geoJsonData);
-        map
-          .getSource("route-line-string")
-          .setData(makeLineStringForGeoJsonTimelineView(geoJsonData));
-
-        map.fitBounds(turf.bbox(geoJsonData), { padding: 20 });
-
-        showLayers(timelineViewLayers);
-      }
 
       map.on("load", function () {
         addImages(map, [
@@ -443,133 +340,86 @@
         });
       });
 
-      function showThePopup(e) {
-        map.getCanvas().style.cursor = "pointer";
-
-        var coordinates = e.features[0].geometry.coordinates.slice();
-
-        // Ensure that if the map is zoomed out such that
-        // multiple copies of the feature are visible, the
-        // popup appears over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-        }
-
-        let html = "";
-        html = html + "<p>" + e.features[0].properties.id + "</p>";
-        html =
-          html +
-          "<span><strong>Type:</strong>" +
-          e.features[0].properties.title +
-          "</span>";
-        html = html + "<p>" + e.features[0].properties.type + "</p>";
-        html =
-          html +
-          "<span>" +
-          e.features[0].properties.description +
-          "</span><br/>";
-        html =
-          html + "<span>" + e.features[0].properties.timestamp + "</span><br>";
-
-        new mapboxgl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
-      }
-      function createLayerFilterOnIdleMap() {
-        map.on("idle", function () {
-          // If these two layers have been added to the style,
-          // add the toggle buttons.
-          if (map.getLayer("clusters") && map.getLayer("unclustered-point")) {
-            // Enumerate ids of the layers.
-            var toggleableLayerIds = ["clusters", "unclustered-point"];
-            // Set up the corresponding toggle button for each layer.
-            for (var i = 0; i < toggleableLayerIds.length; i++) {
-              var id = toggleableLayerIds[i];
-              if (!document.getElementById(id)) {
-                // Create a link.
-                var link = document.createElement("a");
-                link.id = id;
-                link.href = "#";
-                link.textContent = id;
-                link.className = "active";
-                // Show or hide layer when the toggle is clicked.
-                link.onclick = function (e) {
-                  var clickedLayer = this.textContent;
-                  e.preventDefault();
-                  e.stopPropagation();
-
-                  var visibility = map.getLayoutProperty(
-                    clickedLayer,
-                    "visibility"
-                  );
-
-                  // Toggle layer visibility by changing the layout object's visibility property.
-                  if (visibility === "visible") {
-                    map.setLayoutProperty(clickedLayer, "visibility", "none");
-                    this.className = "";
-                  } else {
-                    this.className = "active";
-                    map.setLayoutProperty(
-                      clickedLayer,
-                      "visibility",
-                      "visible"
-                    );
-                  }
-                };
-
-                var layers = document.getElementById("menu");
-                layers.appendChild(link);
-              }
+      function getAssetDataAndRenderOnMap() {
+        let geoJson;
+        fetch("https://jumbogps-geo.anugrahsinghal.repl.co/assets?limit=100", {
+          method: "GET", // *GET, POST, PUT, DELETE, etc.
+          headers: {
+            Authorization:
+              "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ",
+          },
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw Error(response.statusText);
             }
-          }
-        });
-      } /* } function end*/
+            response.json();
+          })
+          .then((data) => {
+            console.log(data);
 
-      function hideLayers(layerNames) {
-        if (layerNames !== undefined && layerNames.length > 0) {
-          for (let i = 0; i < layerNames.length; i++) {
-            let clickedLayer = layerNames[i];
-            let visibility = map.getLayoutProperty(clickedLayer, "visibility");
+            let centroid = data.centroid;
+            let assetAsFeatures = makeFeaturesFromAssets(data);
 
-            // Toggle layer visibility by changing the layout object's visibility property.
-            if (visibility !== undefined && visibility === "visible") {
-              map.setLayoutProperty(clickedLayer, "visibility", "none");
-            }
-          }
-        }
-      }
+            let geoJson = {
+              type: "FeatureCollection",
+              features: assetAsFeatures,
+            };
 
-      function showLayers(layerNames) {
-        if (layerNames !== undefined && layerNames.length > 0) {
-          for (let i = 0; i < layerNames.length; i++) {
-            let clickedLayer = layerNames[i];
-            let visibility = map.getLayoutProperty(clickedLayer, "visibility");
+            showAssetView(geoJson);
 
-            // Toggle layer visibility by changing the layout object's visibility property.
-            if (visibility !== undefined && visibility === "none") {
-              map.setLayoutProperty(clickedLayer, "visibility", "visible");
-            }
-          }
-        }
-      }
-
-      function addImages(map, images) {
-        const addImage = (map, id, url) => {
-          return new Promise((resolve, reject) => {
-            map.loadImage(url, (error, image) => {
-              if (error) {
-                reject(error);
-                return;
-              }
-              map.addImage(id, image);
-              resolve(image);
-            });
+            // renderMapForAssetViewData(centroid, geoJson);
+          })
+          .catch((err) => {
+            console.log(err);
+            alert(err.message);
           });
-        };
-        const promises = images.map((imageData) =>
-          addImage(map, imageData.id, imageData.url)
-        );
-        return Promise.all(promises);
       }
 
+      function getHistoryDataAndRenderOnMap(assetId) {}
+
+      function makeFeaturesFromAssets(data) {
+        let assets = data.assets;
+        console.log(assets);
+        let features = [];
+        for (let i = 0; i < assets.length; i++) {
+          features.push({
+            type: "Feature",
+            properties: {
+              id: assets[i].id,
+              title: assets[i].title,
+              description: assets[i].description,
+              assetType: assets[i].assetType,
+              timestamp: assets[i].lastReportedTimestamp,
+            },
+            geometry: assets[i].lastReportedCoordinates,
+          });
+        }
+        return features;
+      }
+
+      function showAssetView(geoJsonData) {
+        hideLayers(timelineViewLayers);
+
+        map.getSource("asset-tracking-data").setData(geoJsonData);
+
+        map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+
+        showLayers(assetViewLayers);
+      }
+
+      function showTimeLineView(geoJsonData) {
+        hideLayers(assetViewLayers);
+
+        map.getSource("timeline-view").setData(geoJsonData);
+        map
+          .getSource("route-line-string")
+          .setData(makeLineStringForGeoJsonTimelineView(geoJsonData));
+
+        map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+
+        showLayers(timelineViewLayers);
+      }
       function addSourceAndLayersForAssetView() {
         // Add a new source from our GeoJSON data and
         // set the 'cluster' option to true. GL-JS will
@@ -820,8 +670,168 @@
         });
       }
 
+      function addImages(map, images) {
+        const addImage = (map, id, url) => {
+          return new Promise((resolve, reject) => {
+            map.loadImage(url, (error, image) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+              map.addImage(id, image);
+              resolve(image);
+            });
+          });
+        };
+        const promises = images.map((imageData) =>
+          addImage(map, imageData.id, imageData.url)
+        );
+        return Promise.all(promises);
+      }
+
+      function hideLayers(layerNames) {
+        if (layerNames !== undefined && layerNames.length > 0) {
+          for (let i = 0; i < layerNames.length; i++) {
+            let clickedLayer = layerNames[i];
+            let visibility = map.getLayoutProperty(clickedLayer, "visibility");
+
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility !== undefined && visibility === "visible") {
+              map.setLayoutProperty(clickedLayer, "visibility", "none");
+            }
+          }
+        }
+      }
+
+      function showLayers(layerNames) {
+        if (layerNames !== undefined && layerNames.length > 0) {
+          for (let i = 0; i < layerNames.length; i++) {
+            let clickedLayer = layerNames[i];
+            let visibility = map.getLayoutProperty(clickedLayer, "visibility");
+
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility !== undefined && visibility === "none") {
+              map.setLayoutProperty(clickedLayer, "visibility", "visible");
+            }
+          }
+        }
+      }
+
+      function showThePopup(e) {
+        map.getCanvas().style.cursor = "pointer";
+
+        var coordinates = e.features[0].geometry.coordinates.slice();
+
+        // Ensure that if the map is zoomed out such that
+        // multiple copies of the feature are visible, the
+        // popup appears over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        let html = "";
+        html = html + "<p>" + e.features[0].properties.id + "</p>";
+        html =
+          html +
+          "<span><strong>Type:</strong>" +
+          e.features[0].properties.title +
+          "</span>";
+        html = html + "<p>" + e.features[0].properties.type + "</p>";
+        html =
+          html +
+          "<span>" +
+          e.features[0].properties.description +
+          "</span><br/>";
+        html =
+          html + "<span>" + e.features[0].properties.timestamp + "</span><br>";
+
+        new mapboxgl.Popup().setLngLat(coordinates).setHTML(html).addTo(map);
+      }
+
+      function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
+        let features = timelineViewGeoJsonData.features;
+        let lineStringCoordinates = [];
+        for (let i = 0; i < features.length; i++) {
+          if (features[i].geometry.type == "Point") {
+            lineStringCoordinates.push(features[i].geometry.coordinates);
+          }
+        }
+        let lineString = {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: [lineStringCoordinates],
+          },
+        };
+        return lineString;
+      }
+
+      map.on("idle", function () {
+        // If these two layers have been added to the style,
+        // add the toggle buttons.
+        // Enumerate ids of the layers.
+        var toggleableLayerIds = ["asset-view", "timeline-view"];
+        // Set up the corresponding toggle button for each layer.
+        for (var i = 0; i < toggleableLayerIds.length; i++) {
+          var id = toggleableLayerIds[i];
+          // Create a link.
+          if (!document.getElementById(id)) {
+            var link = document.createElement("a");
+            link.id = id;
+            link.href = "#";
+            link.textContent = id;
+            link.className = "active";
+            // Show or hide layer when the toggle is clicked.
+            link.onclick = function (e) {
+              var clickedLayer = this.textContent;
+              e.preventDefault();
+              e.stopPropagation();
+
+              if (clickedLayer === "asset-view") {
+                showAssetView(dummyGeoJson);
+              } else {
+                showTimeLineView(multipleGeometryJson);
+              }
+            };
+
+            var layers = document.getElementById("menu");
+            layers.appendChild(link);
+          }
+        }
+      });
+    </script>
+
+    <script>
+      // old code
+
+      const salesperson = ["==", ["get", "assetType"], "SALESPERSON"];
+      const truck = ["==", ["get", "assetType"], "TRUCK"];
+      const others = [
+        "any",
+        ["==", ["get", "assetType"], "Cogeneration"],
+        ["==", ["get", "assetType"], ""],
+      ];
+
       function showtimelineViewForAsset(timelineViewGeoJsonData) {
         makeLineLayerOnMap(timelineViewGeoJsonData);
+      }
+
+      function renderMapForAssetViewData(centroid, geoJsonData) {
+        console.log(geoJsonData);
+        // for recentering the map to a marker
+        map.flyTo({
+          center: centroid.coordinates,
+          essential: true, // this animation is considered essential with respect to prefers-reduced-motion
+          zoom: 1,
+          bearing: 0,
+
+          // These options control the flight curve, making it move
+          // slowly and zoom out almost completely before starting
+          // to pan.
+          speed: 0.2, // make the flying slow
+          curve: 1, // change the speed at which it zooms out
+        });
       }
 
       function makeLineLayerOnMap(timelineViewGeoJsonData) {
@@ -964,24 +974,55 @@
         // map.fitBounds(turf.bbox(timelineViewGeoJsonData), { padding: 20 });
       }
 
-      function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
-        let features = timelineViewGeoJsonData.features;
-        let lineStringCoordinates = [];
-        for (let i = 0; i < features.length; i++) {
-          if (features[i].geometry.type == "Point") {
-            lineStringCoordinates.push(features[i].geometry.coordinates);
+      function createLayerFilterOnIdleMap() {
+        map.on("idle", function () {
+          // If these two layers have been added to the style,
+          // add the toggle buttons.
+          if (map.getLayer("clusters") && map.getLayer("unclustered-point")) {
+            // Enumerate ids of the layers.
+            var toggleableLayerIds = ["clusters", "unclustered-point"];
+            // Set up the corresponding toggle button for each layer.
+            for (var i = 0; i < toggleableLayerIds.length; i++) {
+              var id = toggleableLayerIds[i];
+              if (!document.getElementById(id)) {
+                // Create a link.
+                var link = document.createElement("a");
+                link.id = id;
+                link.href = "#";
+                link.textContent = id;
+                link.className = "active";
+                // Show or hide layer when the toggle is clicked.
+                link.onclick = function (e) {
+                  var clickedLayer = this.textContent;
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  var visibility = map.getLayoutProperty(
+                    clickedLayer,
+                    "visibility"
+                  );
+
+                  // Toggle layer visibility by changing the layout object's visibility property.
+                  if (visibility === "visible") {
+                    map.setLayoutProperty(clickedLayer, "visibility", "none");
+                    this.className = "";
+                  } else {
+                    this.className = "active";
+                    map.setLayoutProperty(
+                      clickedLayer,
+                      "visibility",
+                      "visible"
+                    );
+                  }
+                };
+
+                var layers = document.getElementById("menu");
+                layers.appendChild(link);
+              }
+            }
           }
-        }
-        let lineString = {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: [lineStringCoordinates],
-          },
-        };
-        return lineString;
-      }
+        });
+      } /* } function end*/
 
       function getCenterForTimeLineView(timelineViewGeoJsonData) {
         let len = timelineViewGeoJsonData.features.length;
