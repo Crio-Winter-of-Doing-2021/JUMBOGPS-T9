@@ -128,8 +128,8 @@ function disbaleTimeInput() {
 }
 
 function handleLogout() {
-  localStorage.setItem("token", null);
-  window.location.href = "../templates/index.html";
+  localStorage.removeItem("token");
+  window.location.assign("login.html");
 }
 
 searchFilter.onkeypress = disbaleTimeInput;
