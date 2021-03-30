@@ -94,7 +94,7 @@ map.on("load", function () {
 
       let html = "";
       if (e.features[0].properties.id !== undefined) {
-        html = html + "<p>" + e.features[0].properties.id + "</p>";
+        html = html + "<strong><p>" + e.features[0].properties.id + "</p></strong>";
       }
       if (e.features[0].properties.title !== undefined) {
         html = `${html}<span><strong>Type:</strong>${e.features[0].properties.title}</span><br/>`;

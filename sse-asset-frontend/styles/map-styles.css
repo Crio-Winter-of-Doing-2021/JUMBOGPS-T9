@@ -55,3 +55,12 @@ body {
 #menu a.active:hover {
   background: #3074a4;
 }
+
+.link-container {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.link-container:hover {
+  background-color: #ccc;
+}
