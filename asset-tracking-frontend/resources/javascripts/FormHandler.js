@@ -5,6 +5,7 @@ const endTimeFilter = document.getElementsByName('endTime')[0];
 const assetsCount = document.getElementsByName('maxAssetsCount')[0];
 const errors = document.getElementsByClassName('error');
 const inputLabels = document.getElementsByTagName('label');
+const logoutBtn = document.getElementById("logoutBtn");
 
 form.addEventListener('submit', handleSubmit);
 
@@ -95,7 +96,7 @@ function disbaleTimeInput(){
 		let value = parseInt(searchFilter.value.toUpperCase().trim());
 
 		console.log(value);
-
+		
 		if(value!=null && Number.isInteger(value)){
 			startTimeFilter.disabled = true;
 			endTimeFilter.disabled = true;
@@ -118,5 +119,10 @@ function disbaleTimeInput(){
 
 }
 
-
+function handleLogout(){
+	localStorage.setItem("token",null);
+	window.location.href="../templates/index.html";
+}
 searchFilter.onkeypress = disbaleTimeInput;
+searchFilter.onchange = disbaleTimeInput;
+logoutBtn.onclick = handleLogout;

@@ -1,5 +1,7 @@
-const mainUrl = 'https://jumbogps-auth-sse.anugrahsinghal.repl.co/assets';
+const mainUrl = 'https://jumbogps-geo.anugrahsinghal.repl.co/assets';
 const getAllAssetsUrl = `${mainUrl}?limit=100`;
+
+let token = localStorage.getItem("token");
 
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -15,8 +17,6 @@ const layers = ['byTime','byType','byId','all','history'];
 // for getting asset data from appropriate API call
 async function getAssetData(url,current) {
 	
-	let token = localStorage.getItem("token");
-
 	let assets=[], centroid;
 	
 	await axios.get(url,{
@@ -24,38 +24,42 @@ async function getAssetData(url,current) {
 			"Authorization": `Bearer ${token}`
 		  }
 	})
-	.then((body) => {
-		if(body.data.assets){
-			assets = body.data.assets
+	.then(({data}) => {
+		if(data.assets){
+			assets = data.assets
 		}
 		else
-		assets.push(body.data);
+		assets.push(data);
 
-		centroid = body.data.centroid?body.data.centroid:body.data.lastReportedLocation;
+		centroid = data.centroid?data.centroid.coordinates:data.lastReportedCoordinates.coordinates;
 })
 	.catch((err) => {
 		if(err.response){
-			alert("no assets found for that id/type");
-			throw new Error("no assets");
+			if(current=="byTime"){
+				alert("no assets found within that time");
+				throw new Error("no assets");
+			}
+			else if(current=="byId"){
+				alert("no assets found for that id");
+				throw new Error("no assets");
+			}
+			else{
+				alert("no assets found");
+				throw new Error("no assets");
+			}
 		}
 	});
 
-	// long,lat of a random asset
-	let { longitude, latitude } = centroid;
-
 	// for recentering the map to a marker
 	map.flyTo({
-		center: [ longitude, latitude ],
+		center: centroid,
 		essential: true // this animation is considered essential with respect to prefers-reduced-motion
 	});
 
 	features = [],features1=[];
 
 	assets.forEach((asset) => {
-		// console.log(asset);
-		let long = asset.lastReportedLocation.longitude;
-		let lat = asset.lastReportedLocation.latitude;
-
+		
 		features.push({
 			type: 'Feature',
 			properties: {
@@ -68,7 +72,7 @@ async function getAssetData(url,current) {
 			},
 			geometry: {
 				type: 'Point',
-				coordinates: [ long, lat ]
+				coordinates: asset.lastReportedCoordinates.coordinates
 			}
 		});
 	
@@ -151,12 +155,13 @@ function createAssetPopup(layer) {
 		// Populate the popup and set its coordinates
 		// based on the feature found.
 		popup.setLngLat(coordinates).setHTML(description).addTo(map);
+
 	});
 
-	popup.on('mouseleave', layer, function() {
-		map.getCanvas().style.cursor = '';
-		popup.remove();
-	});
+	// popup.on('mouseleave', layer, function() {
+	// 	map.getCanvas().style.cursor = '';
+	// 	popup.remove();
+	// });
 }
 
 // for getting all assets available
@@ -168,59 +173,49 @@ async function getAllAssets(url,layer){
 async function getAssetHistory(assetId,current){
 	let asset,centroid,history;
 
-	let searchByIdUrl = `${mainUrl}/${assetId}`;
+	let getAssetHistoryUrl = `${mainUrl}/${assetId}/history`;
 
-	await axios.get(searchByIdUrl)
-	.then((body) => {
-		
-		asset = body.data;
-	centroid = body.data.centroid?body.data.centroid:body.data.lastReportedLocation;
-})
-	.catch((err) =>{
-		alert("no history for that asset found.try another asset.");
-	});
+	await axios.get(getAssetHistoryUrl,{
+		headers:{
+			Authorization:`Bearer ${token}`
+		}
+	})
+	.then(({data}) => {
+		asset = data.asset;
+		history = data.history;
+		centroid = data.centroid;
+	})
+	.catch(err => console.log(err));
 
-	let {id,assetType,description,title} = asset;
-
-
-	// long,lat of a random asset
-	let { longitude, latitude } = centroid;
+	let {title,description,assetType} = asset;
 
 	// for recentering the map to a marker
 	map.flyTo({
-		center: [ longitude, latitude ],
+		center: centroid.coordinates,
 		zoom:8,
 		essential: true // this animation is considered essential with respect to prefers-reduced-motion
 	});
 
 	features = [];
 
-	let getAssetHistoryUrl = `${mainUrl}/${assetId}/history`;
-
-	await axios.get(getAssetHistoryUrl)
-	.then(body => history = body.data)
-	.catch(err => console.log(err));
-
 	if(history.length==0){
 		alert("no history found for that asset");
 		return;
 	}
-	history.forEach((record) => {
-		let long = record.location.longitude;
-		let lat = record.location.latitude;
 
+	history.forEach(({timestamp,coordinates}) => {
 		features.push({
 			type: 'Feature',
 			properties: {
 				description: `<h4>${title}</h4>
                 <span><strong>Type:</strong> ${assetType}</span>
                 <p>${description}</p>
-                <span>${record.timestamp}</span>
+                <span>${timestamp}</span>
                 `
 			},
 			geometry: {
 				type: 'Point',
-				coordinates: [ long, lat ]
+				coordinates: coordinates.coordinates
 			}
 		});
 	});
@@ -228,6 +223,12 @@ async function getAssetHistory(assetId,current){
 	addMapLayer(current);
 }
 
+function blankMapView(){
+	for(let layer of layers){
+		map.removeLayer(layer);
+		map.removeSource(layer);
+	}
+}
 // index view
 getAllAssets(getAllAssetsUrl,'all');
 
