@@ -114,6 +114,9 @@ function showAssetView(data) {
   hideLayers(timelineViewLayers);
   hideLayers(heatmapLayers);
 
+  // TODO on empty data 
+  // show alerts
+
   let geoJsonData = convertFromAssetResponseToGeoJson(data)
 
   map.getSource("asset-tracking-data").setData(geoJsonData);
@@ -126,6 +129,12 @@ function showAssetView(data) {
 function showTimeLineView(data) {
   hideLayers(assetViewLayers);
   hideLayers(heatmapLayers);
+
+  if(data.history.length === 0) {
+    console.log("No History For Asset in the last 24 hours");
+    triggerIframe("No History For Asset in the last 24 hours");
+    return;
+  }
 
   let geoJsonData = convertHistoryResponseToGeoJson(data);
 

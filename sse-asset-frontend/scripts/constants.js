@@ -116,4 +116,5 @@ const others = [
   ["==", ["get", "assetType"], ""],
 ];
 
+const mainUrl = 'https://jumbogps-geo.anugrahsinghal.repl.co/assets';
 /* #endregion */

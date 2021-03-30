@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles/index.css"/>
+    <link rel="stylesheet" href="styles/login.css"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>Sign in</title>
+
+</head>
+<body>
+<div class="main">
+    <div class="filters">
+        <form>
+
+            <div class="signIn">Sign In</div>
+            <div class="group">
+                <input type="text" name="username" autocomplete="off"/>
+                <span class="highlight"></span>
+                <span class="bar"></span>
+                <label>Enter your username</label>
+                <span class="error"></span>
+            </div>
+            <div class="group">
+                <input type="password" name="password" autocomplete="off"/>
+                <span class="highlight"></span>
+                <span class="bar"></span>
+                <label>Enter your password</label>
+                <span class="error"></span>
+            </div>
+            <!-- <div>Don't have an account yet?<span id="signup">Sign up</span></div> -->
+            <button id="searchBtn">LOGIN</button>
+        </form>
+    </div>
+
+    <div id='banner'>
+        <div class="header">Welcome to JumboGPS</div>
+        <div class="description">
+            <img src="assets/location-1.png" alt="image"/>
+            <div>
+                Keep track of your assets 24x7,live monitor your assets and much more!!
+            </div>
+        </div>
+        <div class="mapImg">
+            <img src="assets/location-2.png" alt="image"/>
+        </div>
+    </div>
+
+
+</div>
+<script src="scripts/Auth.js"></script>
+</body>
+</html>

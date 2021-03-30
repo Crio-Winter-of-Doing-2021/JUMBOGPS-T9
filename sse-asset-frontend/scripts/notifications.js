@@ -1,5 +1,5 @@
 const resourceUrl =
-  "https://jumbogps-auth-sse.anugrahsinghal.repl.co/api/assets/subscribe";
+  "https://jumbogps-geo.anugrahsinghal.repl.co/api/assets/subscribe";
 
 // const resourceUrl = "http://localhost:8080/api/assets/subscribe";
 
