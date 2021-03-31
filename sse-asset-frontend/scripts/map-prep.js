@@ -28,113 +28,193 @@ map.on("load", function () {
     { url: "icons/person.png", id: "salesperson" },
     { url: "icons/truck.png", id: "truck+salesperson" },
     { url: "icons/custom_marker.png", id: "custom-marker" },
-  ]).then(() => {
-    addSourceAndLayersForAssetView();
-    addSourceAndLayersForTimelineView();
-    addLayerForHeatmapView();
+  ])
+    .then(() => {
+      addSourceAndLayersForAssetView();
+      addSourceAndLayersForTimelineView();
+      addLayerForHeatmapView();
 
-    // inspect a cluster on click
-    map.on("click", "clusters", function (e) {
-      let features = map.queryRenderedFeatures(e.point, {
-        layers: ["clusters"],
-      });
-      let clusterId = features[0].properties.cluster_id;
-      map
-        .getSource("asset-tracking-data")
-        .getClusterExpansionZoom(clusterId, function (err, zoom) {
-          if (err) return;
-
-          map.easeTo({
-            center: features[0].geometry.coordinates,
-            zoom: zoom,
-          });
+      // inspect a cluster on click
+      map.on("click", "clusters", function (e) {
+        let features = map.queryRenderedFeatures(e.point, {
+          layers: ["clusters"],
         });
-    });
+        let clusterId = features[0].properties.cluster_id;
+        map
+          .getSource("asset-tracking-data")
+          .getClusterExpansionZoom(clusterId, function (err, zoom) {
+            if (err) return;
 
-    map.on("mouseenter", "clusters", function () {
-      map.getCanvas().style.cursor = "pointer";
-    });
-    map.on("mouseleave", "clusters", function () {
-      map.getCanvas().style.cursor = "";
-    });
+            map.easeTo({
+              center: features[0].geometry.coordinates,
+              zoom: zoom,
+            });
+          });
+      });
 
-    let popup = new mapboxgl.Popup({});
+      map.on("mouseenter", "clusters", function () {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "clusters", function () {
+        map.getCanvas().style.cursor = "";
+      });
 
-    // When a click event occurs on a feature in
-    // the unclustered-point layer, open a popup at
-    // the location of the feature, with
-    // description HTML from its properties.
+      let popup = new mapboxgl.Popup({});
 
-    map.on("click", "unclustered-point", showPopup);
-    map.on("click", "timeline-view-point", showPopup);
+      // When a click event occurs on a feature in
+      // the unclustered-point layer, open a popup at
+      // the location of the feature, with
+      // description HTML from its properties.
 
-    map.on("mouseenter", "unclustered-point", showPopup);
-    map.on("mouseenter", "timeline-view-point", showPopup);
+      map.on("click", "unclustered-point", showPopup);
+      map.on("click", "timeline-view-point", showPopup);
 
-    map.on("mouseleave", "unclustered-point", hideCursor);
-    map.on("mouseleave", "timeline-view-point", hideCursor);
+      map.on("mouseenter", "unclustered-point", showPopup);
+      map.on("mouseenter", "timeline-view-point", showPopup);
 
-    function hideCursor() {
-      map.getCanvas().style.cursor = "";
-      // because we want to see the view persisted
-      // popup.remove();
-    }
+      map.on("mouseleave", "unclustered-point", hideCursor);
+      map.on("mouseleave", "timeline-view-point", hideCursor);
 
-    function showPopup(e) {
-      map.getCanvas().style.cursor = "pointer";
-
-      let coordinates = e.features[0].geometry.coordinates.slice();
-
-      // Ensure that if the map is zoomed out such that
-      // multiple copies of the feature are visible, the
-      // popup appears over the copy being pointed to.
-      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      function hideCursor() {
+        map.getCanvas().style.cursor = "";
+        // because we want to see the view persisted
+        // popup.remove();
       }
 
-      let html = "";
-      if (e.features[0].properties.id !== undefined) {
-        html = html + "<strong><p>" + e.features[0].properties.id + "</p></strong>";
-      }
-      if (e.features[0].properties.title !== undefined) {
-        html = `${html}<span><strong>Type:</strong>${e.features[0].properties.title}</span><br/>`;
-      }
-      if (e.features[0].properties.type !== undefined) {
-        html = `${html}<p>${e.features[0].properties.type}</p>`;
-      }
-      if (e.features[0].properties.description !== undefined) {
-        html = `${html}<span>${e.features[0].properties.description}</span><br/>`;
-      }
-      if (e.features[0].properties.timestamp !== undefined) {
-        html = `${html}<span>${new Date(
-          Date.parse(e.features[0].properties.timestamp + "Z")
-        )}</span><br>`;
-      }
-      let linkMade = false;
-      if (html === "") {
-        html = `${html}<p>No Data</p>`;
-      } else {
-        if (e.features[0].properties.viewType !== "timeline") {
-          html = `${html}<span class="link-container" id=${e.features[0].properties.id} assetId=${e.features[0].properties.id}>Show Timeline View</span>`;
-          linkMade = true;
+      function showPopup(e) {
+        map.getCanvas().style.cursor = "pointer";
+
+        let coordinates = e.features[0].geometry.coordinates.slice();
+
+        // Ensure that if the map is zoomed out such that
+        // multiple copies of the feature are visible, the
+        // popup appears over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+        }
+
+        let html = "";
+        if (e.features[0].properties.id !== undefined) {
+          html =
+            html +
+            "<strong><p>" +
+            e.features[0].properties.id +
+            "</p></strong>";
+        }
+        if (e.features[0].properties.title !== undefined) {
+          html = `${html}<span><strong>Type:</strong>${e.features[0].properties.title}</span><br/>`;
+        }
+        if (e.features[0].properties.type !== undefined) {
+          html = `${html}<p>${e.features[0].properties.type}</p>`;
+        }
+        if (e.features[0].properties.description !== undefined) {
+          html = `${html}<span>${e.features[0].properties.description}</span><br/>`;
+        }
+        if (e.features[0].properties.timestamp !== undefined) {
+          html = `${html}<span>${new Date(
+            Date.parse(e.features[0].properties.timestamp + "Z")
+          )}</span><br>`;
+        }
+        let linkMade = false;
+        if (html === "") {
+          html = `${html}<p>No Data</p>`;
+        } else {
+          if (e.features[0].properties.viewType !== "timeline") {
+            html = `${html}<span class="link-container" id=${e.features[0].properties.id} assetId=${e.features[0].properties.id}>Show Timeline View</span>`;
+            linkMade = true;
+          }
+        }
+        popup.setLngLat(coordinates).setHTML(html).addTo(map);
+        if (linkMade === true) {
+          document
+            .getElementById(e.features[0].properties.id)
+            .addEventListener("click", function (e) {
+              e.preventDefault();
+              popup.remove();
+              console.log(e.target.id);
+              getHistoryData(e.target.id);
+            });
         }
       }
-      popup.setLngLat(coordinates).setHTML(html).addTo(map);
-      if (linkMade === true) {
-        document
-          .getElementById(e.features[0].properties.id)
-          .addEventListener("click", function (e) {
-            e.preventDefault();
-            popup.remove();
-            getTimelineDataAndRenderOnMap(e.target.assetId);
-          });
+
+      localStorage.removeItem("first-load");
+    })
+    .then(() => {
+      console.log("here");
+
+      if (
+        localStorage.getItem("first-load") === undefined ||
+        localStorage.getItem("first-load") === null ||
+        localStorage.getItem("first-load") === true ||
+        localStorage.getItem("first-load") === "true"
+      ) {
+        console.log("First load of map");
+        getAssetData(100);
+
+        localStorage.setItem("first-load", "false");
+
+        configureReloadForAssetView(5 * 60 * 1000);
+      }
+    });
+});
+
+function areGivenLayersActive(layerNames) {
+  let canTriggerReloadFunction = false;
+  if (layerNames !== undefined && layerNames.length > 0) {
+    for (let i = 0; i < layerNames.length; i++) {
+      let clickedLayer = layerNames[i];
+      let visibility = map.getLayoutProperty(clickedLayer, "visibility");
+      if (visibility !== undefined && visibility === "visible") {
+        canTriggerReloadFunction = true;
       }
     }
+  }
+  return canTriggerReloadFunction;
+}
 
-    localStorage.removeItem("first-load");
+function configureReloadForTimelineView(delay) {
+  if (delay === undefined || isNaN(delay)) {
+    delay = 5 * 60 * 1000; // 5 minutes by default
+    console.log("History - Using Default Reload Value of 5 minutes");
+  }
 
-  });
-});
+  let intervalId = setInterval(() => {
+    let canTriggerReloadFunction = areGivenLayersActive(timelineViewLayers);
+    if (canTriggerReloadFunction) {
+      triggerIframe("Reloading Data");
+      let assetId = localStorage.getItem("current-asset-id");
+      getHistoryData(assetId);
+    } else {
+      console.log("No Reload For History View");
+    }
+  }, delay);
+
+  localStorage.setItem("history-interval", intervalId.toString());
+
+  console.log(Number(localStorage.getItem("history-interval")));
+}
+
+function configureReloadForAssetView(delay) {
+  if (delay === undefined || isNaN(delay)) {
+    delay = 5 * 60 * 1000; // 5 minutes by default
+    console.log("Asset - Using Default Reload Value of 5 minutes");
+  }
+
+  let intervalId = setInterval(() => {
+    let canTriggerReloadFunction = areGivenLayersActive(assetViewLayers);
+    if (canTriggerReloadFunction) {
+      triggerIframe("Reloading Data");
+      handleSubmit(new Event('na'))
+      // getAssetData(100);
+    } else {
+      console.log("No Reload For Asset View");
+    }
+  }, delay);
+
+  localStorage.setItem("asset-interval", intervalId.toString());
+
+  console.log(Number(localStorage.getItem("asset-interval")));
+}
 
 function addSourceAndLayersForAssetView() {
   // Add a new source from our GeoJSON data and
@@ -364,7 +444,6 @@ function addSourceAndLayerForAssetTimeLineView() {
   });
 }
 
-
 function addLayerForHeatmapView() {
   map.addLayer(
     {
@@ -466,4 +545,3 @@ function addLayerForHeatmapView() {
     "waterway-label"
   );
 }
-

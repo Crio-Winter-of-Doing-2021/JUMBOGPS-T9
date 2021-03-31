@@ -1,21 +1,36 @@
+// map.on('style.load', () => {
+// 	const waiting = () => {
+// 		if (!map.isStyleLoaded()) {
+// 			setTimeout(waiting, 200);
+// 		} else {
+// 			loadMyLayers();
+// 		}
+// 	};
+// 	waiting();
+// });
+
+
 map.on("idle", function () {
   // If these two layers have been added to the style,
   // add the toggle buttons.
   // Enumerate ids of the layers.
 
-  if (
-    localStorage.getItem("first-load") === undefined ||
-    localStorage.getItem("first-load") === null ||
-    localStorage.getItem("first-load") === true ||
-    localStorage.getItem("first-load") === "true"
-  ) {
-    console.log('First load of map')
-    getAssetData(100);
-    localStorage.setItem("first-load", "false");
-
-    // setInterval(getAssetData(100) ,1000);
-
-  }
+  // if (
+  //   localStorage.getItem("first-load") === undefined ||
+  //   localStorage.getItem("first-load") === null ||
+  //   localStorage.getItem("first-load") === true ||
+  //   localStorage.getItem("first-load") === "true"
+  // ) {
+  //   console.log('First load of map')
+	// 	map.on('style.load', () => {
+	// 		getAssetData(100);
+	// 	})
+	//
+  //   localStorage.setItem("first-load", "false");
+	//
+  //   // setInterval(getAssetData(100) ,1000);
+	//
+  // }
 
   let toggleableLayerIds = [
     "asset-view",

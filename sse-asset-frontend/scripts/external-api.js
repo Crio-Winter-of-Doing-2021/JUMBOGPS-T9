@@ -64,6 +64,16 @@ function getAssetDataWithFilters(
   makeFetchCallAndShowAssetData(url, false);
 }
 
+function getAssetById(assetId) {
+  // call the API
+  let url = new URL(`${resource}/${assetId}`);
+
+  console.log(url);
+
+  makeFetchCallAndShowAssetData(url, true);
+}
+
+
 function makeFetchCallAndShowAssetData(url, isSingleObject) {
   fetch(encodeURI(url), {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -110,17 +120,11 @@ function makeFetchCallAndShowAssetData(url, isSingleObject) {
     });
 }
 
-function getAssetById(assetId) {
-  // call the API
-  let url = new URL(`${resource}/${assetId}`);
-
-  console.log(url);
-
-  makeFetchCallAndShowAssetData(url, true);
-}
 
 function getHistoryData(assetId) {
   let url = new URL(`${resource}/${assetId}/history`);
+
+	localStorage.setItem("current-asset-id", assetId);
 
   fetch(encodeURI(url), {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -147,6 +151,7 @@ function getHistoryData(assetId) {
     .catch((error) => {
       // else if error occurred catch and show alter(<correct message according to response status>)
       console.error("Error while Loading data:", error);
+			localStorage.removeItem("current-asset-id");
       if (error.message === "403") {
         triggerIframe("Unauthorized");
       } else if (error.message === "400") {
