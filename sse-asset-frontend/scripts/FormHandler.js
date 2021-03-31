@@ -6,6 +6,7 @@ const assetsCount = document.getElementsByName("maxAssetsCount")[0];
 const errors = document.getElementsByClassName("error");
 const inputLabels = document.getElementsByTagName("label");
 const logoutBtn = document.getElementById("logoutBtn");
+const resetBtn = document.getElementById("resetBtn");
 
 form.addEventListener("submit", handleSubmit);
 
@@ -34,7 +35,7 @@ function handleSubmit(e) {
   if (Number.isInteger(searchId)) {
     // let searchByIdUrl = `${mainUrl}/${searchId}`;
 
-    getAssetData(count);
+    getAssetById(searchId);
   } else {
     if (validate(count, startTimeValue, endTimeValue, searchType)) return;
 
@@ -132,6 +133,11 @@ function handleLogout() {
   window.location.assign("login.html");
 }
 
+function handleReset() {
+  getAssetData(assetsCount.value)
+}
+
 searchFilter.onkeypress = disbaleTimeInput;
 searchFilter.onchange = disbaleTimeInput;
 logoutBtn.onclick = handleLogout;
+resetBtn.onclick = handleReset;
