@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ColumnResult;
 import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
@@ -83,7 +84,7 @@ public class Asset implements Serializable {
 	private String title;
 	//	@Column(nullable = false)
 	private String description;
-	//	@Column(nullable = false)
+	@Column(nullable = false, updatable = false)
 	private String assetType;
 
 	private Geometry geofence;
