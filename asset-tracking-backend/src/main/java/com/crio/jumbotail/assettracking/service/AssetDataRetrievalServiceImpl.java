@@ -10,6 +10,7 @@ import com.crio.jumbotail.assettracking.entity.LocationData;
 import com.crio.jumbotail.assettracking.exceptions.AssetNotFoundException;
 import com.crio.jumbotail.assettracking.exceptions.InvalidFilterException;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetExportData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
@@ -17,8 +18,10 @@ import com.crio.jumbotail.assettracking.utils.SpatialUtils;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import javax.persistence.EntityManager;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.locationtech.jts.geom.Coordinate;
@@ -38,6 +41,9 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 	private LocationDataRepository locationDataRepository;
 	@Autowired
 	private GeometryFactory geometryFactory;
+
+	@Autowired
+	private EntityManager entityManager;
 
 	@Override
 	public AssetHistoryResponse getHistoryForAsset(Long assetId) {
@@ -107,12 +113,25 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 		LOG.info("assets.size() [{}]", assets.size());
 
 		// MAYBE
-		Point centroid = geometryFactory.createPoint(new Coordinate(0,0));
+		Point centroid = geometryFactory.createPoint(new Coordinate(0, 0));
 		if (!assets.isEmpty()) {
 			centroid = getCentroidForAssets(assets);
 		}
 
 		return new AssetDataResponse(centroid, assets);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<AssetExportData> exportData() {
+		List<AssetExportData> exportAssets = entityManager.createNamedQuery("ExportAssets")
+				.getResultList();
+		LOG.info("exportAssets.size() [{}]", exportAssets.size());
+		if (exportAssets.size() == 0) {
+			LOG.info("Exporting with Empty data");
+			exportAssets = Collections.singletonList(new AssetExportData());
+		}
+		return exportAssets;
 	}
 
 	private void checkValidityOfTimeFilter(Long startTimestamp, Long endTimestamp) {
