@@ -59,7 +59,7 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 					LocalDateTime.now());
 
 			LOG.info("last24HourHistory [{}]", last24HourHistory.size());
-			LOG.debug("last24HourHistory [{}]", last24HourHistory);
+			LOG.info("last24HourHistory [{}]", last24HourHistory);
 
 			assetHistoryResponse.setAsset(asset.get());
 			assetHistoryResponse.setHistory(last24HourHistory);
@@ -67,11 +67,13 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 			if (!last24HourHistory.isEmpty()) {
 				assetHistoryResponse.setCentroid(SpatialUtils.getCentroidForHistory(last24HourHistory));
 			} else { // no history for last 24 hours then the current location is the centroid
+				LOG.info("Setting Asset Coordinates as centroid");
 				assetHistoryResponse.setCentroid(asset.get().getLastReportedCoordinates());
 			}
 
 		}
 
+		LOG.info("response [{}]", assetHistoryResponse);
 		return assetHistoryResponse;
 	}
 
