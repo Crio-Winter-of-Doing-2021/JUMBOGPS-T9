@@ -67,7 +67,7 @@ map.on("idle", function () {
           // showTimeLineView(dummyGeoJson);
           showTimeLineView(historyDataFromAPI);
         } else if (clickedLayer === "Show Heatmap") {
-          map.getSource("asset-tracking-data").setData('https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson');
+          // map.getSource("asset-tracking-data").setData('https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson');
           // map.fitBounds(turf.bbox(dummyGeoJson), {
           //   padding: 40,
           //   maxZoom: 7,
