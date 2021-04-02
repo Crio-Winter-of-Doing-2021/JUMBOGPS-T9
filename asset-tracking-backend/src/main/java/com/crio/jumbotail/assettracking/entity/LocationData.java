@@ -1,6 +1,6 @@
 package com.crio.jumbotail.assettracking.entity;
 
-import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.pointFromLocation;
+import static com.crio.jumbotail.assettracking.utils.SpatialUtils.pointFromLocation;
 import static java.time.ZoneId.systemDefault;
 
 

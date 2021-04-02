@@ -1,6 +1,6 @@
 package com.crio.jumbotail.assettracking.controller;
 
-import static com.crio.jumbotail.assettracking.spatial.SpatialUtils.getCentroidForAssets;
+import static com.crio.jumbotail.assettracking.utils.SpatialUtils.getCentroidForAssets;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 @RestController
 @Tag(name = "Asset Tracker", description = "The Asset Tracker API")
+@SecurityRequirement(name = "bearerAuth")
 public class AssetTrackerDataController {
 
 	@Autowired
@@ -33,8 +35,8 @@ public class AssetTrackerDataController {
 	                         + "1. Type\n"
 	                         + "2. Type + Start Timestamp & End Timestamp\n"
 	                         + "3. Start Timestamp & End Timestamp\n"
-	                         + "All combinations support the limit parameter\n"
-			, summary = "Get Assets and apply filters"
+	                         + "All combinations support the limit parameter\n",
+			summary = "Get Assets and apply filters"
 	)
 	@ApiResponse(responseCode = "200", description = "Found the assets")
 	@GetMapping(value = "assets")
@@ -47,14 +49,16 @@ public class AssetTrackerDataController {
 		List<Asset> assets = retrievalService.getAssetFilteredBy(type, startTimeStamp, endTimeStamp, limit);
 
 		LOG.info("assets.size() [{}]", assets.size());
-
-		final Location centroid = getCentroidForAssets(assets);
-
+		Location centroid = new Location(0.0, 0.0);
+		if(assets.size() > 0) {
+			centroid = getCentroidForAssets(assets);
+		}
 		return new AssetDataResponse(centroid, assets);
 	}
 
 
-	@Operation(summary = "Get 24 Hour History for Asset", description = "Get 24 Hour History for Asset with given id")
+	@Operation(summary = "Get 24 Hour History for Asset",
+			description = "Get 24 Hour History for Asset with given id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
 	@GetMapping(value = "assets/{assetId}/history")
 	public List<LocationData> getHistoryForAsset(
@@ -67,7 +71,8 @@ public class AssetTrackerDataController {
 		return assetHistory;
 	}
 
-	@Operation(summary = "Get Single Asset", description = "Get Single Asset By Id")
+	@Operation(summary = "Get Single Asset",
+			description = "Get Single Asset By Id")
 	@ApiResponse(responseCode = "404", description = "Asset not found for given id")
 	@GetMapping(value = "assets/{assetId}")
 	public Asset getAsset(

@@ -32,12 +32,10 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @Log4j2
 public class AppConfig {
 
-	@Value("${spring.profiles.active:na}")
-	private String activeProfile;
 
 	@Bean
 	public Jdk8Module jdk8Module() {
@@ -67,23 +65,6 @@ public class AppConfig {
 		final ModelMapper modelMapper = new ModelMapper();
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper;
-	}
-
-	/**
-	 * @return OPEN API documentation
-	 */
-	@Bean
-	public OpenAPI openAPI() {
-		final OpenAPI openAPI = new OpenAPI().info(new Info()
-				.title("Asset Tracking application")
-				.termsOfService("http://swagger.io/terms/")
-				.version("1")
-				.license(new License().name("Apache 2.0").url("http://springdoc.org")));
-		if (activeProfile.contains("repl")) {
-			openAPI.servers(Collections.singletonList(new Server().url("https://jumbogps.anugrahsinghal.repl.co/")));
-		}
-		return openAPI;
-
 	}
 
 	/**
