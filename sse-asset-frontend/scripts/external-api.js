@@ -188,42 +188,6 @@ function authFetch() {
     });
 }
 
-function loadMemes() {
-  fetch(encodeURI(xmemeBackendUrl))
-    .then((response) => {
-      log(response.body);
-      log(response);
-      if (response.ok) {
-        console.log("Memes Loaded Successfully");
-        return response.json();
-      } else {
-        throw new Error(response.status + "");
-      }
-    })
-    .then((data) => {
-      log("Total Data Received = z" + data.length);
-      let cards = template({ memes: data });
-      // log(cards);
-      document.querySelector(".meme-post-wrapper").innerHTML = cards;
-    })
-    .then(() => {
-      log("rendering complete");
-      attachButtonsToTheLoadedMemes();
-      log("attached buttons");
-      setThemeForWindow();
-    })
-    .catch((error) => {
-      console.error("Error while Loading data:", error);
-      if (error.message === "403") {
-        triggerIframe("Unauthorized");
-      } else if (error.message === "400") {
-        triggerIframe("Invalid Parameters Provided");
-      } else {
-        triggerIframe("Something Went Wrong. Please contact Support Team.");
-      }
-    });
-}
-
 /**
  * This function is triggerd for notifications
  * It recieves message from the functions and display that message as a notification
