@@ -30,6 +30,8 @@ function showNotification(eventData) {
     body: message,
     icon: "./exclamation-mark.png",
   });
+  // in page notifications
+  triggerIframe(message);
   console.groupEnd();
 }
 
