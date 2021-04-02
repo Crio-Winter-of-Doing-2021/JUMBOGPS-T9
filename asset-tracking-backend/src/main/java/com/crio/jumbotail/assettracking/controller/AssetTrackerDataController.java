@@ -4,25 +4,19 @@ import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetExportData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
-import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
-import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
-import com.crio.jumbotail.assettracking.service.SubscriptionService;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,6 +30,7 @@ public class AssetTrackerDataController {
 
 	@Autowired
 	private AssetDataRetrievalService retrievalService;
+
 	@Operation(description = "Get last N Assets sorted by timestamp, supports following filter combinations: \n"
 	                         + "1. Type\n"
 	                         + "2. Type + Start Timestamp & End Timestamp\n"
@@ -86,12 +81,6 @@ public class AssetTrackerDataController {
 		return asset;
 	}
 
-	@Autowired
-	AssetRepository assetRepository;
-
-	@Autowired
-	EntityManager entityManager;
-
 	@GetMapping("/assets/export")
 	public void exportCSV(HttpServletResponse response) throws Exception {
 
@@ -113,25 +102,5 @@ public class AssetTrackerDataController {
 		writer.write(retrievalService.exportData());
 
 	}
-
-
-	//region hidden
-
-	@Autowired
-	private SubscriptionService subscriptionService;
-
-	@Hidden
-	@Operation(description = "Subscribe to events when an asset crosses the geofence/defined path",
-			summary = "Subscribe to events"
-	)
-	@GetMapping(value = "assets/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Subscriber sse(HttpServletResponse response) {
-		response.setHeader("Cache-Control", "no-store");
-
-		final Subscriber subscriber = new Subscriber();
-
-		return subscriptionService.addSubscriber(subscriber);
-	}
-	//endregion
 
 }
