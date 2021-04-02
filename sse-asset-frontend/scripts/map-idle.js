@@ -33,10 +33,10 @@ map.on("idle", function () {
   // }
 
   let toggleableLayerIds = [
-    "asset-view",
-    "timeline-view",
-    "timeline-view-with-polygon",
-    "heatmap-layer",
+    "Asset View",
+    // "timeline-view",
+    // "timeline-view-with-polygon",
+    "Show Heatmap",
   ];
   // Set up the corresponding toggle button for each layer.
   for (let i = 0; i < toggleableLayerIds.length; i++) {
@@ -54,21 +54,24 @@ map.on("idle", function () {
         e.preventDefault();
         e.stopPropagation();
 
-        if (clickedLayer === "asset-view") {
+        if (clickedLayer === "Asset View") {
           // showAssetView(assetViewGeoJson);
-          showAssetView(assetDataFromAPI);
+          // showAssetView(assetDataFromAPI);
+          hideLayers(timelineViewLayers);
+          hideLayers(heatmapLayers);
+          showLayers(assetViewLayers);
         } else if (clickedLayer === "timeline-view-with-polygon") {
           // showTimeLineView(multipleGeometryJson);
           showTimeLineView(historyDataFromAPIExtended);
         } else if (clickedLayer === "timeline-view") {
           // showTimeLineView(dummyGeoJson);
           showTimeLineView(historyDataFromAPI);
-        } else if (clickedLayer === "heatmap-layer") {
-          map.getSource("asset-tracking-data").setData(dummyGeoJson);
-          map.fitBounds(turf.bbox(dummyGeoJson), {
-            padding: 40,
-            maxZoom: 7,
-          });
+        } else if (clickedLayer === "Show Heatmap") {
+          // map.getSource("asset-tracking-data").setData(dummyGeoJson);
+          // map.fitBounds(turf.bbox(dummyGeoJson), {
+          //   padding: 40,
+          //   maxZoom: 7,
+          // });
           hideLayers(assetViewLayers);
           hideLayers(timelineViewLayers);
           showLayers(heatmapLayers);

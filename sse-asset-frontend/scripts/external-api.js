@@ -73,7 +73,6 @@ function getAssetById(assetId) {
   makeFetchCallAndShowAssetData(url, true);
 }
 
-
 function makeFetchCallAndShowAssetData(url, isSingleObject) {
   fetch(encodeURI(url), {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -120,11 +119,10 @@ function makeFetchCallAndShowAssetData(url, isSingleObject) {
     });
 }
 
-
 function getHistoryData(assetId) {
   let url = new URL(`${resource}/${assetId}/history`);
 
-	localStorage.setItem("current-asset-id", assetId);
+  localStorage.setItem("current-asset-id", assetId);
 
   fetch(encodeURI(url), {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
@@ -151,7 +149,7 @@ function getHistoryData(assetId) {
     .catch((error) => {
       // else if error occurred catch and show alter(<correct message according to response status>)
       console.error("Error while Loading data:", error);
-			localStorage.removeItem("current-asset-id");
+      localStorage.removeItem("current-asset-id");
       if (error.message === "403") {
         triggerIframe("Unauthorized");
       } else if (error.message === "400") {
@@ -227,31 +225,26 @@ function loadMemes() {
 }
 
 /**
- * This function is triggerd on create/edit/delete of the meme
+ * This function is triggerd for notifications
  * It recieves message from the functions and display that message as a notification
- * It also functions to reload the page after a delay of 2 seconds so that user can read notification
- * after which it again goes back to hidden state
+ * hides after a delay of 5 seconds
  * @param {*} message The Message to be displayed in the Notification Frame
- * @param {*} reload - reloads full page on true or undefined | does not reload on false
  */
 function triggerIframe(message) {
-  alert(message);
-  //   console.log("IFRAME TRIGGER " + message);
-  //   let notification = document.querySelector("#meme-notification");
-  //   let notificationMsg = document.querySelector("#meme-notification-message");
-  //   notificationMsg.innerText = message + "[Page will reload]";
+  // alert(message);
+  console.log("IFRAME TRIGGER " + message);
+  let notification = document.querySelector("#notification");
+  let notificationMsg = document.querySelector("#notification-message");
+  notificationMsg.innerText = message;
 
-  //   notification.style.display = "unset";
+  notification.style.display = "unset";
 
-  //   console.log("END IFRAME TRIGGER " + message);
+  console.log("END IFRAME TRIGGER " + message);
 
-  //   setTimeout(() => {
-  //     console.log("Hide I frame start");
-  //     let notification = document.querySelector("#meme-notification");
-  //     notification.style.display = "none";
-  //     console.log("Hide I frame complete");
-  //     if (reload === true || reload === undefined) {
-  //       location.reload();
-  //     }
-  //   }, 2000);
+  setTimeout(() => {
+    console.log("Hide I frame start");
+    let notification = document.querySelector("#notification");
+    notification.style.display = "none";
+    console.log("Hide I frame complete");
+  }, 5000);
 }

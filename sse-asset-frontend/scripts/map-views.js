@@ -32,6 +32,12 @@ function getAssetDataAndRenderOnMap() {
     });
 }
 
+function getTimelineDataAndRenderOnMap(assetId) {
+	// call API using assetId
+
+	showTimeLineView(historyDataFromAPIExtended);
+}
+
 function convertFromAssetResponseToGeoJson(data) {
   let assets = data.assets;
   console.log(assets);
@@ -53,12 +59,6 @@ function convertFromAssetResponseToGeoJson(data) {
     type: "FeatureCollection",
     features: features,
   };
-}
-
-function getTimelineDataAndRenderOnMap(assetId) {
-  // call API using assetId
-
-  showTimeLineView(historyDataFromAPIExtended);
 }
 
 function convertHistoryResponseToGeoJson(data) {
@@ -199,7 +199,7 @@ function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
   let features = timelineViewGeoJsonData.features;
   let lineStringCoordinates = [];
   for (let i = 0; i < features.length; i++) {
-    if (features[i].geometry.type == "Point") {
+    if (features[i].geometry.type === "Point") {
       lineStringCoordinates.push(features[i].geometry.coordinates);
     }
   }
