@@ -37,6 +37,7 @@ body {
 .error {
     opacity: 0;
     color: red;
+    font-size: x-small;
 }
 
 form {

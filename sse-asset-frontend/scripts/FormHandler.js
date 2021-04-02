@@ -133,7 +133,16 @@ function handleLogout() {
   window.location.assign("login.html");
 }
 
+function clearForm() {
+  searchFilter.value = "";
+  assetsCount.value = "100";
+  startTimeFilter.value = "";
+  endTimeFilter.value = "";
+  errors.value = ""
+}
+
 function handleReset() {
+	clearForm()
   getAssetData(assetsCount.value)
 }
 
