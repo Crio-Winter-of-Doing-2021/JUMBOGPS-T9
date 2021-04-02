@@ -17,7 +17,7 @@ function handleLogin(e) {
 		data: {username, password}
 	}).then(({data}) => {
 		localStorage.setItem("token", data.token);
-		window.location.href = "cluster.html";
+		window.location.href = "index.html";
 	})
 		.catch(() => {
 			handleAuthFailure();
