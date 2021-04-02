@@ -43,7 +43,7 @@ function handleSubmit(e) {
 
     // getAllAssets(searchByTimeUrl, "byTime");
     getAssetDataWithFilters(count, searchType, startTimeValue, endTimeValue);
-  }
+  } 
 }
 
 // for converting local time to GMT

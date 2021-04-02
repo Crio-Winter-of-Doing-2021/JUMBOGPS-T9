@@ -1,4 +1,51 @@
 .right-align {
-    position: absolute;
-    right: 0;
+  position: absolute;
+  right: 0;
 }
+
+/* #region  notification message and helpers */
+.helper-icon {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 12px;
+  font-weight: 500;
+  /* color: var(--text-color-default); */
+  color: white;
+  background-color: rgb(21, 21, 21);
+  cursor: pointer;
+  border: 1px solid rgb(52, 52, 52);
+  border-radius: 4px;
+  text-decoration: none;
+  -moz-osx-font-smoothing: antialiased;
+  z-index: 99999999999;
+}
+
+.helper-icon-wrapper {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  border: none;
+  width: 50px;
+  height: 36px;
+  z-index: 9999999999999;
+}
+
+.helper-icon-top {
+  top: 10px;
+  right: 10px;
+}
+.helper-icon-bottom {
+  bottom: 10px;
+  right: 0px;
+  /* -webkit-text-fill-color: var(--off-white); */
+  -webkit-text-fill-color: white;
+}
+#notification {
+  display: none;
+  width: auto;
+}
+.helper-icon-bottom i {
+  padding: 0.2em;
+}
+/* #endregion */
