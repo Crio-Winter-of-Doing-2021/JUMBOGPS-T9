@@ -2,19 +2,26 @@ package com.crio.jumbotail.assettracking.controller;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetExportData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.Subscriber;
+import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
 import com.crio.jumbotail.assettracking.service.SubscriptionService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -77,6 +84,34 @@ public class AssetTrackerDataController {
 		LOG.info("Asset found with [{}]", asset.getId());
 
 		return asset;
+	}
+
+	@Autowired
+	AssetRepository assetRepository;
+
+	@Autowired
+	EntityManager entityManager;
+
+	@GetMapping("/assets/export")
+	public void exportCSV(HttpServletResponse response) throws Exception {
+
+		//set file name and content type
+		String filename = "assets.csv";
+
+		response.setContentType("text/csv");
+		response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + filename + "\"");
+
+		//create a csv writer
+		StatefulBeanToCsv<AssetExportData> writer = new StatefulBeanToCsvBuilder<AssetExportData>(response.getWriter())
+				.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
+				.withSeparator('|')
+				.withOrderedResults(true)
+				.build();
+
+
+		writer.write(retrievalService.exportData());
+
 	}
 
 

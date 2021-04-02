@@ -54,6 +54,26 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
 			Pageable pageable
 	);
 
+
+//	@Query(value = "SELECT new com.crio.jumbotail.assettracking.exchanges.response.AssetExportData("
+//	               + "a.id, a.assetType,a.lastReportedTimestamp, a.lastReportedTimestamp,a.lastReportedCoordinates,a.lastReportedCoordinates,a.route,a.geofence)"
+//	               + " FROM Asset a")
+
+//	@Query(value = "SELECT a.id, a.asset_Type, a.last_Reported_Timestamp,"
+//	               + "l.timestamp as start_timestamp,l.coordinates as start_location,"
+//	               + "a.last_Reported_Coordinates,a.route,a.geofence FROM Asset a, location_data l "
+//	               + "where l.id = ("
+//	               + "select l.id"
+//	               + "from location_data l "
+//	               + "where l.asset_id = a.id order by timestamp"
+//	               + "desc limit 1"
+//	               + ")")
+//	@Query(value = "SELECT new com.crio.jumbotail.assettracking.exchanges.response.AssetExportData("
+//	               + ")"
+//	               + " FROM Asset a, LocationData l WHERE l.id = (SELECT minelement(l.timestamp), l.id FROM LocationData l WHERE l.asset.id = a.id)")
+//	List<AssetExportData> exportData();
+
+
 	default List<Asset> filterAssetsByType(String assetType, Pageable pageable) {
 		return findAllByAssetTypeOrderByLastReportedTimestampDesc(assetType, pageable);
 	}

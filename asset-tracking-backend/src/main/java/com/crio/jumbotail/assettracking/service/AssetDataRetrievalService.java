@@ -2,7 +2,9 @@ package com.crio.jumbotail.assettracking.service;
 
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
+import com.crio.jumbotail.assettracking.exchanges.response.AssetExportData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
+import java.util.List;
 
 public interface AssetDataRetrievalService {
 
@@ -34,4 +36,9 @@ public interface AssetDataRetrievalService {
 	 */
 	AssetDataResponse getAssetFilteredBy(String type, Long startDateTime, Long endDateTime, int limit);
 
+	/**
+	 * Helps to export all data from DB for Pattern Analysis Requirement
+	 * @return List of AssetExportData for pattern analysis
+	 */
+	List<AssetExportData> exportData();
 }
