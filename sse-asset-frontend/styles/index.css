@@ -27,6 +27,44 @@ body {
     color: red;
 }
 
+.notification{
+    z-index: 122;
+    position: absolute;
+    border-radius: 20px;
+    left:60%;
+    background-color: aliceblue;
+    padding:0.5rem;
+    text-align: center;
+    top:-50px;
+  }
+  
+  .notification-show{
+    animation: fadein 0.8s, fadeout 0.8s 2.8s;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes fadein {
+    from {
+      top: -50px; 
+      opacity: 0;
+    }
+    to {
+      top: 15px;
+       opacity: 1;
+      }
+  }
+  
+  @keyframes fadeout {
+    from {
+      top: 15px;
+       opacity: 1;
+      }
+    to {
+      top: -50px; 
+      opacity: 0;
+    }
+  }
+  
 form {
     display: flex;
     flex-direction: column;

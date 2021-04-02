@@ -42,6 +42,7 @@ map.on("idle", function () {
         if (clickedLayer === "asset-view") {
           // showAssetView(assetViewGeoJson);
           showAssetView(assetDataFromAPI);
+          showPopupNotification("100 assets found");
         } else if (clickedLayer === "timeline-view-with-polygon") {
           // showTimeLineView(multipleGeometryJson);
           showTimeLineView(historyDataFromAPIExtended);

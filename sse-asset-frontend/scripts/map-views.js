@@ -7,13 +7,13 @@
 //     hide assetView Layer
 //     call set data on the timeline-data source
 //     call showLayer
+const token = localStorage.getItem("token");
 
 function getAssetDataAndRenderOnMap() {
   fetch("https://jumbogps-geo.anugrahsinghal.repl.co/assets?limit=100", {
     method: "GET", // *GET, POST, PUT, DELETE, etc.
     headers: {
-      Authorization:
-        "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ",
+      Authorization: `Bearer ${token}`
     },
   })
     .then((response) => {
@@ -23,7 +23,6 @@ function getAssetDataAndRenderOnMap() {
       response.json();
     })
     .then((data) => {
-      console.log(data);
       showAssetView(data);
     })
     .catch((err) => {
@@ -34,7 +33,7 @@ function getAssetDataAndRenderOnMap() {
 
 function convertFromAssetResponseToGeoJson(data) {
   let assets = data.assets;
-  console.log(assets);
+  // console.log(assets);
   let features = [];
   for (let i = 0; i < assets.length; i++) {
     features.push({
@@ -111,8 +110,8 @@ function convertHistoryResponseToGeoJson(data) {
 }
 
 function showAssetView(data) {
-  hideLayers(timelineViewLayers);
-  hideLayers(heatmapLayers);
+  showOrHideLayers(timelineViewLayers,"visible","none");
+  showOrHideLayers(heatmapLayers,"visible","none");
 
   // TODO on empty data 
   // show alerts
@@ -123,12 +122,12 @@ function showAssetView(data) {
 
   map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
 
-  showLayers(assetViewLayers);
+  showOrHideLayers(assetViewLayers,"none","visible");
 }
 
 function showTimeLineView(data) {
-  hideLayers(assetViewLayers);
-  hideLayers(heatmapLayers);
+  showOrHideLayers(assetViewLayers,"visible","none");
+  showOrHideLayers(heatmapLayers,"visible","none");
 
   if(data.history.length === 0) {
     console.log("No History For Asset in the last 24 hours");
@@ -145,7 +144,7 @@ function showTimeLineView(data) {
 
   map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
 
-  showLayers(timelineViewLayers);
+  showOrHideLayers(timelineViewLayers,"none","visible");
 }
 
 function addImages(map, images) {
@@ -167,29 +166,15 @@ function addImages(map, images) {
   return Promise.all(promises);
 }
 
-function hideLayers(layerNames) {
+function showOrHideLayers(layerNames,prevStatus,currStatus) {
   if (layerNames !== undefined && layerNames.length > 0) {
     for (let i = 0; i < layerNames.length; i++) {
       let clickedLayer = layerNames[i];
       let visibility = map.getLayoutProperty(clickedLayer, "visibility");
 
       // Toggle layer visibility by changing the layout object's visibility property.
-      if (visibility !== undefined && visibility === "visible") {
-        map.setLayoutProperty(clickedLayer, "visibility", "none");
-      }
-    }
-  }
-}
-
-function showLayers(layerNames) {
-  if (layerNames !== undefined && layerNames.length > 0) {
-    for (let i = 0; i < layerNames.length; i++) {
-      let clickedLayer = layerNames[i];
-      let visibility = map.getLayoutProperty(clickedLayer, "visibility");
-
-      // Toggle layer visibility by changing the layout object's visibility property.
-      if (visibility !== undefined && visibility === "none") {
-        map.setLayoutProperty(clickedLayer, "visibility", "visible");
+      if (visibility !== undefined && visibility === prevStatus) {
+        map.setLayoutProperty(clickedLayer, "visibility", currStatus);
       }
     }
   }
@@ -212,4 +197,20 @@ function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
     },
   };
   return lineString;
+}
+
+// UX - for showing popup notifications to users
+function showPopupNotification(msg="Logged In"){
+  
+  console.log(msg);
+
+	let notification = document.getElementsByClassName('notification')[0];
+    
+	notification.innerHTML = msg;
+
+    notification.className = "notification notification-show";
+
+    setTimeout(()=>{
+      notification.className = "notification";
+    },4000)
 }

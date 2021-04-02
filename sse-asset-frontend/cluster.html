@@ -27,13 +27,13 @@
     <link rel="stylesheet" href="styles/map-styles.css" />
     <script src="scripts/mock-data.js"></script>
     <link rel="stylesheet" href="styles/index.css" />
-    <link rel="stylesheet" href="styles/styles.css" />
   </head>
-  <body>
-    <nav id="menu"></nav>
+  <body onload="showPopupNotification()">
     <div id="search-and-filter"></div>
-    <div class="filters right-align">
-      <form>
+    <div class="main">
+    <div class="notification"></div>
+    <div class="filters">
+      <form id="filter-form">
         <div class="group">
           <input type="text" name="criteria" autocomplete="off" />
           <span class="highlight"></span>
@@ -78,8 +78,11 @@
       <div class="logout"><button id="logoutBtn">Logout</button></div>
     </div>
 
-    <div id="map"></div>
+    <div id="map">
+    <nav id="menu"></nav>
 
+    </div>
+</div>
     <script src="scripts/checkLogin.js"></script>
     <script src="scripts/constants.js"></script>
     <script src="scripts/map-prep.js"></script>
