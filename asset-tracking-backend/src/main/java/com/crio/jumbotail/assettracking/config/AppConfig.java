@@ -4,57 +4,59 @@ import com.bedatadriven.jackson.datatype.jts.JtsModule;
 import com.fasterxml.jackson.datatype.hibernate5.Hibernate5Module;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.servers.Server;
-import java.util.Collections;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.concurrent.Executor;
 import lombok.extern.log4j.Log4j2;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * To Inject Bean Dependencies Needed by other classes
  */
-@Getter
-@Setter
+//@EnableJpaAuditing
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories
-//@EnableJpaAuditing
+@EnableAsync
 @Log4j2
 public class AppConfig {
 
-
+	/**
+	 * @return Module for Jdk8 support for Jackson
+	 */
 	@Bean
 	public Jdk8Module jdk8Module() {
 		return new Jdk8Module();
 	}
 
+	/**
+	 * @return Module for Jdk8 Time Libraries support for Jackson
+	 */
 	@Bean
 	public JavaTimeModule javaTimeModule() {
 		return new JavaTimeModule();
 	}
 
+	/**
+	 * @return Module to stop serialization by object mapper of lazy loaded entities
+	 */
 	@Bean
 	public Hibernate5Module hibernate5Module() {
 		return new Hibernate5Module();
 	}
 
+	/**
+	 * @return Module for geometry types de/serialization
+	 */
 	@Bean
 	public JtsModule jtsModule() {
-		return new JtsModule(new GeometryFactory(new PrecisionModel(), 4326));
+		return new JtsModule(geometryFactory());
 	}
 
 	/**
@@ -81,7 +83,17 @@ public class AppConfig {
 		return filterRegistrationBean;
 	}
 
+	@Bean
+	public GeometryFactory geometryFactory() {
+		return new GeometryFactory(
+				new PrecisionModel(PrecisionModel.FLOATING),
+				4326);
+	}
 
+	@Bean(name = "notificationThreadPoolTaskExecutor")
+	public Executor notificationThreadPoolTaskExecutor() {
+		return new ThreadPoolTaskExecutor();
+	}
 
 
 }

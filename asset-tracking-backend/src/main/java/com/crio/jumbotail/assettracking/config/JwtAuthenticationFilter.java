@@ -7,11 +7,8 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.Spring;
 import lombok.extern.log4j.Log4j2;
-import org.aspectj.lang.annotation.After;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.annotation.Configurations;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String requestURL = request.getRequestURL().toString();
 			// allow for Refresh Token creation if following conditions are true.
 			if (isRefreshToken != null && isRefreshToken.equals("true") && requestURL.contains("refreshtoken")) {
-				allowForRefreshToken(ex, request);
+				allowRequestForRefreshToken(ex, request);
 			} else {
 				request.setAttribute("exception", ex);
 			}
@@ -64,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		chain.doFilter(request, response);
 	}
 
-	private void allowForRefreshToken(ExpiredJwtException ex, HttpServletRequest request) {
+	private void allowRequestForRefreshToken(ExpiredJwtException ex, HttpServletRequest request) {
 
 		// create a UsernamePasswordAuthenticationToken with null values.
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(

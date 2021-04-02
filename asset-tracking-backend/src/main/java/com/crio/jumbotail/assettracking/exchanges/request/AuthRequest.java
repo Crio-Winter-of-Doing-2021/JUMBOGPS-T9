@@ -1,4 +1,4 @@
-package com.crio.jumbotail.assettracking.exchanges;
+package com.crio.jumbotail.assettracking.exchanges.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class AuthResponse {
-	private String token;
+public class AuthRequest {
+	private String username;
+	private String password;
 }

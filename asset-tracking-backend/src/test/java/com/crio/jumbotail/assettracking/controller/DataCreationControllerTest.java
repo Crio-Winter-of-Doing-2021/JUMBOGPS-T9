@@ -4,9 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 import com.crio.jumbotail.assettracking.entity.Asset;
-import com.crio.jumbotail.assettracking.exchanges.AssetCreationRequest;
-import com.crio.jumbotail.assettracking.exchanges.LocationDataDto;
-import com.crio.jumbotail.assettracking.exchanges.LocationDto;
+import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
+import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
 import com.crio.jumbotail.assettracking.repositories.AssetRepository;
 import com.crio.jumbotail.assettracking.repositories.LocationDataRepository;
 import com.crio.jumbotail.assettracking.service.AssetCreationServiceImpl;
@@ -18,6 +17,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +52,9 @@ class DataCreationControllerTest {
 	@Autowired
 	ObjectMapper objectMapper;
 
+	GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
+
+
 	@Value("classpath:locations.csv")
 	Resource resourceFile;
 
@@ -70,7 +75,7 @@ class DataCreationControllerTest {
 				RandomStringUtils.randomAlphabetic(10),
 				RandomStringUtils.randomAlphabetic(10),
 				new LocationDataDto(
-						new LocationDto(23.0, 23.0),
+						geometryFactory.createPoint(new Coordinate(23.0, 23.0)),
 						Instant.now().getEpochSecond()
 				),
 				RandomStringUtils.randomAlphabetic(10)

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>JUMBOGPS-T9</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <link rel="stylesheet" href="styles/map-styles.css" />
+    <script src="scripts/mock-data.js"></script>
+    <link rel="stylesheet" href="styles/index.css" />
+    <link rel="stylesheet" href="styles/styles.css" />
+  </head>
+  <body>
+    <nav id="menu"></nav>
+    <div id="search-and-filter"></div>
+    <div class="filters right-align">
+      <form>
+        <div class="group">
+          <input type="text" name="criteria" autocomplete="off" />
+          <span class="highlight"></span>
+          <span class="bar"></span>
+          <label>Search with asset id/type</label>
+          <span class="error"></span>
+        </div>
+        <div class="group">
+          <input
+            type="number"
+            name="maxAssetsCount"
+            value="100"
+            autocomplete="off"
+          />
+
+          <span class="highlight"></span>
+          <span class="bar"></span>
+          <label>Set no. of assets shown</label>
+          <span class="error"></span>
+        </div>
+        <div class="group">
+          <input type="datetime-local" name="startTime" autocomplete="off" />
+          <span class="highlight"></span>
+          <span class="bar"></span>
+          <label>Set start time value</label>
+        </div>
+        <div class="group">
+          <input
+            placeholder="demo"
+            type="datetime-local"
+            name="endTime"
+            autocomplete="off"
+          />
+          <span class="highlight"></span>
+          <span class="bar"></span>
+          <label>Set end time value</label>
+          <span class="error"></span>
+        </div>
+        <button id="searchBtn" class="button button-primary">Search</button>
+        <button id="resetBtn" class="button button-secondary">Reset</button>
+      </form>
+      <div class="logout"><button id="logoutBtn">Logout</button></div>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="scripts/checkLogin.js"></script>
+    <script src="scripts/constants.js"></script>
+    <script src="scripts/map-prep.js"></script>
+    <script src="scripts/map-views.js"></script>
+    <script src="scripts/external-api.js"></script>
+    <script src="scripts/FormHandler.js"></script>
+    <script src="scripts/notifications.js"></script>
+    <script src="scripts/map-idle.js"></script>
+  </body>
+</html>

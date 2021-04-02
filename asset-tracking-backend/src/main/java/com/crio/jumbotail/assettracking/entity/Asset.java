@@ -1,8 +1,6 @@
 package com.crio.jumbotail.assettracking.entity;
 
-import static com.crio.jumbotail.assettracking.utils.SpatialUtils.pointFromLocation;
-
-
+import com.crio.jumbotail.assettracking.utils.LocationConstraint;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.io.Serializable;
@@ -15,91 +13,61 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.DynamicUpdate;
+import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@AllArgsConstructor
+@Builder
+@DynamicUpdate
 public class Asset implements Serializable {
 
 	@Id
-	@SequenceGenerator(name = "tcode_data_seq_gen", sequenceName = "tcode_data_id_sequence", initialValue = 1000)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "tcode_data_seq_gen")
+	@SequenceGenerator(name = "asset_id_seq_gen", sequenceName = "asset_id_sequence", initialValue = 1000)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "asset_id_seq_gen")
 	private Long id;
 
+	//	@Column(nullable = false)
 	private String title;
+	//	@Column(nullable = false)
 	private String description;
-
+	//	@Column(nullable = false)
 	private String assetType;
 
-	private LocalDateTime lastReportedTimestamp;
-
-	private Location lastReportedLocation;
-
-	private Point lastReportedCoordinates;
-
-	@PrePersist
-	@PreUpdate
-	public void updateCoordinate() {
-		if (this.getLastReportedLocation().getLatitude() == null || this.getLastReportedLocation().getLongitude() == null) {
-			this.lastReportedCoordinates = null;
-		} else {
-			this.lastReportedCoordinates = pointFromLocation(this.lastReportedLocation);
-		}
-	}
+	private Geometry geofence;
+	private Geometry route;
 
 	@JsonInclude(JsonInclude.Include.NON_EMPTY)
 	@JsonManagedReference("asset-data")
 	@OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, mappedBy = "asset", fetch = FetchType.LAZY)
-	private List<LocationData> locationHistory = new ArrayList<>();
+	private List<LocationData> locationHistory;
 
-	// used when creating an asset
-
-	public Asset(String title, String description, String assetType, LocationData locationData) {
-		this.title = title;
-		this.description = description;
-		this.assetType = assetType;
-
-		locationData.setAsset(this);
-
-		this.lastReportedLocation = locationData.getLocation();
-		this.lastReportedTimestamp = locationData.getTimestamp();
-		this.locationHistory.add(locationData);
-	}
+	// extra properties - depend on LocationData to set value to these properties
+	private LocalDateTime lastReportedTimestamp;
+	@LocationConstraint
+	private Point lastReportedCoordinates;
 
 	public void addLocationHistory(LocationData locationData) {
-
-		// update location of asset to last location
-		this.setLastReportedTimestamp(locationData.getTimestamp());
-		this.setLastReportedLocation(locationData.getLocation());
-
 		locationData.setAsset(this);
+		if (locationHistory == null) {
+			locationHistory = new ArrayList<>();
+		}
 
 		this.locationHistory.add(locationData);
-	}
-
-	@Override
-	public String toString() {
-		return "Asset{"
-		       + " id=" + id
-		       + ", title='" + title + '\''
-		       + ", description='" + description + '\''
-		       + ", assetType='" + assetType + '\''
-		       + ", lastReportedLocation=" + lastReportedLocation
-		       + ", lastReportedTimestamp=" + lastReportedTimestamp
-		       + '}';
 	}
 
 }
