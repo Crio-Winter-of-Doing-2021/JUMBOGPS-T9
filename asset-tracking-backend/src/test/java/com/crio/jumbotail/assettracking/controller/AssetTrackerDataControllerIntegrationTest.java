@@ -55,6 +55,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -190,21 +191,6 @@ class AssetTrackerDataControllerIntegrationTest {
 	}
 
 
-	ResultActions getAssetHistory(long assetId) throws Exception {
-		return mockMvc.perform(get("/assets/" + assetId + "/history"));
-	}
-
-	ResultActions updateAssetHistory(LocationUpdateRequest locationUpdateRequest, long assetId) throws Exception {
-		return mockMvc.perform(
-				patch("/api/assets/" + assetId)
-						.content(asJsonString(locationUpdateRequest))
-						.contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON)
-
-		);
-
-	}
-
 	@Test
 	void creat_history_within_24h_time_boundary_is_returned_on_query() throws Exception {
 
@@ -330,14 +316,6 @@ class AssetTrackerDataControllerIntegrationTest {
 
 	}
 
-	ResultActions createAsset(AssetCreationRequest assetCreationRequest) throws Exception {
-		return mockMvc.perform(
-				post("/api/assets")
-						.content(asJsonString(assetCreationRequest))
-						.contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.APPLICATION_JSON));
-	}
-
 	@Test
 	void asset_created_then_updated_then_latest_location_is_also_updated() throws Exception {
 
@@ -383,6 +361,66 @@ class AssetTrackerDataControllerIntegrationTest {
 
 	}
 
+	@SneakyThrows
+	@Test
+	void test_export_data() {
+		final MockHttpServletResponse response = mockMvc.perform(get("/assets/export"))
+				.andReturn().getResponse();
+
+		assertEquals("text/csv", response.getContentType());
+	}
+
+	@SneakyThrows
+	@Test
+	void test_export_data_with_records() {
+		final List<AssetCreatedResponse> assets = createAssets(1);
+		final Long id = assets.get(0).getId();
+		final MockHttpServletResponse response = mockMvc.perform(get("/assets/export"))
+				.andReturn().getResponse();
+
+		final String contentAsString = response.getContentAsString();
+		assertTrue(contentAsString.contains(String.valueOf(id)));
+	}
+
+	@SneakyThrows
+	@Test
+	void test_asset_by_id_when_asset_not_present() {
+		final long id = 1000L;
+		mockMvc.perform(get("/assets/"+ id))
+				.andExpect(status().isNotFound());
+	}
+
+	@SneakyThrows
+	@Test
+	void test_asset_by_id_when_asset_present() {
+		final List<AssetCreatedResponse> assets = createAssets(1);
+		final Long id = assets.get(0).getId();
+		mockMvc.perform(get("/assets/"+id))
+				.andExpect(status().isOk());
+	}
+
+	ResultActions getAssetHistory(long assetId) throws Exception {
+		return mockMvc.perform(get("/assets/" + assetId + "/history"));
+	}
+
+	ResultActions createAsset(AssetCreationRequest assetCreationRequest) throws Exception {
+		return mockMvc.perform(
+				post("/api/assets")
+						.content(asJsonString(assetCreationRequest))
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON));
+	}
+
+	ResultActions updateAssetHistory(LocationUpdateRequest locationUpdateRequest, long assetId) throws Exception {
+		return mockMvc.perform(
+				patch("/api/assets/" + assetId)
+						.content(asJsonString(locationUpdateRequest))
+						.contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.APPLICATION_JSON)
+
+		);
+
+	}
 
 	ResultActions getAssets() throws Exception {
 		return getAssets(-1); // defaults to the limit 100
