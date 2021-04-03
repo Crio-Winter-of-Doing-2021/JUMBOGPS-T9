@@ -67,9 +67,7 @@ function updateArea(e) {
   }
 }
 
-let polygon;
-let route;
-let sourcePoint;
+let asset = {};
 
 document.getElementById("polygon").addEventListener("click", function (e) {
   let data = draw.getAll();
@@ -77,17 +75,17 @@ document.getElementById("polygon").addEventListener("click", function (e) {
   if (data.features.length == 1) {
     console.log("single feature found");
     if (data.features[0].geometry.type == "Polygon") {
-      polygon = data.features[0];
-      document.querySelector("#asset-geofence").checked = true;
+      asset.geofence = data.features[0].geometry;
+      makeCheckboxInputChecked("asset-geofence");
     } else {
-      triggerIframe("Invalid Polygon");
+      triggerIframe("Invalid Geometry");
       // call clear all
       // delete yourself
     }
+  } else if (data.features.length == 0) {
+    triggerIframe("No Polygons Drawn on map");
   } else {
     triggerIframe("Only 1 feature allowed at a time");
-    // call clear all
-    // delete yourself
   }
 });
 
@@ -97,17 +95,17 @@ document.getElementById("route").addEventListener("click", function (e) {
   if (data.features.length == 1) {
     console.log("single feature found");
     if (data.features[0].geometry.type == "LineString") {
-      route = data.features[0];
-      document.querySelector("#asset-route").checked = true;
+      asset.route = data.features[0].geometry;
+      makeCheckboxInputChecked("asset-route");
     } else {
-      triggerIframe("Invalid Route");
+      triggerIframe("Invalid Geometry");
       // call clear all
       // delete yourself
     }
+  } else if (data.features.length == 0) {
+    triggerIframe("No Routes Drawn on map");
   } else {
     triggerIframe("Only 1 feature allowed at a time");
-    // call clear all
-    // delete yourself
   }
 });
 
@@ -117,30 +115,35 @@ document.getElementById("source-point").addEventListener("click", function (e) {
   if (data.features.length == 1) {
     console.log("single feature found");
     if (data.features[0].geometry.type == "Point") {
-      sourcePoint = data.features[0];
-      document.querySelector("#asset-source-point").checked = true;
+      asset.location = {};
+      asset.location.coordinates = data.features[0].geometry;
+      makeCheckboxInputChecked("asset-source-point");
     } else {
-      triggerIframe("Invalid Point");
+      triggerIframe("Invalid Geometry");
       // call clear all
       // delete yourself
     }
+  } else if (data.features.length == 0) {
+    triggerIframe("No Point Drawn on map");
   } else {
     triggerIframe("Only 1 feature allowed at a time");
-    // call clear all
-    // delete yourself
   }
 });
 
 document.getElementById("show-all").addEventListener("click", function (e) {
   let allStoredFeatures = [];
-  if (polygon !== undefined) {
-    allStoredFeatures.push(polygon);
+  if (asset.geofence !== undefined) {
+    allStoredFeatures.push({ type: "Feature",properties:{}, geometry: asset.geofence });
   }
-  if (route !== undefined) {
-    allStoredFeatures.push(route);
+  if (asset.route !== undefined) {
+    allStoredFeatures.push({ type: "Feature",properties:{}, geometry: asset.route });
   }
-  if (sourcePoint !== undefined) {
-    allStoredFeatures.push(sourcePoint);
+  if (asset.location.coordinates !== undefined) {
+    allStoredFeatures.push({
+      type: "Feature",
+      properties:{},
+      geometry: asset.location.coordinates,
+    });
   }
   if (allStoredFeatures.length == 0) {
     console.log("no valid features");
@@ -154,3 +157,70 @@ document.getElementById("show-all").addEventListener("click", function (e) {
     features: allStoredFeatures,
   });
 });
+
+function makeCheckboxInputChecked(checkboxId) {
+  document.querySelector("#" + checkboxId).checked = true;
+}
+
+document
+  .querySelector("#asset-create-btn")
+  .addEventListener("click", handleCreateAsset);
+
+function handleCreateAsset(e) {
+  // get values of form and make asset object
+  asset.assetType = document.querySelector("#asset-type").value;
+  asset.title = document.querySelector("#asset-title").value;
+  asset.description = document.querySelector("#asset-description").value;
+  if (validateAssetProperties()) {
+    asset.location.deviceTimestamp = Math.floor(Date.now() / 1000);
+    console.log(asset);
+    createAsset(asset).then(() => {
+      clearForm();
+    });
+
+    console.log(asset);
+  }
+}
+
+function uncheckAll() {
+  const cbs = document.querySelectorAll('input[type="checkbox"]');
+  cbs.forEach((cb) => {
+    cb.checked = false;
+  });
+}
+
+function clearForm() {
+  document.querySelector("#asset-type").value = "";
+  document.querySelector("#asset-title").value = "";
+  document.querySelector("#asset-description").value = "";
+  uncheckAll();
+  draw.deleteAll();
+  asset = {};
+}
+
+function validateAssetProperties() {
+  if (asset.assetType === undefined || asset.assetType === "") {
+    triggerIframe("Asset Type is needed");
+    return false;
+  }
+  if (asset.location === undefined) {
+    triggerIframe("Location Data is needed");
+    return false;
+  }
+  if (
+    asset.location !== undefined &&
+    asset.location.coordinates === undefined
+  ) {
+    triggerIframe("Location Data is needed");
+    return false;
+  }
+  if (asset.title === undefined || asset.title === "") {
+    triggerIframe("Asset Title is needed");
+    return false;
+  }
+  if (asset.description === undefined || asset.description === "") {
+    triggerIframe("Asset description is needed");
+    return false;
+  }
+  return true;
+}

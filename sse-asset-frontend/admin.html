@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Show drawn polygon area</title>
+    <title>JUMBOGPS-T9 Admin Panel</title>
     <meta
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
@@ -18,6 +18,14 @@
       href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
       type="text/css"
     />
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.css"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="styles/admin-panel.css">
     <link rel="stylesheet" href="styles/styles.css">
     <style>
       body {
@@ -34,94 +42,12 @@
     </style>
   </head>
   <body>
-    <style>
-      * {
-        box-sizing: border-box;
-      }
-      .admin-panel {
-        /* height: 75px; */
-        width: 30%;
-        /* position: absolute;
-        bottom: 40px;
-        left: 10px; */
-        background-color: rgba(255, 255, 255, 0.9);
-        /* padding: 15px; */
-        /* text-align: center; */
-      }
-
-      p {
-        font-family: "Open Sans";
-        margin: 0;
-        font-size: 13px;
-      }
-      input[type="checkbox"][readonly] {
-        pointer-events: none;
-      }
-      #admin-form {
-        margin: 1em;
-      }
-      #admin-form > input {
-        margin: 1em;
-        outline: none;
-      }
-      #admin-form > input[type="text"] {
-        padding: 5px;
-        border-color: transparent;
-        border-bottom: 2px solid black;
-      }
-      .admin-panel {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 30%;
-      }
-      div {
-          display: block;
-      }
-      .button {
-        border: none;
-        padding: 0.5em;
-        border-radius: 0.7em;
-        outline: none;
-        background-color: unset;
-
-        cursor: pointer;
-        transition: 0.2s all;
-      }
-      .button:active {
-        transform: scale(0.85);
-        /* Scaling button to 0.85 to its original size */
-        box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
-        /* Lowering the shadow */
-      }
-      .button-secondary {
-        padding: 0.3em;
-      }
-      .button-primary {
-        background-color: black;
-        color: white;
-      }
-      .button {
-        border: 2px solid black;
-      }
-    </style>
-
-    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.1/mapbox-gl-draw.css"
-      type="text/css"
-    />
 
     <div id="map"></div>
     <div class="admin-panel">
       <form id="admin-form">
         <input type="text" name="title" id="asset-title" placeholder="Title" /><br />
         <input type="text" name="description" id="asset-description" placeholder="Description" /><br />
-        <!-- <label for="asset-type">Type</label><br />
-        <input type="text" name="type" id="asset-type" /><br /> -->
-        <!-- <label for="asset-type">Type</label><br /> -->
         <input list="asset-types" name="asset-type" id="asset-type" placeholder="Asset Type"><br />
         <datalist id="asset-types">
           <option value="Salesperson">
@@ -129,190 +55,25 @@
         </datalist>
         <input type="checkbox" name="start location" id="asset-source-point" readonly onclick="return false;" onkeydown="return false;"/>
         <input type="button" class="button button-secondary" id="source-point" value="Save Current Location"></input><br /> 
-        <!-- <label for="asset-start location">Has start location</label><br />   -->
         <input type="checkbox" name="geofence" id="asset-geofence" readonly onclick="return false;" onkeydown="return false;"/>
         <input type="button" class="button button-secondary" id="polygon" value="Save Polygon"></input><br />  
-        <!-- <label for="asset-geofence">Has Geofence</label><br />   -->
         <input type="checkbox" name="route" id="asset-route" readonly  onclick="return false;" onkeydown="return false;"/>
         <input type="button" class="button button-secondary" id="route" value="Save Route"></input><br />  
-        <!-- <label for="asset-route">Has route</label><br />   -->
         <input type="button" class="button button-secondary" id="show-all" value="Render"></input><br />
         <input type="button" class="button button-primary" id="asset-create-btn" value="Create Asset"></input><br />
     </form>
       <div id="calculated-area" style="display: none;"></div>
     </div>
-    
-    <script src="scripts/external-api.js"></script>
-    <script>
-      mapboxgl.accessToken =
-        "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
-      var map = new mapboxgl.Map({
-        container: "map", // container id
-        style: "mapbox://styles/mapbox/streets-v11",
-        center: [78.476681027237, 22.1991660760527], // starting position
-        zoom: 4, // starting zoom
-      });
 
-      /* given a query in the form "lng, lat" or "lat, lng" returns the matching
-      * geographic coordinate(s) as search results in carmen geojson format,
-      * https://github.com/mapbox/carmen/blob/master/carmen-geojson.md
-      */
-      const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        marker: false,
-      });
-
-      map.addControl(geocoder, "top-left");
-
-      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-
-
-      document.querySelector('#admin-form').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      })
-
-      document.querySelector('#asset-create-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        console.log('create asset btn')
-      })
-
-      let opt = {
-        displayControlsDefault: false,
-        controls: {
-          polygon: true,
-          trash: true,
-          line_string: true,
-          point: true,
-        },
-        touchEnabled: true,
-      };
-
-      var draw = new MapboxDraw(opt);
-      map.addControl(draw);
-
-      map.on("draw.create", updateArea);
-      map.on("draw.delete", updateArea);
-      map.on("draw.update", updateArea);
-
-      function updateArea(e) {
-        var data = draw.getAll();
-        var answer = document.getElementById("calculated-area");
-        if (data.features.length > 0) {
-          var area = turf.area(data);
-          // restrict to area to 2 decimal points
-          var rounded_area = Math.round(area * 100) / 100;
-          answer.innerHTML =
-            "<p><strong>" + rounded_area + "</strong></p><p>square meters</p>";
-        } else {
-          answer.innerHTML = "";
-          if (e.type !== "draw.delete")
-            triggerIframe("Use the draw tools to draw a polygon!");
-        }
-      }
-
-      let polygon;
-      let route;
-      let sourcePoint;
-
-      document
-        .getElementById("polygon")
-        .addEventListener("click", function (e) {
-          let data = draw.getAll();
-          console.log(data);
-          if (data.features.length == 1) {
-            console.log("single feature found");
-            if (data.features[0].geometry.type == "Polygon") {
-              polygon = data.features[0];
-              document.querySelector("#asset-geofence").checked = true
-            } else {
-              triggerIframe("Invalid Polygon");
-              // call clear all
-              // delete yourself
-            }
-          } else {
-            triggerIframe("Only 1 feature allowed at a time");
-            // call clear all
-            // delete yourself
-          }
-        });
-
-      document.getElementById("route").addEventListener("click", function (e) {
-        let data = draw.getAll();
-        console.log(data);
-        if (data.features.length == 1) {
-          console.log("single feature found");
-          if (data.features[0].geometry.type == "LineString") {
-            route = data.features[0];
-            document.querySelector("#asset-route").checked = true
-          } else {
-            triggerIframe("Invalid Route");
-            // call clear all
-            // delete yourself
-          }
-        } else {
-          triggerIframe("Only 1 feature allowed at a time");
-          // call clear all
-          // delete yourself
-        }
-      });
-
-      document
-        .getElementById("source-point")
-        .addEventListener("click", function (e) {
-          let data = draw.getAll();
-          console.log(data);
-          if (data.features.length == 1) {
-            console.log("single feature found");
-            if (data.features[0].geometry.type == "Point") {
-              sourcePoint = data.features[0];
-              document.querySelector("#asset-source-point").checked = true
-            } else {
-              triggerIframe("Invalid Point");
-              // call clear all
-              // delete yourself
-            }
-          } else {
-            triggerIframe("Only 1 feature allowed at a time");
-            // call clear all
-            // delete yourself
-          }
-        });
-
-      document
-        .getElementById("show-all")
-        .addEventListener("click", function (e) {
-          let allStoredFeatures = [];
-          if (polygon !== undefined) {
-            allStoredFeatures.push(polygon);
-          }
-          if (route !== undefined) {
-            allStoredFeatures.push(route);
-          }
-          if (sourcePoint !== undefined) {
-            allStoredFeatures.push(sourcePoint);
-          }
-          if (allStoredFeatures.length == 0) {
-            console.log("no valid features");
-            return;
-          }
-
-          draw.deleteAll();
-
-          var ids = draw.set({
-            type: "FeatureCollection",
-            features: allStoredFeatures,
-          });
-        });
-    </script>
-    
     <p class="helper-icon-wrapper helper-icon-top" id="notification">
       <a class="helper-icon" id="notification-message">
           Lorem ipsum dolor sit amet consectetur.
       </a>
-  </p>
+    </p>
+
+
+    <script src="scripts/external-api.js"></script>
+    <script src="scripts/admin-panel.js"></script>
+
   </body>
 </html>
