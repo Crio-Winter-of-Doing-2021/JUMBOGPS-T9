@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+}
+.admin-panel {
+  /* height: 75px; */
+  width: 30%;
+  /* position: absolute;
+  bottom: 40px;
+  left: 10px; */
+  background-color: rgba(255, 255, 255, 0.9);
+  /* padding: 15px; */
+  /* text-align: center; */
+}
+
+p {
+  font-family: "Open Sans";
+  margin: 0;
+  font-size: 13px;
+}
+input[type="checkbox"][readonly] {
+  pointer-events: none;
+}
+#admin-form {
+  margin: 1em;
+}
+#admin-form > input {
+  margin: 1em;
+  outline: none;
+}
+#admin-form > input[type="text"] {
+  padding: 5px;
+  border-color: transparent;
+  border-bottom: 2px solid black;
+}
+.admin-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30%;
+}
+div {
+    display: block;
+}
+.button {
+  border: none;
+  padding: 0.5em;
+  border-radius: 0.7em;
+  outline: none;
+  background-color: unset;
+
+  cursor: pointer;
+  transition: 0.2s all;
+}
+.button:active {
+  transform: scale(0.85);
+  /* Scaling button to 0.85 to its original size */
+  box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
+  /* Lowering the shadow */
+}
+.button-secondary {
+  padding: 0.3em;
+}
+.button-primary {
+  background-color: black;
+  color: white;
+}
+.button {
+  border: 2px solid black;
+}

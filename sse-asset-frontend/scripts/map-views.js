@@ -33,9 +33,9 @@ function getAssetDataAndRenderOnMap() {
 }
 
 function getTimelineDataAndRenderOnMap(assetId) {
-	// call API using assetId
+  // call API using assetId
 
-	showTimeLineView(historyDataFromAPIExtended);
+  showTimeLineView(historyDataFromAPIExtended);
 }
 
 function convertFromAssetResponseToGeoJson(data) {
@@ -114,14 +114,17 @@ function showAssetView(data) {
   hideLayers(timelineViewLayers);
   hideLayers(heatmapLayers);
 
-  // TODO on empty data 
-  // show alerts
+  if (data.assets.length === 0) {
+    console.log("No Assets Found");
+    triggerIframe("No Assets Found");
+    return;
+  }
 
-  let geoJsonData = convertFromAssetResponseToGeoJson(data)
+  let geoJsonData = convertFromAssetResponseToGeoJson(data);
 
   map.getSource("asset-tracking-data").setData(geoJsonData);
 
-  map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+  adjustMap(geoJsonData);
 
   showLayers(assetViewLayers);
 }
@@ -130,7 +133,7 @@ function showTimeLineView(data) {
   hideLayers(assetViewLayers);
   hideLayers(heatmapLayers);
 
-  if(data.history.length === 0) {
+  if (data.history.length === 0) {
     console.log("No History For Asset in the last 24 hours");
     triggerIframe("No History For Asset in the last 24 hours");
     return;
@@ -143,9 +146,13 @@ function showTimeLineView(data) {
     .getSource("route-line-string")
     .setData(makeLineStringForGeoJsonTimelineView(geoJsonData));
 
-  map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+  adjustMap(geoJsonData);
 
   showLayers(timelineViewLayers);
+}
+
+function adjustMap(geoJsonData) {
+  map.fitBounds(turf.bbox(geoJsonData), { padding: 40, maxZoom: 12 });
 }
 
 function addImages(map, images) {

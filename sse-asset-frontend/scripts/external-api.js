@@ -1,4 +1,4 @@
-const resource = "https://jumbogps-geo.anugrahsinghal.repl.co/assets";
+const resource = "https://jumbogps-main.anugrahsinghal.repl.co/assets";
 
 const jwtToken =
   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";

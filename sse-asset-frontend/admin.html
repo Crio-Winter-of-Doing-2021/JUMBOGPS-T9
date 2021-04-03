@@ -12,6 +12,13 @@
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+    <link rel="stylesheet" href="styles/styles.css">
     <style>
       body {
         margin: 0;
@@ -28,21 +35,74 @@
   </head>
   <body>
     <style>
-      .calculation-box {
-        height: 75px;
-        width: 150px;
-        position: absolute;
+      * {
+        box-sizing: border-box;
+      }
+      .admin-panel {
+        /* height: 75px; */
+        width: 30%;
+        /* position: absolute;
         bottom: 40px;
-        left: 10px;
+        left: 10px; */
         background-color: rgba(255, 255, 255, 0.9);
-        padding: 15px;
-        text-align: center;
+        /* padding: 15px; */
+        /* text-align: center; */
       }
 
       p {
         font-family: "Open Sans";
         margin: 0;
         font-size: 13px;
+      }
+      input[type="checkbox"][readonly] {
+        pointer-events: none;
+      }
+      #admin-form {
+        margin: 1em;
+      }
+      #admin-form > input {
+        margin: 1em;
+        outline: none;
+      }
+      #admin-form > input[type="text"] {
+        padding: 5px;
+        border-color: transparent;
+        border-bottom: 2px solid black;
+      }
+      .admin-panel {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 30%;
+      }
+      div {
+          display: block;
+      }
+      .button {
+        border: none;
+        padding: 0.5em;
+        border-radius: 0.7em;
+        outline: none;
+        background-color: unset;
+
+        cursor: pointer;
+        transition: 0.2s all;
+      }
+      .button:active {
+        transform: scale(0.85);
+        /* Scaling button to 0.85 to its original size */
+        box-shadow: 3px 2px 22px 1px rgba(0, 0, 0, 0.24);
+        /* Lowering the shadow */
+      }
+      .button-secondary {
+        padding: 0.3em;
+      }
+      .button-primary {
+        background-color: black;
+        color: white;
+      }
+      .button {
+        border: 2px solid black;
       }
     </style>
 
@@ -55,24 +115,70 @@
     />
 
     <div id="map"></div>
-    <div class="calculation-box">
-      <p>Draw a polygon using the draw tools.</p>
-      <button id="route">Save Route</button>
-      <button id="polygon">Save Polygon</button>
-      <button id="source-point">Save Current Location</button>
-      <button id="show-all">Render</button>
-      <div id="calculated-area"></div>
+    <div class="admin-panel">
+      <form id="admin-form">
+        <input type="text" name="title" id="asset-title" placeholder="Title" /><br />
+        <input type="text" name="description" id="asset-description" placeholder="Description" /><br />
+        <!-- <label for="asset-type">Type</label><br />
+        <input type="text" name="type" id="asset-type" /><br /> -->
+        <!-- <label for="asset-type">Type</label><br /> -->
+        <input list="asset-types" name="asset-type" id="asset-type" placeholder="Asset Type"><br />
+        <datalist id="asset-types">
+          <option value="Salesperson">
+          <option value="Truck">
+        </datalist>
+        <input type="checkbox" name="start location" id="asset-source-point" readonly onclick="return false;" onkeydown="return false;"/>
+        <input type="button" class="button button-secondary" id="source-point" value="Save Current Location"></input><br /> 
+        <!-- <label for="asset-start location">Has start location</label><br />   -->
+        <input type="checkbox" name="geofence" id="asset-geofence" readonly onclick="return false;" onkeydown="return false;"/>
+        <input type="button" class="button button-secondary" id="polygon" value="Save Polygon"></input><br />  
+        <!-- <label for="asset-geofence">Has Geofence</label><br />   -->
+        <input type="checkbox" name="route" id="asset-route" readonly  onclick="return false;" onkeydown="return false;"/>
+        <input type="button" class="button button-secondary" id="route" value="Save Route"></input><br />  
+        <!-- <label for="asset-route">Has route</label><br />   -->
+        <input type="button" class="button button-secondary" id="show-all" value="Render"></input><br />
+        <input type="button" class="button button-primary" id="asset-create-btn" value="Create Asset"></input><br />
+    </form>
+      <div id="calculated-area" style="display: none;"></div>
     </div>
-
+    
+    <script src="scripts/external-api.js"></script>
     <script>
       mapboxgl.accessToken =
         "pk.eyJ1IjoiYW51Z3JhaHNpbmdoYWwiLCJhIjoiY2tscW1mcjcwMWVjaDJ2bjFmYml5cmNpNSJ9.1M6Wd3NEDq95YhoCyMxU8A";
       var map = new mapboxgl.Map({
         container: "map", // container id
-        style: "mapbox://styles/mapbox/streets-v8",
-        center: [19.874, 42.76], // starting position
-        zoom: 13, // starting zoom
+        style: "mapbox://styles/mapbox/streets-v11",
+        center: [78.476681027237, 22.1991660760527], // starting position
+        zoom: 4, // starting zoom
       });
+
+      /* given a query in the form "lng, lat" or "lat, lng" returns the matching
+      * geographic coordinate(s) as search results in carmen geojson format,
+      * https://github.com/mapbox/carmen/blob/master/carmen-geojson.md
+      */
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        marker: false,
+      });
+
+      map.addControl(geocoder, "top-left");
+
+      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+
+
+      document.querySelector('#admin-form').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      })
+
+      document.querySelector('#asset-create-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log('create asset btn')
+      })
 
       let opt = {
         displayControlsDefault: false,
@@ -104,7 +210,7 @@
         } else {
           answer.innerHTML = "";
           if (e.type !== "draw.delete")
-            alert("Use the draw tools to draw a polygon!");
+            triggerIframe("Use the draw tools to draw a polygon!");
         }
       }
 
@@ -121,13 +227,14 @@
             console.log("single feature found");
             if (data.features[0].geometry.type == "Polygon") {
               polygon = data.features[0];
+              document.querySelector("#asset-geofence").checked = true
             } else {
-              alert("Invalid Polygon");
+              triggerIframe("Invalid Polygon");
               // call clear all
               // delete yourself
             }
           } else {
-            alert("Only 1 feature allowed at a time");
+            triggerIframe("Only 1 feature allowed at a time");
             // call clear all
             // delete yourself
           }
@@ -140,13 +247,14 @@
           console.log("single feature found");
           if (data.features[0].geometry.type == "LineString") {
             route = data.features[0];
+            document.querySelector("#asset-route").checked = true
           } else {
-            alert("Invalid Route");
+            triggerIframe("Invalid Route");
             // call clear all
             // delete yourself
           }
         } else {
-          alert("Only 1 feature allowed at a time");
+          triggerIframe("Only 1 feature allowed at a time");
           // call clear all
           // delete yourself
         }
@@ -161,13 +269,14 @@
             console.log("single feature found");
             if (data.features[0].geometry.type == "Point") {
               sourcePoint = data.features[0];
+              document.querySelector("#asset-source-point").checked = true
             } else {
-              alert("Invalid Point");
+              triggerIframe("Invalid Point");
               // call clear all
               // delete yourself
             }
           } else {
-            alert("Only 1 feature allowed at a time");
+            triggerIframe("Only 1 feature allowed at a time");
             // call clear all
             // delete yourself
           }
@@ -187,7 +296,7 @@
             allStoredFeatures.push(sourcePoint);
           }
           if (allStoredFeatures.length == 0) {
-            alert("no valid features");
+            console.log("no valid features");
             return;
           }
 
@@ -199,5 +308,11 @@
           });
         });
     </script>
+    
+    <p class="helper-icon-wrapper helper-icon-top" id="notification">
+      <a class="helper-icon" id="notification-message">
+          Lorem ipsum dolor sit amet consectetur.
+      </a>
+  </p>
   </body>
 </html>
