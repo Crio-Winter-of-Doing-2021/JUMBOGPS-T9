@@ -42,7 +42,7 @@ function handleSubmit(e) {
     // let searchByTimeUrl = `${mainUrl}?limit=${count}&type=${searchType}&startTimeStamp=${startTime}&endTimeStamp=${endTime}`;
 
     // getAllAssets(searchByTimeUrl, "byTime");
-    getAssetDataWithFilters(count, searchType, startTimeValue, endTimeValue);
+    getAssetDataWithFilters(count, searchType, startTime, endTime);
   } 
 }
 
