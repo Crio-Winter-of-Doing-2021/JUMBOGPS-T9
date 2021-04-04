@@ -133,6 +133,7 @@ public class AssetDataRetrievalServiceImpl implements AssetDataRetrievalService 
 			LOG.info("Exporting with Empty data");
 			exportAssets = Collections.singletonList(new AssetExportData());
 		}
+		LOG.info("FETCHED");
 		return exportAssets;
 	}
 
