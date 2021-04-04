@@ -135,10 +135,16 @@ function handleLogout() {
 
 function clearForm() {
   searchFilter.value = "";
-  assetsCount.value = "100";
+  // assetsCount.value = "100";
   startTimeFilter.value = "";
   endTimeFilter.value = "";
   errors.value = ""
+	startTimeFilter.disabled = false;
+	endTimeFilter.disabled = false;
+	assetsCount.disabled = false;
+	for (let x = 0; x < inputLabels.length; x++) {
+		inputLabels[x].style.opacity = 1;
+	}
 }
 
 function handleReset() {
