@@ -1,5 +1,5 @@
 const resourceUrl =
-  "https://jumbogps-geo.anugrahsinghal.repl.co/api/assets/subscribe";
+  "https://jumbogps-main.anugrahsinghal.repl.co/api/assets/subscribe";
 
 // const resourceUrl = "http://localhost:8080/api/assets/subscribe";
 
@@ -31,7 +31,7 @@ function showNotification(eventData) {
     icon: "./exclamation-mark.png",
   });
   // in page notifications
-  triggerIframe(message);
+  showPopupNotification(message);
   console.groupEnd();
 }
 

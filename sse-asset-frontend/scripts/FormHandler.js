@@ -5,7 +5,6 @@ const endTimeFilter = document.getElementsByName("endTime")[0];
 const assetsCount = document.getElementsByName("maxAssetsCount")[0];
 const errors = document.getElementsByClassName("error");
 const inputLabels = document.getElementsByTagName("label");
-const logoutBtn = document.getElementById("logoutBtn");
 const resetBtn = document.getElementById("resetBtn");
 
 form.addEventListener("submit", handleSubmit);
@@ -42,7 +41,7 @@ function handleSubmit(e) {
     // let searchByTimeUrl = `${mainUrl}?limit=${count}&type=${searchType}&startTimeStamp=${startTime}&endTimeStamp=${endTime}`;
 
     // getAllAssets(searchByTimeUrl, "byTime");
-    getAssetDataWithFilters(count, searchType, startTimeValue, endTimeValue);
+    getAssetDataWithFilters(count, searchType, startTime, endTime);
   } 
 }
 
@@ -133,20 +132,17 @@ function handleLogout() {
   window.location.assign("login.html");
 }
 
-function clearForm() {
+function handleReset() {
   searchFilter.value = "";
   assetsCount.value = "100";
   startTimeFilter.value = "";
   endTimeFilter.value = "";
-  errors.value = ""
-}
-
-function handleReset() {
-	clearForm()
+  errors.value = "";
+  
   getAssetData(assetsCount.value)
 }
 
+
 searchFilter.onkeypress = disbaleTimeInput;
 searchFilter.onchange = disbaleTimeInput;
-logoutBtn.onclick = handleLogout;
 resetBtn.onclick = handleReset;

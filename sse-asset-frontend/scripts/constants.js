@@ -108,6 +108,7 @@ const coordinatesGeocoder = function (query) {
   return geocodes;
 };
 
+// for multiple markers
 const salesperson = ["==", ["get", "assetType"], "SALESPERSON"];
 const truck = ["==", ["get", "assetType"], "TRUCK"];
 const others = [
@@ -116,5 +117,5 @@ const others = [
   ["==", ["get", "assetType"], ""],
 ];
 
-const mainUrl = 'https://jumbogps-geo.anugrahsinghal.repl.co/assets';
+const mainUrl = 'https://jumbogps-main.anugrahsinghal.repl.co/assets';
 /* #endregion */

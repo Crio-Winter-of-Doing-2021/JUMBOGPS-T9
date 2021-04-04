@@ -1,47 +1,25 @@
-const resource = "https://jumbogps-geo.anugrahsinghal.repl.co/assets";
+const resource = "https://jumbogps-main.anugrahsinghal.repl.co/assets";
 
 const jwtToken =
   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
 
 function getAssetData(limit) {
-  console.log(arguments);
-
-  if (limit === undefined || limit <= 0 || isNaN(limit)) {
-    limit = 100;
-    triggerIframe("Invalid Limit Entered. Using default value 100");
-  }
 
   let url = new URL(resource);
 
-  let params = {
-    limit: limit,
-  };
-  url.search = new URLSearchParams(params).toString();
+  let params = {limit};
 
-  console.log(url);
+  url.search = new URLSearchParams(params).toString();
 
   makeFetchCallAndShowAssetData(url);
 }
 
-function getAssetDataWithFilters(
-  limit,
-  typeFilter,
-  startDateFilter,
-  endDateFilter
-) {
-  // call the API
-  console.log(arguments);
-
-  if (limit === undefined || limit <= 0 || isNaN(limit)) {
-    limit = 100;
-    triggerIframe("Invalid Limit Entered. Using default value 100");
-  }
-
+function getAssetDataWithFilters(limit,typeFilter,startDateFilter,endDateFilter) {
+ 
   let url = new URL(resource);
 
-  let params = {
-    limit: limit,
-  };
+  let params = {limit};
+
   // or: let params = [["lat", "35.696233"],["long", "139.570431"],];
 
   if (typeFilter !== undefined && typeFilter !== "") {
@@ -59,16 +37,12 @@ function getAssetDataWithFilters(
 
   url.search = new URLSearchParams(params).toString();
 
-  console.log(url);
-
   makeFetchCallAndShowAssetData(url, false);
 }
 
 function getAssetById(assetId) {
   // call the API
   let url = new URL(`${resource}/${assetId}`);
-
-  console.log(url);
 
   makeFetchCallAndShowAssetData(url, true);
 }
@@ -81,8 +55,6 @@ function makeFetchCallAndShowAssetData(url, isSingleObject) {
     },
   })
     .then((response) => {
-      console.log(response.body);
-      console.log(response);
       // handle response code
       if (response.ok) {
         console.log("Data Loaded Successfully");
@@ -92,9 +64,8 @@ function makeFetchCallAndShowAssetData(url, isSingleObject) {
       }
     })
     .then((data) => {
-      console.log(data);
       // if all ok parse data and return from there only
-      if (true === isSingleObject) {
+      if (isSingleObject) {
         let modifiedSingleAsset = {
           centroid: data.lastReportedCoordinates,
           assets: [data],
@@ -108,13 +79,13 @@ function makeFetchCallAndShowAssetData(url, isSingleObject) {
       // else if error occurred catch and show alter(<correct message according to response status>)
       console.error("Error while Loading data:", error);
       if (error.message === "403") {
-        triggerIframe("Unauthorized");
+        showPopupNotification("Unauthorized");
       } else if (error.message === "400") {
-        triggerIframe("Invalid Parameters Provided");
+        showPopupNotification("Invalid Parameters Provided");
       } else if (error.message === "404") {
-        triggerIframe("No Asset Found For Given Id");
+        showPopupNotification("No Asset Found For Given Id");
       } else {
-        triggerIframe("Something Went Wrong. Please contact Support Team.");
+        showPopupNotification("Something Went Wrong. Please contact Support Team.");
       }
     });
 }
@@ -131,8 +102,6 @@ function getHistoryData(assetId) {
     },
   })
     .then((response) => {
-      console.log(response.body);
-      console.log(response);
       // handle response code
       if (response.ok) {
         console.log("Data Loaded Successfully");
@@ -142,7 +111,6 @@ function getHistoryData(assetId) {
       }
     })
     .then((data) => {
-      console.log(data);
       // if all ok parse data and return from there only
       showTimeLineView(data);
     })
@@ -151,13 +119,13 @@ function getHistoryData(assetId) {
       console.error("Error while Loading data:", error);
       localStorage.removeItem("current-asset-id");
       if (error.message === "403") {
-        triggerIframe("Unauthorized");
+        showPopupNotification("Unauthorized");
       } else if (error.message === "400") {
-        triggerIframe("Invalid Parameters Provided");
+        showPopupNotification("Invalid Parameters Provided");
       } else if (error.message === "404") {
-        triggerIframe("No Asset Found For Given Id");
+        showPopupNotification("No Asset Found For Given Id");
       } else {
-        triggerIframe("Something Went Wrong. Please contact Support Team.");
+        showPopupNotification("Something Went Wrong. Please contact Support Team.");
       }
     });
 }
@@ -195,15 +163,11 @@ function authFetch() {
  * @param {*} message The Message to be displayed in the Notification Frame
  */
 function triggerIframe(message) {
-  // alert(message);
-  console.log("IFRAME TRIGGER " + message);
   let notification = document.querySelector("#notification");
   let notificationMsg = document.querySelector("#notification-message");
   notificationMsg.innerText = message;
 
   notification.style.display = "unset";
-
-  console.log("END IFRAME TRIGGER " + message);
 
   setTimeout(() => {
     console.log("Hide I frame start");

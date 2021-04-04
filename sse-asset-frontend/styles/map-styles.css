@@ -2,11 +2,11 @@ body {
   margin: 0;
   padding: 0;
 }
-#map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
+#map{
+  height:100vh;
+  width:70%;
+  margin:0;
+  padding: 0;
 }
 .history {
   color: blue;
@@ -20,22 +20,24 @@ body {
   z-index: 1;
   bottom: 30px;
   left: 10px;
-  border-radius: 3px;
-  width: 120px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  width: 160px;
+  /* border: 1px solid rgba(0, 0, 0, 0.4); */
   font-family: "Open Sans", sans-serif;
 }
 
 #menu a {
   font-size: 13px;
+  background-color:#ffffff;
   color: #404040;
   display: block;
   margin: 0;
   padding: 0;
   padding: 10px;
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+  border-bottom: 0.01rem solid rgba(0, 0, 0, 0.25);
   text-align: center;
+  transition: 0.3s ease all;
 }
 
 #menu a:last-child {
@@ -43,17 +45,19 @@ body {
 }
 
 #menu a:hover {
-  background-color: #f8f8f8;
-  color: #404040;
-}
-
-#menu a.active {
-  background-color: #3887be;
+  background-color: #404040;
   color: #ffffff;
 }
 
+#menu a.active {
+  background-color: #ffffff;
+  color: #404040;
+}
+
 #menu a.active:hover {
-  background: #3074a4;
+  background: #404040;
+  color: #ffffff;
+
 }
 
 .link-container {
@@ -65,11 +69,16 @@ body {
 }
 
 .link-container:hover {
-  background-color: #ccc;
+  background-color: #404040;
 }
 
 .popup-header {
   font-weight: bold;
   font-size: smaller;
   padding-right: 5px;
+}
+
+.mapboxgl-ctrl-geocoder--input:focus{
+  outline: none;
+  border: none;
 }

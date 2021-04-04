@@ -1,4 +1,4 @@
-const authUrl = "https://jumbogps-auth-sse.anugrahsinghal.repl.co/authenticate";
+const authUrl = "https://jumbogps-main.anugrahsinghal.repl.co/authenticate";
 let username = document.getElementsByName("username")[0];
 let password = document.getElementsByName("password")[0];
 const form = document.getElementsByTagName("form")[0];

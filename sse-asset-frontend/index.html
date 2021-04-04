@@ -28,58 +28,61 @@
     <script src="scripts/mock-data.js"></script>
     <link rel="stylesheet" href="styles/index.css" />
     <link rel="stylesheet" href="styles/styles.css" />
+    <link rel="stylesheet" href="styles/responsive.css" />
   </head>
-  <body>
-    <nav id="menu"></nav>
+  <body  onload="showPopupNotification()">
+    <div class="main">
+    <!-- <div class="notification">Logged in!!</div> -->
     <div id="search-and-filter"></div>
-    <div class="filters right-align">
+    <div class="filters">
       <form>
-        <div class="group">
-          <input type="text" name="criteria" autocomplete="off" />
-          <span class="highlight"></span>
-          <span class="bar"></span>
-          <label>Search with asset id/type</label>
+        <div class="input-grp-1">
+        <div class="col-3 input-effect">
+          <input class="effect-17" type="text" name="criteria" autocomplete="off">
+          <label>Enter asset id/type</label>
+            <span class="focus-border"></span>
           <span class="error"></span>
-        </div>
-        <div class="group">
-          <input
-            type="number"
-            name="maxAssetsCount"
-            value="100"
-            autocomplete="off"
-          />
 
-          <span class="highlight"></span>
-          <span class="bar"></span>
-          <label>Set no. of assets shown</label>
+        </div>
+        <div class="col-3 input-effect">
+          <input class="effect-17" type="number"name="maxAssetsCount" value="100" autocomplete="off">
+          <label class="demo-label">Set no. of assets</label>
+            <span class="focus-border"></span>
           <span class="error"></span>
+
         </div>
-        <div class="group">
-          <input type="datetime-local" name="startTime" autocomplete="off" />
-          <span class="highlight"></span>
-          <span class="bar"></span>
-          <label>Set start time value</label>
+      </div>
+      <div class="input-grp-1">
+
+        <div class="col-3 input-effect">
+          <input class="effect-17" type="datetime-local" name="startTime" autocomplete="off">
+          <label class="demo-label">Set start time value</label>
+            <span class="focus-border"></span>
         </div>
-        <div class="group">
-          <input
-            placeholder="demo"
-            type="datetime-local"
-            name="endTime"
-            autocomplete="off"
-          />
-          <span class="highlight"></span>
-          <span class="bar"></span>
-          <label>Set end time value</label>
+        <div class="col-3 input-effect">
+          <input class="effect-17" type="datetime-local"
+          name="endTime" autocomplete="off" >
+          <label class="demo-label">Set end time value</label>
+            <span class="focus-border"></span>
           <span class="error"></span>
+
         </div>
+       </div>
+        <div id="formBtn">
         <button id="searchBtn" class="button button-primary">Search</button>
         <button id="resetBtn" class="button button-secondary">Reset</button>
+      </div>
       </form>
-      <div class="logout"><button id="logoutBtn">Logout</button></div>
+      <div class="logout"><button id="logoutBtn" onclick="handleLogout()">Logout</button></div>
     </div>
 
-    <div id="map"></div>
+    <div id="map">
+    <div class="notification">Logged in!!</div>
+    <a onclick="handleLogout()" id="temp">logout</a>
+      <nav id="menu"></nav>
+    </div>
 
+  </div>
     <p class="helper-icon-wrapper helper-icon-top" id="notification">
         <a class="helper-icon" id="notification-message">
             Lorem ipsum dolor sit amet consectetur.
@@ -94,5 +97,7 @@
     <script src="scripts/FormHandler.js"></script>
     <script src="scripts/notifications.js"></script>
     <script src="scripts/map-idle.js"></script>
+    <script src="scripts/DOM.js"></script>
+  
   </body>
 </html>
