@@ -416,8 +416,8 @@ function addSourceAndLayerForAssetTimeLineView() {
       visibility: "none",
     },
     paint: {
-      "line-color": "#f28cb1",
-      "line-width": 8,
+      "line-color": "#888",
+      "line-width": 6,
     },
     filter: ["==", "$type", "LineString"],
   });

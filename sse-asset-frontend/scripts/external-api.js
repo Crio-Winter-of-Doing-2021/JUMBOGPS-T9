@@ -1,4 +1,6 @@
-const resource = "https://jumbogps-geo.anugrahsinghal.repl.co/assets";
+const baseURL = "https://jumbogps-main.anugrahsinghal.repl.co/";
+const createResource = baseURL + "api/assets";
+const resource = baseURL + "assets";
 
 const jwtToken =
   "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
@@ -211,4 +213,52 @@ function triggerIframe(message) {
     notification.style.display = "none";
     console.log("Hide I frame complete");
   }, 5000);
+}
+
+function createAsset(asset) {
+  return fetch(encodeURI(createResource), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      charset: "UTF-8",
+    },
+    body: JSON.stringify(asset),
+  })
+    .then((response) => {
+      if (response.status === 201) {
+        return response.json();
+      } else {
+        throw new Error(response.status + "");
+      }
+    })
+    .then((data) => {
+      console.log("Asset Created Successfully :" + data.id);
+      triggerIframe("Asset Created Successfully " + data.id);
+    })
+    .catch((error) => {
+      triggerIframe("Something went wrong! Please try again.");
+      console.error("Error while creating asset:", error);
+    });
+
+  // .then((response) => {
+  //   console.dir(response);
+  //   if (response.status === 409 || response.status === "409") {
+  //     console.error("Duplicate Meme Posted");
+  //     triggerIframe("Duplicate Data");
+  //   } else if (!response.ok) {
+  //     console.error("Error with Server Response : " + response.status);
+  //     triggerIframe("Something went wrong! Please try again.");
+  //   } else if (response.ok || response.status === 200) {
+  //     console.log("meme posted");
+  //     triggerIframe("Meme Created!");
+  //     return response.json();
+  //   }
+  // })
+  // .then((data) => {
+  //   console.log("Meme Posted Successfully:", JSON.stringify(data));
+  // })
+  // .catch((error) => {
+  //   triggerIframe("Something went wrong! Please try again.");
+  //   console.error("Error while posting meme:", error);
+  // });
 }
