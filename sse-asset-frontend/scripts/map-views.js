@@ -201,16 +201,3 @@ function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
   };
   return lineString;
 }
-
-function showPopupNotification(msg="Logged In"){
-
-	let notification = document.getElementsByClassName('notification')[0];
-    
-	notification.innerHTML = msg;
-
-    notification.className = "notification notification-show";
-
-    setTimeout(()=>{
-      notification.className = "notification";
-    },4000)
-}

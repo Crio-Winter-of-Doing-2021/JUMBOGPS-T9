@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="styles/login.css"/>
     <link rel="stylesheet" href="styles/responsive-auth.css"/>
     <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css" integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <title>Sign in</title>
@@ -22,6 +23,8 @@
             
             <div class="col-3 input-effect">
                 <input class="effect-17" type="text" name="username" autocomplete="off">
+                <i class="fas fa-times"></i>
+                
                 <label>Enter your username</label>
                   <span class="focus-border"></span>
                 <span class="error"></span>
@@ -29,17 +32,21 @@
               </div>
             <div class="col-3 input-effect">
                 <input class="effect-17" type="password" name="password" autocomplete="off">
+                <i class="fas fa-times"></i>
                 <label>Enter your password</label>
                   <span class="focus-border"></span>
                 <span class="error"></span>
       
               </div>
             <!-- <div>Don't have an account yet?<span id="signup">Sign up</span></div> -->
-            <button id="searchBtn">LOGIN</button>
+            <button id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>LOGIN
+            </button>
         </form>
     </div>
 
     <div id='banner'>
+    <div class="notification">Logged out</div>
         <div class="header">Welcome to JumboGPS</div>
         <div class="description">
             <img src="assets/location-1.png" alt="image"/>
@@ -57,24 +64,12 @@
 <script src="scripts/Auth.js"></script>
 <script src="scripts/DOM.js"></script>
 <script>
-    window.addEventListener('load',addOrRemoveImage);
-    window.addEventListener('resize',addOrRemoveImage);
-    
-    function addOrRemoveImage(){
-        let banner = document.getElementById('banner');
-        let filters = document.getElementsByClassName('filters')[0];
-        let mapImg = document.getElementsByClassName('mapImg')[0];
+  if(localStorage.getItem("token")){
+    showPopupNotification("Logged Out");
+    localStorage.removeItem("token");
+  }
 
-        if(window.innerWidth<600){
-            mapImg.remove();
-            filters.append(mapImg);
-        }
-        if(window.innerWidth<400){
-            mapImg.remove();
-        }
-    
-    }
-    
+  
 </script>
 </body>
 </html>

@@ -40,19 +40,42 @@
     }
 
     .input-grp-1{
+        width:90%;
         display: flex;
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        margin:10px;
     }
 
+    input[type="datetime-local"] {
+        width:90%;
+    }
+
+    .input-grp-1:nth-of-type(2) .fas.fa-times{
+        right:4px;
+    }
+
+    .has-content.effect-17[type="datetime-local"] ~ .focus-border{
+        width: 90%;
+    }
+    
+    .effect-17[type="datetime-local"]:focus ~ .focus-border{
+        width: 90%;
+    }
     .col-3:nth-of-type(1){
         margin-bottom: 0;
     }
 
     .effect-17 ~ label{
         left:10px;
+    }
+
+    .col-3{
+        width:50%;
+    }
+
+    form{
+        align-items: center;
     }
 
 }
@@ -119,10 +142,13 @@
     form{
         height:100%;
     }
+
+    .fas.fa-sign-in-alt{
+        margin-right: 3px;
+    }
+
+   
 }
-
-
-
 
 @media screen and (max-width:350px){
     .input-grp-1{
@@ -156,6 +182,8 @@
     ::-webkit-input-placeholder{
         text-align: left;
     }
+
+    
 
 }
 

@@ -1,7 +1,6 @@
 const resource = "https://jumbogps-main.anugrahsinghal.repl.co/assets";
 
-const jwtToken =
-  "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhbnUiLCJzY29wZXMiOlsiUk9MRV9BRE1JTiJdLCJpYXQiOjE2MTYwODcxNjYsImV4cCI6MTYxODA4NzE2Nn0.xTM2kH7HPx5GpoGbtpftOkg3iStjhSjkn77CPn5Q5LR3SjP5-4nbxRL4HPynEauInM49OvJlyvNAspyWy_FhgQ";
+const jwtToken = localStorage.getItem("token")
 
 function getAssetData(limit) {
 
@@ -162,17 +161,17 @@ function authFetch() {
  * hides after a delay of 5 seconds
  * @param {*} message The Message to be displayed in the Notification Frame
  */
-function triggerIframe(message) {
-  let notification = document.querySelector("#notification");
-  let notificationMsg = document.querySelector("#notification-message");
-  notificationMsg.innerText = message;
+// function triggerIframe(message) {
+//   let notification = document.querySelector("#notification");
+//   let notificationMsg = document.querySelector("#notification-message");
+//   notificationMsg.innerText = message;
 
-  notification.style.display = "unset";
+//   notification.style.display = "unset";
 
-  setTimeout(() => {
-    console.log("Hide I frame start");
-    let notification = document.querySelector("#notification");
-    notification.style.display = "none";
-    console.log("Hide I frame complete");
-  }, 5000);
-}
+//   setTimeout(() => {
+//     console.log("Hide I frame start");
+//     let notification = document.querySelector("#notification");
+//     notification.style.display = "none";
+//     console.log("Hide I frame complete");
+//   }, 5000);
+// }

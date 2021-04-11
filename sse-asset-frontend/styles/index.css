@@ -17,6 +17,39 @@ body {
     margin: 0;
 }
 
+.fas{
+    width: auto;
+    margin-right: 0.8rem;
+}
+.fas.fa-times{
+    position: absolute;
+    right:2.2rem;
+    bottom: 12px;
+    width: auto;
+    text-align: right;
+    display: none;
+    cursor: pointer;
+    margin: 0;
+}
+
+.far.fa-check-circle,.fas.fa-exclamation-circle{
+    font-size: 0.8rem;
+    margin-right: 0.6rem;
+}
+
+.input-grp-1:nth-of-type(2) .fas.fa-times{
+    right:-22px;
+    bottom:8px;
+}
+
+.effect-17:focus ~ .fas.fa-times{
+    display: inline;
+}
+
+.effect-17.has-content ~ .fas.fa-times{
+    display: inline;
+}
+
 #map {
     height: 100vh;
     width: 70%;
@@ -47,14 +80,14 @@ body {
       opacity: 0;
     }
     to {
-      top: 2rem;
+      top: 1.2rem;
        opacity: 1;
       }
   }
   
   @keyframes fadeout {
     from {
-      top: 2rem;
+      top: 1.2rem;
        opacity: 1;
       }
     to {
@@ -98,13 +131,16 @@ body {
 }
 
 .col-3:nth-of-type(1){
-    margin-bottom: 40px;
+    margin-bottom: 5rem;
 }
 
+input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
 .error {
     opacity: 0;
     color: red;
-    font-size: 0.8rem;
+    font-size: 1rem;
     position: absolute;
     left:0.3rem;
     top:2rem;
@@ -114,8 +150,8 @@ body {
 form {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
+    justify-content: space-around;
+    align-items: flex-end;
     height: 90%;
 }
 
@@ -144,6 +180,30 @@ input[type="datetime-local"] {
     letter-spacing: 5px;
     height: 45px;
     width: 100%;
+    font-size: 1.1rem;
+}
+
+#formBtn button{
+    border:3px solid black;
+    background:none;
+    color:black;
+    box-shadow: none;
+    font-size: 1rem;
+    font-weight: 600;
+    padding:1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#formBtn button:focus{
+transform: translate(1px,1px);
+}
+
+#formBtn button:hover{
+    background-color: black;
+    color: white;
+    transition: 0.3s all ease;
 }
 
 .logout {
@@ -165,10 +225,10 @@ input[type="datetime-local"] {
     border: 0; 
     padding: 4px 0; 
     border-bottom: 
-    1px solid #ccc; 
+    2px solid #ccc; 
     background-color: transparent;
     font-size: 1.2rem;
-    padding-left: 8px;
+    padding-left: 2px;
 }
 
 
@@ -183,10 +243,26 @@ input[type="datetime-local"] {
 }
 .effect-17:focus ~ .focus-border,
 .has-content.effect-17 ~ .focus-border{
-    width: 100%; 
+    width: 90%; 
     transition: 0.4s; 
     left: 0;
 }
+
+.fas.fa-chevron-up{
+    text-align: center;
+    width:100%;
+    cursor: pointer;
+    display: none;
+}
+
+.has-content.effect-17[type="datetime-local"] ~ .focus-border{
+    width: 100%;
+}
+
+.effect-17[type="datetime-local"]:focus ~ .focus-border{
+    width: 100%;
+}
+
 .effect-17 ~ label{
     position: absolute; 
     left: 0; 
@@ -204,7 +280,7 @@ input[type="datetime-local"] {
 }
 .effect-17:focus ~ label, .has-content.effect-17 ~ label{
     top: -16px; 
-    font-size: 12px; 
+    font-size: 0.8rem; 
     color: black; 
     transition: 0.3s;
 }
@@ -230,4 +306,27 @@ input[type="datetime-local"]:in-range::-webkit-datetime-edit-year-field,
 .mapboxgl-popup a {
     color: blue;
     cursor: pointer;
+}
+
+@keyframes slideUp{
+    from{
+        height:10vh;
+    }
+
+    to{
+        height: 50vh;
+    }
+}
+@keyframes slideDown{
+    from{
+        height:50vh;
+    }
+
+    to{
+        height: 10vh;
+    }
+}
+
+.drawer{
+    transition: 0.4s all ease;
 }

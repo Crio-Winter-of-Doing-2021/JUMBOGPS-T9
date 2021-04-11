@@ -106,29 +106,21 @@ function showErrorMsg(errorElement, msg, inputElement) {
 function disbaleTimeInput() {
   let value = parseInt(searchFilter.value.toUpperCase().trim());
 
-  console.log(value);
-
   if (value != null && Number.isInteger(value)) {
     startTimeFilter.disabled = true;
     endTimeFilter.disabled = true;
     assetsCount.disabled = true;
 
-    for (let x = 0; x < inputLabels.length; x++) {
-      inputLabels[x].style.opacity = 0;
-    }
+    
   } else {
     startTimeFilter.disabled = false;
     endTimeFilter.disabled = false;
     assetsCount.disabled = false;
 
-    for (let x = 0; x < inputLabels.length; x++) {
-      inputLabels[x].style.opacity = 1;
-    }
   }
 }
 
 function handleLogout() {
-  localStorage.removeItem("token");
   window.location.assign("login.html");
 }
 
