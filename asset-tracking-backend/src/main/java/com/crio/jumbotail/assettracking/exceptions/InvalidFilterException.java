@@ -5,11 +5,11 @@ public class InvalidFilterException extends RuntimeException {
 		super(message);
 	}
 
-	public InvalidFilterException(String message, Throwable cause) {
-		super(message, cause);
-	}
-
-	public InvalidFilterException(Throwable cause) {
-		super(cause);
-	}
+//	public InvalidFilterException(String message, Throwable cause) {
+//		super(message, cause);
+//	}
+//
+//	public InvalidFilterException(Throwable cause) {
+//		super(cause);
+//	}
 }

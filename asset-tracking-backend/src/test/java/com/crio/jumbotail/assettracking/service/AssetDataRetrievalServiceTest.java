@@ -160,7 +160,8 @@ class AssetDataRetrievalServiceTest {
 				))
 				.thenReturn(Collections.singletonList(mock(LocationData.class)));
 
-		Mockito.mockStatic(SpatialUtils.class)
+		final MockedStatic<SpatialUtils> spatialUtilsMockedStatic = Mockito.mockStatic(SpatialUtils.class);
+		spatialUtilsMockedStatic
 				.when((MockedStatic.Verification) SpatialUtils.getCentroidForHistory(any()))
 				.thenReturn(mock(Point.class));
 
@@ -171,6 +172,8 @@ class AssetDataRetrievalServiceTest {
 
 //		assertEquals(1, historyForAsset.size());
 		assertEquals(1, historyForAsset1.getHistory().size());
+		
+		spatialUtilsMockedStatic.reset();
 	}
 
 

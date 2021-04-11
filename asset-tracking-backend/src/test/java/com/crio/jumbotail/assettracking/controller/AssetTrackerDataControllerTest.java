@@ -23,7 +23,6 @@
 //import com.crio.jumbotail.assettracking.entity.LocationData;
 //import com.crio.jumbotail.assettracking.exchanges.request.AssetCreationRequest;
 //import com.crio.jumbotail.assettracking.exchanges.request.LocationDataDto;
-//import com.crio.jumbotail.assettracking.exchanges.request.LocationDto;
 //import com.crio.jumbotail.assettracking.exchanges.request.LocationUpdateRequest;
 //import com.crio.jumbotail.assettracking.exchanges.response.AssetCreatedResponse;
 //import com.crio.jumbotail.assettracking.repositories.AssetRepository;
@@ -43,6 +42,9 @@
 //import org.junit.jupiter.api.AfterEach;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.Test;
+//import org.locationtech.jts.geom.Coordinate;
+//import org.locationtech.jts.geom.GeometryFactory;
+//import org.locationtech.jts.geom.PrecisionModel;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.beans.factory.annotation.Value;
 //import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -478,6 +480,8 @@
 //		return createAssetsForLocations(locations, minSecondsToAdd, maxSecondsToAdd, null);
 //	}
 //
+//	GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(PrecisionModel.FLOATING), 4326);
+//
 //	public List<AssetCreatedResponse> createAssetsForLocations(List<String> locations, long minSecondsToAdd, long maxSecondsToAdd, String assetType) throws Exception {
 //
 //		List<AssetCreatedResponse> assetCreatedResponses = new ArrayList<>();
@@ -485,14 +489,14 @@
 //		for (String location : locations) {
 //			final String[] s = location.split("\t");
 //			assert (s.length == 2);
-//			LocationDto locationDto = new LocationDto(Double.valueOf(s[0]), Double.valueOf(s[1]));
-//
 //
 //			final long epochSecondTimestamp = Instant.now()
 //					.plus(RandomUtils.nextLong(minSecondsToAdd, maxSecondsToAdd),
 //							ChronoUnit.SECONDS)
 //					.getEpochSecond();
-//			LocationDataDto locationDataDto = new LocationDataDto(locationDto, epochSecondTimestamp);
+//			LocationDataDto locationDataDto = new LocationDataDto(
+//					geometryFactory.createPoint(new Coordinate(Double.valueOf(s[0]), Double.valueOf(s[1])))
+//					, epochSecondTimestamp);
 //
 //			AssetCreationRequest assetCreationRequest = new AssetCreationRequest(
 //					randomAlphabetic(10),

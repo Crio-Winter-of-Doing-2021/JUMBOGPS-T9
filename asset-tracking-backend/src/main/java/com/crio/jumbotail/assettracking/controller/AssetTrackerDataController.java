@@ -1,11 +1,13 @@
 package com.crio.jumbotail.assettracking.controller;
 
+import static com.opencsv.ICSVWriter.DEFAULT_QUOTE_CHARACTER;
+
+
 import com.crio.jumbotail.assettracking.entity.Asset;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetDataResponse;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetExportData;
 import com.crio.jumbotail.assettracking.exchanges.response.AssetHistoryResponse;
 import com.crio.jumbotail.assettracking.service.AssetDataRetrievalService;
-import com.opencsv.CSVWriter;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import io.swagger.v3.oas.annotations.Operation;
@@ -93,13 +95,16 @@ public class AssetTrackerDataController {
 
 		//create a csv writer
 		StatefulBeanToCsv<AssetExportData> writer = new StatefulBeanToCsvBuilder<AssetExportData>(response.getWriter())
-				.withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
+				.withQuotechar(DEFAULT_QUOTE_CHARACTER)
 				.withSeparator('|')
 				.withOrderedResults(true)
 				.build();
 
+		LOG.info("GOING TO EXPORT");
 
 		writer.write(retrievalService.exportData());
+
+		LOG.info("EXPORT DONE, NOW OVER THE WIRE");
 
 	}
 

@@ -161,17 +161,71 @@ function authFetch() {
  * hides after a delay of 5 seconds
  * @param {*} message The Message to be displayed in the Notification Frame
  */
-// function triggerIframe(message) {
-//   let notification = document.querySelector("#notification");
-//   let notificationMsg = document.querySelector("#notification-message");
-//   notificationMsg.innerText = message;
 
-//   notification.style.display = "unset";
+function triggerIframe(message) {
+  // alert(message);
+  console.log("IFRAME TRIGGER " + message);
+  let notification = document.querySelector("#notification");
+  let notificationMsg = document.querySelector("#notification-message");
+  notificationMsg.innerText = message;
 
-//   setTimeout(() => {
-//     console.log("Hide I frame start");
-//     let notification = document.querySelector("#notification");
-//     notification.style.display = "none";
-//     console.log("Hide I frame complete");
-//   }, 5000);
-// }
+  notification.style.display = "unset";
+
+  console.log("END IFRAME TRIGGER " + message);
+
+  setTimeout(() => {
+    console.log("Hide I frame start");
+    let notification = document.querySelector("#notification");
+    notification.style.display = "none";
+    console.log("Hide I frame complete");
+  }, 5000);
+}
+
+function createAsset(asset) {
+  return fetch(encodeURI(createResource), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      charset: "UTF-8",
+    },
+    body: JSON.stringify(asset),
+  })
+    .then((response) => {
+      if (response.status === 201) {
+        return response.json();
+      } else {
+        throw new Error(response.status + "");
+      }
+    })
+    .then((data) => {
+      console.log("Asset Created Successfully :" + data.id);
+      triggerIframe("Asset Created Successfully " + data.id);
+    })
+    .catch((error) => {
+      triggerIframe("Something went wrong! Please try again.");
+      console.error("Error while creating asset:", error);
+    });
+
+  // .then((response) => {
+  //   console.dir(response);
+  //   if (response.status === 409 || response.status === "409") {
+  //     console.error("Duplicate Meme Posted");
+  //     triggerIframe("Duplicate Data");
+  //   } else if (!response.ok) {
+  //     console.error("Error with Server Response : " + response.status);
+  //     triggerIframe("Something went wrong! Please try again.");
+  //   } else if (response.ok || response.status === 200) {
+  //     console.log("meme posted");
+  //     triggerIframe("Meme Created!");
+  //     return response.json();
+  //   }
+  // })
+  // .then((data) => {
+  //   console.log("Meme Posted Successfully:", JSON.stringify(data));
+  // })
+  // .catch((error) => {
+  //   triggerIframe("Something went wrong! Please try again.");
+  //   console.error("Error while posting meme:", error);
+  // });
+}
+
