@@ -35,6 +35,9 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	private GeometryFactory geometryFactory;
 
 	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
 	private AssetBoundaryCacheService cacheService;
 
 	@Autowired
@@ -53,6 +56,7 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 	 */
 	@Value("${route.padding.decimal.degrees:0}")
 	private Double routePaddingInDecimalDegrees;
+
 
 	@Override
 	public AssetCreatedResponse createAsset(AssetCreationRequest assetCreationRequest) {
@@ -148,11 +152,9 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 				.findFirst();
 	}
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	@Override
 	public void addBoundaryToAsset(Long assetId, String boundaryType, String data) {
+		Coordinate[] shell;
 
 		try {
 			final ArrayList<Coordinate> points = new ArrayList<>();
@@ -163,16 +165,13 @@ public class AssetCreationServiceImpl implements AssetCreationService {
 				points.add(new Coordinate(10, -10));
 				points.add(new Coordinate(-10, -10));
 
+				shell = points.toArray(new Coordinate[0]);
+
 			} else {
-				final Double[][] coordinates = objectMapper.readValue(data, Double[][].class);
+				final Geometry geometry = objectMapper.readValue(data, Geometry.class);
 
-				for (final Double[] coordinate : coordinates) {
-					Coordinate c = new Coordinate(coordinate[0], coordinate[1]);
-					points.add(c);
-				}
-
+				shell = geometry.getCoordinates();
 			}
-			final Coordinate[] shell = points.toArray(new Coordinate[0]);
 
 			Asset asset = assetRepository.getOne(assetId);
 			if ("POLYGON".equalsIgnoreCase(boundaryType)) {

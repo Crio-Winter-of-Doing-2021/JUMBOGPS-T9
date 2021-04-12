@@ -8,8 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.locationtech.jts.geom.Point;
 
+@ToString
 @Getter
 @Setter
 @NoArgsConstructor

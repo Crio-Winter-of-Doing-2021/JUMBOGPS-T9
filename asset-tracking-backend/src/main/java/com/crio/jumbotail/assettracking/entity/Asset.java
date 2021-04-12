@@ -17,11 +17,13 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.SqlResultSetMapping;
 import javax.persistence.SqlResultSetMappings;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -73,6 +75,9 @@ import org.locationtech.jts.geom.Point;
 		        + "WHERE l.id = (SELECT l.id FROM location_data l WHERE l.asset_id = a.id order by l.timestamp limit 1)",
 		resultSetMapping = "ExportAssetsResult"
 )
+@Table(indexes = {
+		@Index(columnList = "lastReportedTimestamp desc, assetType", name = "idx_asset_type_timestamp")
+})
 public class Asset implements Serializable {
 
 	@Id

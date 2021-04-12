@@ -34,9 +34,9 @@ function getAssetDataAndRenderOnMap() {
 }
 
 function getTimelineDataAndRenderOnMap(assetId) {
-	// call API using assetId
+  // call API using assetId
 
-	showTimeLineView(historyDataFromAPIExtended);
+  showTimeLineView(historyDataFromAPIExtended);
 }
 
 function convertFromAssetResponseToGeoJson(data) {
@@ -114,14 +114,17 @@ function showAssetView(data) {
   showOrHideLayers(timelineViewLayers,"visible","none");
   showOrHideLayers(heatmapLayers,"visible","none");
 
-  // TODO on empty data 
-  // show alerts
+  if (data.assets.length === 0) {
+    console.log("No Assets Found");
+    triggerIframe("No Assets Found");
+    return;
+  }
 
-  let geoJsonData = convertFromAssetResponseToGeoJson(data)
+  let geoJsonData = convertFromAssetResponseToGeoJson(data);
 
   map.getSource("asset-tracking-data").setData(geoJsonData);
 
-  map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+  adjustMap(geoJsonData);
 
   showOrHideLayers(assetViewLayers,"none","visible");
 
@@ -132,7 +135,7 @@ function showTimeLineView(data) {
   showOrHideLayers(assetViewLayers,"visible","none");
   showOrHideLayers(heatmapLayers,"visible","none");
 
-  if(data.history.length === 0) {
+  if (data.history.length === 0) {
     console.log("No History For Asset in the last 24 hours");
     showPopupNotification("No History For That Asset present");
     return;
@@ -145,9 +148,13 @@ function showTimeLineView(data) {
     .getSource("route-line-string")
     .setData(makeLineStringForGeoJsonTimelineView(geoJsonData));
 
-  map.fitBounds(turf.bbox(geoJsonData), { padding: 40 });
+  adjustMap(geoJsonData);
 
   showOrHideLayers(timelineViewLayers,"none","visible");
+}
+
+function adjustMap(geoJsonData) {
+  map.fitBounds(turf.bbox(geoJsonData), { padding: 40, maxZoom: 12 });
 }
 
 function addImages(map, images) {
