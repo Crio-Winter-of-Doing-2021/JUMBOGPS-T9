@@ -13,6 +13,15 @@ function handleInputLabelTransition(){
 }
 function showPopupNotification(msg="Logged In"){
 
+  console.log(localStorage.getItem("initial"));
+
+  if(msg=="Logged In" && localStorage.getItem("initial")=="false"){
+    console.log('did it');
+    return;
+  }
+
+  localStorage.setItem("initial","false");
+
 	let notification = document.getElementsByClassName('notification')[0];
   
   if(msg=="Logged In" || msg=="Logged Out")
@@ -35,7 +44,6 @@ let clearInputs = document.querySelectorAll(".fa-times");
 
 for(let i=0;i<clearInputs.length;i++){
   clearInputs[i].addEventListener('click',()=>{
-    console.log(clearInputs[i].previousElementSibling);
     clearInputs[i].previousElementSibling.value="";
     clearInputs[i].previousElementSibling.classList.remove("has-content");
   })
@@ -53,4 +61,4 @@ function toggleDrawer(){
 
 let formToggler = document.getElementsByClassName('fas fa-chevron-up')[0];
 
-formToggler.addEventListener('click',toggleDrawer);
+// formToggler.addEventListener('click',toggleDrawer);

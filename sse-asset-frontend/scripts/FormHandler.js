@@ -130,7 +130,9 @@ function handleReset() {
   startTimeFilter.value = "";
   endTimeFilter.value = "";
   errors.value = "";
-  
+  startTimeFilter.disabled = false;
+    endTimeFilter.disabled = false;
+    assetsCount.disabled = false;
   getAssetData(assetsCount.value)
 }
 
