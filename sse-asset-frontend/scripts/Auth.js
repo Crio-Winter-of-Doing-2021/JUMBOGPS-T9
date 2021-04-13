@@ -17,6 +17,7 @@ function handleLogin(e) {
 		data: {username, password}
 	}).then(({data}) => {
 		localStorage.setItem("token", data.token);
+		localStorage.setItem("initial", true);
 		window.location.href = "index.html";
 	})
 		.catch(() => {

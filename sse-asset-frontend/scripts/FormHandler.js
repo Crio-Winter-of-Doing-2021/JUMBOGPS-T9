@@ -5,7 +5,6 @@ const endTimeFilter = document.getElementsByName("endTime")[0];
 const assetsCount = document.getElementsByName("maxAssetsCount")[0];
 const errors = document.getElementsByClassName("error");
 const inputLabels = document.getElementsByTagName("label");
-const logoutBtn = document.getElementById("logoutBtn");
 const resetBtn = document.getElementById("resetBtn");
 
 form.addEventListener("submit", handleSubmit);
@@ -105,54 +104,42 @@ function showErrorMsg(errorElement, msg, inputElement) {
 }
 
 function disbaleTimeInput() {
+  
   let value = parseInt(searchFilter.value.toUpperCase().trim());
-
-  console.log(value);
-
+  
   if (value != null && Number.isInteger(value)) {
     startTimeFilter.disabled = true;
     endTimeFilter.disabled = true;
     assetsCount.disabled = true;
 
-    for (let x = 0; x < inputLabels.length; x++) {
-      inputLabels[x].style.opacity = 0;
-    }
+    
   } else {
     startTimeFilter.disabled = false;
     endTimeFilter.disabled = false;
     assetsCount.disabled = false;
 
-    for (let x = 0; x < inputLabels.length; x++) {
-      inputLabels[x].style.opacity = 1;
-    }
   }
 }
 
 function handleLogout() {
-  localStorage.removeItem("token");
   window.location.assign("login.html");
 }
 
-function clearForm() {
+function handleReset() {
   searchFilter.value = "";
-  // assetsCount.value = "100";
+  assetsCount.value = "100";
   startTimeFilter.value = "";
   endTimeFilter.value = "";
-  errors.value = ""
-	startTimeFilter.disabled = false;
-	endTimeFilter.disabled = false;
-	assetsCount.disabled = false;
-	for (let x = 0; x < inputLabels.length; x++) {
-		inputLabels[x].style.opacity = 1;
-	}
-}
-
-function handleReset() {
-	clearForm()
+  errors.value = "";
+  startTimeFilter.disabled = false;
+    endTimeFilter.disabled = false;
+    assetsCount.disabled = false;
   getAssetData(assetsCount.value)
 }
 
+
+
 searchFilter.onkeypress = disbaleTimeInput;
 searchFilter.onchange = disbaleTimeInput;
-logoutBtn.onclick = handleLogout;
+searchFilter.oninput = disbaleTimeInput;
 resetBtn.onclick = handleReset;

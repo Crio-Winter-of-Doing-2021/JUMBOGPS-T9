@@ -1,18 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
-/* contains common style */
-* {
-  /* margin: 0; set margin of all element to 0 */
-  /* border: 0; set border of all element to 0 */
-  /* box-sizing: border-box; */
-  /* fonts to be used */
-  font-family: Monsterrat, system-ui, -apple-system, BlinkMacSystemFont,
-    Segoe UI, Roboto, Ubuntu, Droid Sans, Helvetica Neue, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
 
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Roboto', sans-serif;
 }
 
 .main {
@@ -27,6 +17,39 @@ body {
     margin: 0;
 }
 
+.fas{
+    width: auto;
+    margin-right: 0.8rem;
+}
+.fas.fa-times{
+    position: absolute;
+    right:2.2rem;
+    bottom: 12px;
+    width: auto;
+    text-align: right;
+    display: none;
+    cursor: pointer;
+    margin: 0;
+}
+
+.far.fa-check-circle,.fas.fa-exclamation-circle{
+    font-size: 0.8rem;
+    margin-right: 0.6rem;
+}
+
+.input-grp-1:nth-of-type(2) .fas.fa-times{
+    right:-22px;
+    bottom:8px;
+}
+
+.effect-17:focus ~ .fas.fa-times{
+    display: inline;
+}
+
+.effect-17.has-content ~ .fas.fa-times{
+    display: inline;
+}
+
 #map {
     height: 100vh;
     width: 70%;
@@ -34,17 +57,101 @@ body {
     padding: 0;
 }
 
+.notification{
+    z-index: 122;
+    position: absolute;
+    border-radius: 20px;
+    left:25rem;
+    background-color: black;
+    color:azure;
+    padding:0.6rem;
+    text-align: center;
+    top:-50rem;
+  }
+  
+  .notification-show{
+    animation: fadein 0.8s, fadeout 0.8s 2.8s;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes fadein {
+    from {
+      top: -50rem; 
+      opacity: 0;
+    }
+    to {
+      top: 1.2rem;
+       opacity: 1;
+      }
+  }
+  
+  @keyframes fadeout {
+    from {
+      top: 1.2rem;
+       opacity: 1;
+      }
+    to {
+      top: -50rem; 
+      opacity: 0;
+    }
+  }
+  
+
+  #formBtn{
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#searchBtn,#resetBtn{
+    margin:10px;
+}
+
+#temp{
+    position: absolute;
+    top:1rem;
+    cursor: pointer;
+    right:0.8rem;
+    z-index: 111;
+    text-decoration: none;
+    color:black;
+    display: none;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+.input-grp-1{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.col-3:nth-of-type(1){
+    margin-bottom: 5rem;
+}
+
+input::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+  }
 .error {
     opacity: 0;
     color: red;
-    font-size: x-small;
+    font-size: 1rem;
+    position: absolute;
+    left:0.3rem;
+    top:2rem;
+    width:100%;
 }
 
 form {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
-    align-items: center;
+    justify-content: space-around;
+    align-items: flex-end;
     height: 90%;
 }
 
@@ -73,6 +180,30 @@ input[type="datetime-local"] {
     letter-spacing: 5px;
     height: 45px;
     width: 100%;
+    font-size: 1.1rem;
+}
+
+#formBtn button{
+    border:3px solid black;
+    background:none;
+    color:black;
+    box-shadow: none;
+    font-size: 1rem;
+    font-weight: 600;
+    padding:1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#formBtn button:focus{
+transform: translate(1px,1px);
+}
+
+#formBtn button:hover{
+    background-color: black;
+    color: white;
+    transition: 0.3s all ease;
 }
 
 .logout {
@@ -83,129 +214,89 @@ input[type="datetime-local"] {
     margin-left: 1rem;
 }
 
+
 /* form starting stylings ------------------------------- */
-.group {
+.col-3{
+    width: 80%; 
     position: relative;
-    /* margin-bottom:45px;  */
-    margin: 0;
-}
+} /* necessary to give position: relative to parent. */
 
-input {
-    font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    display: block;
-    /* width:300px; */
-    border: none;
-    border-bottom: 1px solid #757575;
-}
-
-input:focus {
-    outline: none;
-    border: none;
-}
-
-/* LABEL ======================================= */
-label {
-    color: #999;
-    font-size: 18px;
-    font-weight: normal;
-    position: absolute;
-    pointer-events: none;
-    left: 5px;
-    top: 10px;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
-}
-
-/* active state */
-input:focus ~ label, input:valid ~ label {
-    top: -20px;
-    font-size: 14px;
-    color: black;
-}
-
-/* BOTTOM BARS ================================= */
-.bar {
-    position: relative;
-    display: block;
-    /* width:300px; */
-}
-
-.bar:before, .bar:after {
-    content: '';
-    height: 2px;
-    width: 0;
-    bottom: 1px;
-    position: absolute;
-    background: black;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
-}
-
-.bar:before {
-    left: 50%;
-}
-
-.bar:after {
-    right: 50%;
-}
-
-/* active state */
-input:focus ~ .bar:before, input:focus ~ .bar:after {
-    width: 50%;
+.effect-17{
+    border: 0; 
+    padding: 4px 0; 
+    border-bottom: 
+    2px solid #ccc; 
+    background-color: transparent;
+    font-size: 1.2rem;
+    padding-left: 2px;
 }
 
 
-/* HIGHLIGHTER ================================== */
-.highlight {
-    position: absolute;
-    height: 60%;
-    width: 100px;
-    top: 25%;
+.effect-17 ~ .focus-border{
+    position: absolute; 
+    bottom: 0; 
+    left: 50%; 
+    width: 0; 
+    height: 2px; 
+    background-color: black; 
+    transition: 0.4s;
+}
+.effect-17:focus ~ .focus-border,
+.has-content.effect-17 ~ .focus-border{
+    width: 90%; 
+    transition: 0.4s; 
     left: 0;
-    pointer-events: none;
-    opacity: 0.5;
 }
 
-/* active state */
-input:focus ~ .highlight {
-    -webkit-animation: inputHighlighter 0.3s ease;
-    -moz-animation: inputHighlighter 0.3s ease;
-    animation: inputHighlighter 0.3s ease;
+.fas.fa-chevron-up{
+    text-align: center;
+    width:100%;
+    cursor: pointer;
+    display: none;
 }
 
-/* ANIMATIONS ================ */
-@-webkit-keyframes inputHighlighter {
-    from {
-        background: black;
-    }
-    to {
-        width: 0;
-        background: transparent;
-    }
+.has-content.effect-17[type="datetime-local"] ~ .focus-border{
+    width: 100%;
 }
 
-@-moz-keyframes inputHighlighter {
-    from {
-        background: black;
-    }
-    to {
-        width: 0;
-        background: transparent;
-    }
+.effect-17[type="datetime-local"]:focus ~ .focus-border{
+    width: 100%;
 }
 
-@keyframes inputHighlighter {
-    from {
-        background: black;
-    }
-    to {
-        width: 0;
-        background: transparent;
-    }
+.effect-17 ~ label{
+    position: absolute; 
+    left: 0; 
+    width: 100%; 
+    /* top: 99px;  */
+    color: #aaa; 
+    transition: 0.3s; 
+    z-index: -1; 
+    letter-spacing: 0.5px;
 }
+
+.demo-label{
+    top: -12px; 
+
+}
+.effect-17:focus ~ label, .has-content.effect-17 ~ label{
+    top: -16px; 
+    font-size: 0.8rem; 
+    color: black; 
+    transition: 0.3s;
+}
+
+input:focus{outline: none;}
+
+
+
+input[type="datetime-local"]:in-range::-webkit-datetime-edit-year-field,
+ input[type="datetime-local"]:in-range::-webkit-datetime-edit-month-field,
+  input[type="datetime-local"]:in-range::-webkit-datetime-edit-day-field,
+   input[type="datetime-local"]:in-range::-webkit-datetime-edit-text
+    {
+        	color: transparent; 
+        }
+
 
 .mapboxgl-popup {
     font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
@@ -215,4 +306,27 @@ input:focus ~ .highlight {
 .mapboxgl-popup a {
     color: blue;
     cursor: pointer;
+}
+
+@keyframes slideUp{
+    from{
+        height:10vh;
+    }
+
+    to{
+        height: 50vh;
+    }
+}
+@keyframes slideDown{
+    from{
+        height:50vh;
+    }
+
+    to{
+        height: 10vh;
+    }
+}
+
+.drawer{
+    transition: 0.4s all ease;
 }

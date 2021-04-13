@@ -31,7 +31,7 @@ function showNotification(eventData) {
     icon: "./exclamation-mark.png",
   });
   // in page notifications
-  triggerIframe(message);
+  showPopupNotification(message);
   console.groupEnd();
 }
 
