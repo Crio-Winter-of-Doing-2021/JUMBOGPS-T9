@@ -88,7 +88,7 @@ List of features implemented and listed for further enhancements...
 
 ## API Documentation
 
-https://jumbogps-main.anugrahsinghal.repl.co/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config#/
+https://jumbogps-main.anugrahsinghal.repl.co/swagger-ui.html
 
 ## Demo
 
