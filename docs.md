@@ -32,9 +32,9 @@ Frontend - HTML CSS JS
 
 ### ER Diagram
 
-![image](assets/user-db.png)  
+![image](images/user-db.png)  
 <br />
-![image](assets/assets.png)
+![image](images/assets.png)
 
 ---
 
