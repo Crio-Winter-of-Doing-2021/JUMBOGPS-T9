@@ -29,7 +29,7 @@ The Project contains mainly two pages.viz.
 
 ### Authentication
 This is the sign in page for the admin.
-![Memes Feed Page](./images/Auth.png)
+<img src="./images/Auth.png" style="width:250px;height:180px;"/>
 
 
 ### Map Dashboard
