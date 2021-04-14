@@ -34,7 +34,7 @@ This is the sign in page for the admin.
 
 ### Map Dashboard
 This is where you can view all/particular asset/assets present in the database.
-![Memes Form Page](./images/Dashboard.png)
+<img src="./images/Dashboard.png" style="width:250px;height:180px;"/>
 
 ## Setup
 To run this on your local machine,simply clone the repo and **"cd"** into the **"asset-tracking-backend"** directory:
