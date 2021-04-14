@@ -57,7 +57,7 @@ function getUTCTime(time, same, seconds) {
   return Date.parse(datetime).toString().slice(0, -3);
 }
 
-// validations
+// input validation logic
 function validate(count, startTimeValue, endTimeValue, searchType) {
   if (startTimeValue > endTimeValue) {
     showErrorMsg(
@@ -93,6 +93,7 @@ function validate(count, startTimeValue, endTimeValue, searchType) {
   return false;
 }
 
+// for showing validation msg
 function showErrorMsg(errorElement, msg, inputElement) {
   errorElement.innerHTML = msg;
 
@@ -103,6 +104,7 @@ function showErrorMsg(errorElement, msg, inputElement) {
   });
 }
 
+// for disabling other filters while searching with id
 function disbaleTimeInput() {
   
   let value = parseInt(searchFilter.value.toUpperCase().trim());

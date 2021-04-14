@@ -1,3 +1,4 @@
+// for handling input label animation
 function handleInputLabelTransition(){
     let text = document.getElementsByClassName("effect-17");
 		
@@ -11,6 +12,8 @@ function handleInputLabelTransition(){
         })
       }
 }
+
+// for showing notifications
 function showPopupNotification(msg="Logged In"){
 
   console.log(localStorage.getItem("initial"));
@@ -37,6 +40,8 @@ function showPopupNotification(msg="Logged In"){
       notification.className = "notification";
     },4000)
 }
+
+
 handleInputLabelTransition();
 
 

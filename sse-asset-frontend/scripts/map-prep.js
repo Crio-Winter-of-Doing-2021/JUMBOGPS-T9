@@ -1,4 +1,6 @@
 mapboxgl.accessToken = mapboxAccessToken;
+
+// configuring blank map
 let map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/streets-v11",
@@ -21,6 +23,7 @@ map.addControl(geocoder, "top-left");
 
 map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
+// initial load of map
 map.on("load", function () {
   addImages(map, [
     { url: "icons/truck.png", id: "truck" },
@@ -79,7 +82,7 @@ map.on("load", function () {
         // because we want to see the view persisted
         // popup.remove();
       }
-
+      // for showing individual asset popups on hover
       function showPopup(e) {
         map.getCanvas().style.cursor = "pointer";
 
@@ -154,6 +157,7 @@ map.on("load", function () {
     });
 });
 
+// check which map layers are visible
 function areGivenLayersActive(layerNames) {
   let canTriggerReloadFunction = false;
   if (layerNames !== undefined && layerNames.length > 0) {
@@ -168,6 +172,7 @@ function areGivenLayersActive(layerNames) {
   return canTriggerReloadFunction;
 }
 
+// for configuring auto-refresh of asset history
 function configureReloadForTimelineView(delay) {
   if (delay === undefined || isNaN(delay)) {
     delay = 5 * 60 * 1000; // 5 minutes by default
@@ -190,6 +195,7 @@ function configureReloadForTimelineView(delay) {
   console.log(Number(localStorage.getItem("history-interval")));
 }
 
+// for configuring auto-refresh of all assets view
 function configureReloadForAssetView(delay) {
   if (delay === undefined || isNaN(delay)) {
     delay = 5 * 60 * 1000; // 5 minutes by default

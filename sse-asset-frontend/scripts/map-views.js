@@ -130,7 +130,7 @@ function showAssetView(data) {
 
   showPopupNotification(`${data.assets.length} assets found`);
 }
-
+// for showing 24 hrs history of an asset
 function showTimeLineView(data) {
   showOrHideLayers(assetViewLayers,"visible","none");
   showOrHideLayers(heatmapLayers,"visible","none");
@@ -176,6 +176,7 @@ function addImages(map, images) {
   return Promise.all(promises);
 }
 
+// for showing/hiding layers for different views
 function showOrHideLayers(layerNames,prevState,currState) {
   if (layerNames !== undefined && layerNames.length > 0) {
     for (let i = 0; i < layerNames.length; i++) {
@@ -190,6 +191,7 @@ function showOrHideLayers(layerNames,prevState,currState) {
   }
 }
 
+// for showing route path of an asset
 function makeLineStringForGeoJsonTimelineView(timelineViewGeoJsonData) {
   let features = timelineViewGeoJsonData.features;
   let lineStringCoordinates = [];

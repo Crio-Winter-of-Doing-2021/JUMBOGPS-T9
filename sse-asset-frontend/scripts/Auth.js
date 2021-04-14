@@ -25,6 +25,7 @@ function handleLogin(e) {
 		});
 }
 
+// for handling invalid login attempt
 function handleAuthFailure() {
 	const errors = document.getElementsByClassName('error');
 
