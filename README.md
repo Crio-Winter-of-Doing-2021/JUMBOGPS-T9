@@ -51,6 +51,7 @@ yaay! project setup is complete...you can try out all the functionalities now!ðŸ
 
 ## Structure
 The project has the following structure:
+
 ![Project Structure](./images/Structure.png)
 
 **asset-tracking-backend**
