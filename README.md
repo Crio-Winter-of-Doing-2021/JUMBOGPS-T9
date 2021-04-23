@@ -95,3 +95,5 @@ https://jumbogps-main.anugrahsinghal.repl.co/swagger-ui.html
 https://jumbogps.netlify.app/login.html
 
 - Use username - `anu` and password - `string` to test out the deployed site
+
+- Video Demo https://tinyurl.com/anugrah-cwod
