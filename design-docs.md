@@ -30,6 +30,10 @@ Frontend - HTML CSS JS
 
 ---
 
+### Architecture Diagram
+
+![image](images/arch.png)
+
 ### ER Diagram
 
 ![image](images/user-db.png)  
